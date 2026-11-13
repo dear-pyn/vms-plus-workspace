@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "MONEY-001",
+      "scope": "global",
+      "status": "approved",
+      "description": "จำนวนเงิน comma และทศนิยม 2 ตำแหน่ง; zero = 0.00; missing = —; ช่องกรอกยังไม่กรอกใช้ placeholder ของช่อง ไม่ใช้ formatter",
+      "source": "Maintenance-Request-Form/figma-export/component-rules.md; confirmed in workspace conversation",
+      "formatter": "packages/rules/currency.mjs"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "domains": [
+    {
+      "id": "overhaul",
+      "name": "Overhaul",
+      "description": "ปรับปรุงสภาพยานพาหนะครั้งใหญ่"
+    },
+    {
+      "id": "maintenance",
+      "name": "Maintenance",
+      "description": "บำรุงรักษาตามวาระ"
+    },
+    {
+      "id": "repair",
+      "name": "Repair",
+      "description": "แจ้งซ่อมและดำเนินการซ่อม"
+    }
+  ],
+  "jos": [],
+  "cases": [
+    {
+      "id": "overhaul-baseline",
+      "domain": "overhaul",
+      "joIds": [],
+      "title": "Overhaul · ตั้งต้น requirement",
+      "summary": "พื้นที่เตรียม flow, หน้าจอ, AC และเคสทดสอบ ยังไม่ใช่ prototype ของงานเดิมที่ย้ายมาแล้ว",
+      "status": "draft",
+      "revision": "r1",
+      "kind": "template",
+      "updatedAt": "2026-11-13",
+      "ruleVersion": "1.0.0",
+      "prototype": null,
+      "requirements": "/content/overhaul-baseline/requirements.md",
+      "flow": "/content/overhaul-baseline/business-flow.md",
+      "ac": "/content/overhaul-baseline/ac.json",
+      "screenSpec": null,
+      "reviewNote": "ยังไม่ผูก JO และยังไม่มีหน้าจอสำหรับลูกค้ารีวิว",
+      "domainRuleVersion": "1.0.0"
+    },
+    {
+      "id": "maintenance-baseline",
+      "domain": "maintenance",
+      "joIds": [],
+      "title": "บำรุงรักษาตามวาระ · ตั้งต้น requirement",
+      "summary": "พื้นที่เตรียม flow, หน้าจอ, AC และเคสทดสอบ ยังไม่ใช่ prototype ของงานเดิมที่ย้ายมาแล้ว",
+      "status": "draft",
+      "revision": "r1",
+      "kind": "template",
+      "updatedAt": "2026-11-13",
+      "ruleVersion": "1.0.0",
+      "prototype": null,
+      "requirements": "/content/maintenance-baseline/requirements.md",
+      "flow": "/content/maintenance-baseline/business-flow.md",
+      "ac": "/content/maintenance-baseline/ac.json",
+      "screenSpec": null,
+      "reviewNote": "ยังไม่ผูก JO และยังไม่มีหน้าจอสำหรับลูกค้ารีวิว",
+      "domainRuleVersion": "1.0.0"
+    },
+    {
+      "id": "repair-baseline",
+      "domain": "repair",
+      "joIds": [],
+      "title": "แจ้งซ่อม · ตั้งต้น requirement",
+      "summary": "พื้นที่เตรียม flow, หน้าจอ, AC และเคสทดสอบ ยังไม่ใช่ prototype ของงานเดิมที่ย้ายมาแล้ว",
+      "status": "draft",
+      "revision": "r1",
+      "kind": "template",
+      "updatedAt": "2026-11-13",
+      "ruleVersion": "1.0.0",
+      "prototype": null,
+      "requirements": "/content/repair-baseline/requirements.md",
+      "flow": "/content/repair-baseline/business-flow.md",
+      "ac": "/content/repair-baseline/ac.json",
+      "screenSpec": null,
+      "reviewNote": "ยังไม่ผูก JO และยังไม่มีหน้าจอสำหรับลูกค้ารีวิว",
+      "domainRuleVersion": "1.0.0"
+    },
+    {
+      "id": "overhaul-dashboard-reference",
+      "domain": "overhaul",
+      "joIds": [],
+      "title": "Dashboard ระดับแผน / ระดับรถ",
+      "summary": "หน้าจอ HTML ที่นำเข้าจาก Dashboard สำหรับเปิดดูหน้าตา 2 แบบ",
+      "status": "draft",
+      "revision": "r1",
+      "kind": "reference",
+      "updatedAt": "2026-11-13",
+      "ruleVersion": "1.0.0",
+      "prototype": "/prototypes/overhaul-dashboard-reference/r1/index.html",
+      "requirements": "/content/overhaul-dashboard-reference/requirements.md",
+      "flow": null,
+      "ac": "/content/overhaul-dashboard-reference/ac.json",
+      "screenSpec": null,
+      "reviewNote": "เปิดดูหน้าตาได้ แต่ยังไม่ผ่านการตรวจ component, currency และ business rules จึงยังไม่ใช่ฉบับพร้อมรีวิว",
+      "domainRuleVersion": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>แดชบอร์ดงาน Overhaul ระดับรถ</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F9}
+a{color:#4338CA}a:hover{color:#312E81}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="font-family: 'Noto Sans Thai', system-ui, sans-serif; color: #0F172A; background: #F3F5F9; min-height: 1460px; box-sizing: border-box">
+  <div style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 16px 32px; display: flex; align-items: center; gap: 12px">
+    <span style="font-weight: 700; font-size: 20px; color: #A80689">V</span>
+    <span style="font-size: 14px; font-weight: 600; color: #475569">VMS Plus Dashboard</span>
+  </div>
+
+  <div style="max-width: 1376px; margin: 0 auto; padding: 32px 32px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: #6D28D9; display: flex; align-items: center; justify-content: center; flex: none">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"></path></svg>
+      </div>
+      <div style="flex: 1 1 320px; min-width: 0">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700; line-height: 1.2">แดชบอร์ดงาน Overhaul</h1>
+        <div style="font-size: 14px; color: #475569">สถานะ ค่าใช้จ่าย และความคุ้มค่าของรถแต่ละคันใน PO · {{yearLabel}}</div>
+      </div>
+      <div style="display: flex; gap: 4px; background: #E9EDF3; border-radius: 10px; padding: 4px">
+        <a href="../plan/Main.dc.html" style="padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #334155; text-decoration: none">ระดับแผน</a>
+        <span style="padding: 8px 16px; border-radius: 8px; background: #FFFFFF; font-size: 14px; font-weight: 600; color: #4338CA">ระดับรถ</span>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.08)">
+      <div style="padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #E2E8F0">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: #E0E7FF; display: flex; align-items: center; justify-content: center; flex: none">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4338CA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"></path></svg>
+        </div>
+        <div>
+          <div style="font-size: 16px; font-weight: 700">ตัวกรอง</div>
+          <div style="font-size: 13px; color: #475569">เลือกปีงบประมาณหรือดูทุกปี ถ้าไม่เลือกแผนจะแสดงรถของทุกแผนในช่วงที่เลือก</div>
+        </div>
+      </div>
+      <div style="padding: 16px 24px 20px; background: #F8FAFC; border-radius: 0 0 14px 14px; display: flex; flex-wrap: wrap; gap: 20px">
+        <div style="flex: 0 1 200px; display: flex; flex-direction: column; gap: 6px">
+          <label for="fy" style="font-size: 14px; font-weight: 600">ปีงบประมาณ</label>
+          <select id="fy" value="{{year}}" onChange="{{onYear}}" style="min-height: 44px; box-sizing: border-box; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #0F172A">
+            <option value="all">ทุกปีงบประมาณ</option>
+            <option value="2569">2569</option>
+            <option value="2568">2568</option>
+            <option value="2567">2567</option>
+          </select>
+        </div>
+        <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <label for="plan" style="font-size: 14px; font-weight: 600">แผน Overhaul (ไม่บังคับ)</label>
+          <select id="plan" value="{{planId}}" onChange="{{onPlan}}" style="min-height: 44px; box-sizing: border-box; width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #0F172A">
+            <option value="">ทุกแผน</option>
+            <sc-for list="{{plans}}" as="p" hint-placeholder-count="3">
+              <option value="{{p.id}}">{{p.plan_no}} · {{p.plan_name}}</option>
+            </sc-for>
+          </select>
+        </div>
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px">
+          <label for="q" style="font-size: 14px; font-weight: 600">ค้นหารถ</label>
+          <input id="q" value="{{q}}" onChange="{{onSearch}}" placeholder="ทะเบียน, ยี่ห้อ/รุ่น" style="min-height: 44px; box-sizing: border-box; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 14px">
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px">
+      <sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
+        <div style="flex: 1 1 190px; border-radius: 14px; padding: 18px 20px; color: #FFFFFF; background: {{t.bg}}; display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 14px; font-weight: 600">{{t.label}}</div>
+          <div><span style="font-size: 30px; font-weight: 700">{{t.value}}</span> <span style="font-size: 14px; font-weight: 600">{{t.unit}}</span></div>
+          <div style="font-size: 13px">{{t.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.08); padding: 24px; display: flex; flex-direction: column; gap: 14px">
+      <div>
+        <h2 style="margin: 0; font-size: 17px; font-weight: 700">ยี่ห้อที่ Overhaul บ่อยที่สุด 3 อันดับ</h2>
+        <div style="font-size: 13px; color: #475569">นับจำนวนครั้งที่เข้า Overhaul ตามตัวกรองที่เลือก · รถคันเดียวเข้าหลายครั้งนับทุกครั้ง</div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 24px">
+        <sc-for list="{{brands}}" as="b" hint-placeholder-count="3">
+          <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; align-items: baseline; gap: 8px">
+              <span style="font-size: 13px; color: #475569">{{b.rank}}</span>
+              <span style="flex: 1; font-size: 15px; font-weight: 700">{{b.name}}</span>
+              <span style="font-size: 16px; font-weight: 700">{{b.count}}</span>
+              <span style="font-size: 13px; color: #475569">ครั้ง</span>
+              <span style="font-size: 13px; color: #475569">{{b.pct}}%</span>
+            </div>
+            <div style="height: 8px; background: #EEF1F6; border-radius: 4px; overflow: hidden"><div style="height: 8px; width: {{b.w}}%; background: {{b.color}}; border-radius: 4px"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.08); padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px">
+        <div style="flex: 1 1 auto">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700">รถที่ Overhaul</h2>
+          <div style="font-size: 13px; color: #475569">กดทะเบียนเพื่อไปหน้าข้อมูลยานพาหนะ · กด "ดูงานที่ทำ" เพื่อเปิดรายละเอียดงานของคันนั้น</div>
+        </div>
+        <div style="font-size: 14px; color: #475569">{{shownCount}} คัน</div>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 1240px; border-collapse: collapse; font-size: 14px">
+          <thead>
+            <tr style="text-align: left; font-size: 12px; color: #475569; border-bottom: 1px solid #E2E8F0">
+              <th style="padding: 10px 12px">ทะเบียน</th>
+              <th style="padding: 10px 12px">ยี่ห้อ/รุ่น · ประเภท</th>
+              <th style="padding: 10px 12px">แผน · PO</th>
+              <th style="padding: 10px 12px">สถานะ</th>
+              <th style="padding: 10px 12px; width: 150px">ความคืบหน้า</th>
+              <th style="padding: 10px 12px; text-align: right">งบต่อคัน</th>
+              <th style="padding: 10px 12px; text-align: right">ค่าใช้จ่ายจริง</th>
+              <th style="padding: 10px 12px; text-align: right">ประหยัดงบ</th>
+              <th style="padding: 10px 12px; text-align: right">ราคาซื้อใหม่</th>
+              <th style="padding: 10px 12px">ความคุ้มค่า</th>
+              <th style="padding: 10px 12px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">รายละเอียด</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <tr style="border-bottom: 1px solid #F1F5F9; background: {{r.rowBg}}">
+                <td style="padding: 12px; font-weight: 700"><a href="#vehicle-info" title="เปิดหน้าข้อมูลยานพาหนะ">{{r.plate}}</a></td>
+                <td style="padding: 12px"><div>{{r.model}}</div><div style="font-size: 13px; color: #475569">{{r.type}}</div></td>
+                <td style="padding: 12px"><div>{{r.plan_no}}</div><div style="font-size: 13px; color: #475569">{{r.po}}</div></td>
+                <td style="padding: 12px"><span style="color: {{r.stFg}}; font-weight: 600">{{r.statusName}}</span></td>
+                <td style="padding: 12px"><div style="display: flex; align-items: center; gap: 8px"><div style="flex: 1; height: 6px; background: #EEF1F6; border-radius: 3px; overflow: hidden"><div style="height: 6px; width: {{r.progress}}%; background: #4F46E5; border-radius: 3px"></div></div><span style="width: 40px; font-size: 13px; color: #475569">{{r.progress}}%</span></div></td>
+                <td style="padding: 12px; text-align: right">{{r.budget}}</td>
+                <td style="padding: 12px; text-align: right">{{r.actual}}</td>
+                <td style="padding: 12px; text-align: right; color: #047857; font-weight: 600">{{r.save}}</td>
+                <td style="padding: 12px; text-align: right">{{r.newPrice}}</td>
+                <td style="padding: 12px"><div style="font-weight: 600; color: {{r.wColor}}">{{r.wLabel}}</div><div style="font-size: 13px; color: #475569">{{r.ratio}}%</div></td>
+                <td style="padding: 6px 12px"><button onClick="{{r.pick}}" style="min-height: 44px; padding: 8px 14px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: #4338CA; font-size: 14px; font-weight: 600; white-space: nowrap">ดูงานที่ทำ</button></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <div style="flex: 1 1 auto; font-size: 14px; color: #475569">แสดง {{pageFrom}} ถึง {{pageTo}} จาก {{shownCount}} รายการ</div>
+        <div style="display: flex; gap: 4px">
+          <button onClick="{{prevPage}}" aria-label="หน้าก่อนหน้า" style="min-width: 44px; min-height: 44px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: {{prevFg}}; font-size: 16px">‹</button>
+          <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
+            <button onClick="{{pg.go}}" aria-current="{{pg.current}}" style="min-width: 44px; min-height: 44px; border: 1px solid {{pg.bd}}; border-radius: 8px; background: {{pg.bg}}; color: {{pg.fg}}; font-size: 14px; font-weight: 600">{{pg.no}}</button>
+          </sc-for>
+          <button onClick="{{nextPage}}" aria-label="หน้าถัดไป" style="min-width: 44px; min-height: 44px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: {{nextFg}}; font-size: 16px">›</button>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: #475569">ค่าใช้จ่ายจริงมีเมื่อปิดงานแล้ว · ความคุ้มค่าของคันที่ยังไม่ปิดงานคิดจากงบต่อคัน</div>
+    </div>
+
+    <sc-if value="{{showDetail}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 20; background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; padding: 24px">
+      <div role="dialog" aria-modal="true" aria-label="รายละเอียดงาน Overhaul" style="width: 100%; max-width: 1040px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; background: #FFFFFF; border-radius: 14px; box-shadow: 0 20px 48px rgba(15,23,42,0.3); padding: 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+        <div style="flex: 1 1 auto">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700">รหัส Overhaul · {{d.code}}</h2>
+          <div style="font-size: 13px; color: #475569">{{d.plate}} · {{d.model}} · {{d.type}} · {{d.vendor}}</div>
+        </div>
+        <a href="#vehicle-info" style="font-size: 14px; font-weight: 600">ไปหน้าข้อมูลยานพาหนะ ›</a>
+        <button onClick="{{closeDetail}}" aria-label="ปิด" style="width: 44px; height: 44px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: #0F172A; font-size: 20px; line-height: 1">×</button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{d.steps}}" as="s" hint-placeholder-count="7">
+          <div style="flex: 1 1 130px; display: flex; flex-direction: column; gap: 6px">
+            <div style="height: 6px; border-radius: 3px; background: {{s.color}}"></div>
+            <div style="font-size: 13px; font-weight: 600; color: {{s.fg}}">{{s.label}}</div>
+            <div style="font-size: 12px; color: #475569">{{s.state}}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px">
+        <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700">บันทึกติดตามความคืบหน้า</h3>
+          <sc-if value="{{d.noLogs}}" hint-placeholder-val="{{false}}">
+            <div style="font-size: 14px; color: #475569">ยังไม่มีบันทึก รถยังไม่เข้าอู่</div>
+          </sc-if>
+          <sc-for list="{{d.logs}}" as="l" hint-placeholder-count="4">
+            <div style="display: flex; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #F1F5F9">
+              <div style="flex: none; width: 96px; font-size: 13px; color: #475569">{{l.date}}</div>
+              <div style="flex: 1; min-width: 0"><div style="font-size: 14px">{{l.detail}}</div><div style="font-size: 13px; color: #475569">{{l.note}}</div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700">อะไหล่ที่ใช้ (บันทึกตอนปิดงาน)</h3>
+          <sc-if value="{{d.noParts}}" hint-placeholder-val="{{false}}">
+            <div style="font-size: 14px; color: #475569">ยังไม่ปิดงาน จึงยังไม่มีรายการอะไหล่และค่าใช้จ่ายจริง</div>
+          </sc-if>
+          <sc-if value="{{d.hasParts}}" hint-placeholder-val="{{true}}">
+            <div style="overflow-x: auto">
+              <table style="width: 100%; min-width: 460px; border-collapse: collapse; font-size: 14px">
+                <thead>
+                  <tr style="text-align: left; font-size: 12px; color: #475569; border-bottom: 1px solid #E2E8F0">
+                    <th style="padding: 10px">อะไหล่</th>
+                    <th style="padding: 10px">Serial</th>
+                    <th style="padding: 10px; text-align: right">ราคา/หน่วย</th>
+                    <th style="padding: 10px; text-align: right">จำนวน</th>
+                    <th style="padding: 10px; text-align: right">รวม</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{d.parts}}" as="p" hint-placeholder-count="4">
+                    <tr style="border-bottom: 1px solid #F1F5F9">
+                      <td style="padding: 10px">{{p.name}}</td>
+                      <td style="padding: 10px; color: #475569">{{p.serial}}</td>
+                      <td style="padding: 10px; text-align: right">{{p.price}}</td>
+                      <td style="padding: 10px; text-align: right">{{p.qty}}</td>
+                      <td style="padding: 10px; text-align: right; font-weight: 600">{{p.sum}}</td>
+                    </tr>
+                  </sc-for>
+                  <tr style="font-weight: 700; background: #F8FAFC">
+                    <td style="padding: 10px" colspan="4">ค่าใช้จ่ายจริงรวม</td>
+                    <td style="padding: 10px; text-align: right">{{d.actual}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="font-size: 13px; color: #475569">รับประกันงานซ่อม {{d.warranty}}</div>
+          </sc-if>
+
+          <div style="border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+            <div style="font-size: 15px; font-weight: 700">ซื้อรถใหม่ เทียบ Overhaul</div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>ราคาซื้อใหม่ทดแทน (ราคากลาง)</span><b>{{d.newPrice}} บาท</b></div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>ราคาซื้อเดิม</span><b>{{d.oldPrice}} บาท</b></div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>ค่า Overhaul ({{d.costBasis}})</span><b>{{d.ohCost}} บาท</b></div>
+            <div style="height: 8px; background: #EEF1F6; border-radius: 4px; overflow: hidden"><div style="height: 8px; width: {{d.ratio}}%; background: {{d.wColor}}; border-radius: 4px"></div></div>
+            <div style="font-size: 14px">Overhaul คิดเป็น <b>{{d.ratio}}%</b> ของราคาใหม่ · ส่วนต่าง {{d.diff}} บาท · <b style="color: {{d.wColor}}">{{d.wLabel}}</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    </sc-if>
+
+    <div style="text-align: center; font-size: 13px; color: #475569">ราคาซื้อใหม่ใช้ราคากลาง · ข้อมูลตัวอย่างสำหรับ mock</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"worthLimit":{"editor":"range","default":50,"min":20,"max":90,"step":5,"unit":"%","section":"เกณฑ์ความคุ้มค่า"},"$preview":{"width":1440,"height":1460}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { year: '2569', sel: null, open: false, picked: null, q: '' };
+  }
+  data() {
+    const plans = [
+      { id: 'P1', fiscal_year: '2569', plan_no: 'ORZ6900001', plan_name: 'Overhaul รถกระเช้า กฟก.1', approved_budget: 2400000, overhauled_car_count: 5, po: 'PO-6900001-01', vendor: 'อู่ ส.เจริญยนต์' },
+      { id: 'P2', fiscal_year: '2569', plan_no: 'ORZ6900002', plan_name: 'Overhaul รถเครน กฟก.2', approved_budget: 1500000, overhauled_car_count: 4, po: 'PO-6900002-01', vendor: 'อู่ ไทยเครนเซอร์วิส' },
+      { id: 'P3', fiscal_year: '2569', plan_no: 'ORZ6900003', plan_name: 'Overhaul รถเจาะหลุมปักเสา กฟน.3', approved_budget: 1200000, overhauled_car_count: 3, po: 'PO-6900003-01', vendor: 'อู่ ศรีสยามการช่าง' },
+      { id: 'P4', fiscal_year: '2568', plan_no: 'ORZ6800001', plan_name: 'Overhaul รถกระเช้า กฟฉ.1', approved_budget: 1900000, overhauled_car_count: 4, po: 'PO-6800001-01', vendor: 'อู่ ส.เจริญยนต์' },
+      { id: 'P5', fiscal_year: '2568', plan_no: 'ORZ6800002', plan_name: 'Overhaul รถเครน กฟต.2', approved_budget: 1200000, overhauled_car_count: 3, po: 'PO-6800002-01', vendor: 'อู่ ไทยเครนเซอร์วิส' },
+      { id: 'P6', fiscal_year: '2567', plan_no: 'ORZ6700001', plan_name: 'Overhaul รถกระเช้า กฟน.2', approved_budget: 1350000, overhauled_car_count: 3, po: 'PO-6700001-01', vendor: 'อู่ ศรีสยามการช่าง' }
+    ];
+    const eng = 'ชุดลูกสูบ-แหวน เครื่องยนต์';
+    // two-line parts list that sums to the actual cost, for earlier-year rows
+    const two = (actual, sn) => { const a = Math.round(actual * 0.45); return [[eng, 'EN-' + sn, a, 1], ['ชุดไฮดรอลิกและซีล', 'HY-' + sn, actual - a, 1]]; };
+    // [plan, plate, model, type, status_key, progress %, new price, original vehicle_price, spare parts at close job]
+    const raw = [
+      ['P1', '8234 กค กทม', 'HINO FM2P', 'รถกระเช้า', 'completed', 100, 2700000, 2030000, [[eng, 'EN-48211', 185000, 1], ['ปั๊มไฮดรอลิก', 'HP-10477', 142500, 1], ['ชุดซีลกระบอกบูม', 'SK-2210', 12500, 4], ['ชุดคลัตช์', 'CL-7719', 35000, 1]]],
+      ['P1', '81-5521 นครปฐม', 'ISUZU FVM', 'รถกระเช้า', 'completed', 100, 2500000, 1880000, [[eng, 'EN-51902', 198000, 1], ['ปั๊มไฮดรอลิก', 'HP-11630', 150000, 1], ['สายไฮดรอลิกแรงดันสูง', 'HH-0931', 9500, 6], ['ชุดเบรก', 'BK-4402', 50000, 1]]],
+      ['P1', '71-9902 ขอนแก่น', 'MITSUBISHI FN', 'รถกระเช้า', 'closing_in_progress', 95, 2850000, 2130000, null],
+      ['P1', '72-6648 สงขลา', 'HINO FG1J', 'รถกระเช้า', 'repairing', 60, 3300000, 2480000, null],
+      ['P1', '70-4410 ระยอง', 'ISUZU FTR', 'รถกระเช้า', 'pending_response', 0, 2400000, 1790000, null],
+      ['P2', '80-3316 เชียงใหม่', 'HINO FM1A', 'รถเครน 10 ตัน', 'completed', 100, 2650000, 1980000, [[eng, 'EN-47705', 176000, 1], ['สลิงเครน', 'WR-3318', 28000, 2], ['ชุดซีลกระบอก', 'SK-2298', 11500, 4], ['หม้อน้ำ', 'RD-6120', 60000, 1]]],
+      ['P2', '70-1123 ชลบุรี', 'HINO FG8J', 'รถเครน 5 ตัน', 'repairing', 40, 2200000, 1650000, null],
+      ['P2', '84-1207 พิษณุโลก', 'ISUZU FVZ', 'รถเครน 10 ตัน', 'under_safety_inspection', 85, 3000000, 2260000, null],
+      ['P2', '83-9034 อุดรธานี', 'HINO FC9J', 'รถเครน 5 ตัน', 'pending_intake_appointment', 0, 720000, 560000, null],
+      ['P3', '82-0457 สระบุรี', 'ISUZU FXZ', 'รถเจาะหลุมปักเสา', 'completed', 100, 2550000, 1920000, [[eng, 'EN-50033', 190000, 1], ['มอเตอร์ไฮดรอลิกหัวเจาะ', 'HM-8841', 128000, 1], ['ดอกสว่าน', 'AG-1175', 45000, 1], ['ชุดซีล', 'SK-2304', 7000, 4]]],
+      ['P3', '83-2210 นครราชสีมา', 'ISUZU FVZ', 'รถเจาะหลุมปักเสา', 'pending_return_appointment', 90, 3000000, 2260000, null],
+      ['P3', '85-7781 ลพบุรี', 'HINO FM2P', 'รถเจาะหลุมปักเสา', 'pending_inspection', 10, 900000, 690000, null],
+      ['P4', '80-1142 อุบลราชธานี', 'HINO FM2P', 'รถกระเช้า', 'completed', 100, 2600000, 1950000, two(428000, '41120')],
+      ['P4', '81-3390 ร้อยเอ็ด', 'ISUZU FVM', 'รถกระเช้า', 'completed', 100, 2750000, 2060000, two(462000, '41377')],
+      ['P4', '82-7715 สุรินทร์', 'HINO FG8J', 'รถกระเช้า', 'completed', 100, 2450000, 1840000, two(401500, '41502')],
+      ['P4', '83-0926 ศรีสะเกษ', 'MITSUBISHI FN', 'รถกระเช้า', 'pending_approval', 98, 2900000, 2170000, null],
+      ['P5', '80-6621 สุราษฎร์ธานี', 'HINO FM1A', 'รถเครน 10 ตัน', 'completed', 100, 2300000, 1720000, two(371000, '42018')],
+      ['P5', '81-4408 นครศรีธรรมราช', 'ISUZU FVZ', 'รถเครน 10 ตัน', 'completed', 100, 2500000, 1880000, two(389500, '42233')],
+      ['P5', '70-9917 ตรัง', 'HINO FC9J', 'รถเครน 5 ตัน', 'completed', 100, 850000, 640000, two(412000, '42390')],
+      ['P6', '80-2251 อยุธยา', 'HINO FM2P', 'รถกระเช้า', 'completed', 100, 2400000, 1800000, two(405000, '39871')],
+      ['P6', '81-7743 ปทุมธานี', 'ISUZU FVM', 'รถกระเช้า', 'completed', 100, 2600000, 1950000, two(441000, '39904')],
+      ['P6', '82-1186 นนทบุรี', 'HINO FG1J', 'รถกระเช้า', 'completed', 100, 2350000, 1760000, two(398000, '40015')]
+    ];
+    const vehicles = raw.map((a) => ({
+      plan: a[0], plate: a[1], model: a[2], type: a[3], status: a[4], progress: a[5], newPrice: a[6], oldPrice: a[7], parts: a[8],
+      actual: a[8] ? a[8].reduce((s, p) => s + p[2] * p[3], 0) : null
+    }));
+    // PO split per plan (vms_trn_purchase_order.po_seq): vehicles are assigned to POs in order
+    const split = { P1: [3, 2], P2: [2, 2], P3: [2, 1], P4: [2, 2], P5: [3], P6: [3] };
+    const vendors = ['อู่ ส.เจริญยนต์', 'อู่ ไทยเครนเซอร์วิส', 'อู่ ศรีสยามการช่าง'];
+    const cnt = {};
+    vehicles.forEach((x) => {
+      const i = (cnt[x.plan] = (cnt[x.plan] || 0) + 1);
+      let acc = 0;
+      let seq = 1;
+      split[x.plan].some((k, j) => { acc += k; seq = j + 1; return i <= acc; });
+      const p = plans.find((q) => q.id === x.plan);
+      x.poSeq = seq;
+      x.po = 'PO-' + p.plan_no.slice(3) + '-0' + seq;
+      x.vendor = vendors[(plans.indexOf(p) + seq) % 3];
+    });
+    return { plans, vehicles };
+  }
+  renderVals() {
+    const data = this.data();
+    const { year, picked, q } = this.state;
+    const plans = data.plans.filter((p) => year === 'all' || p.fiscal_year === year);
+    const multi = true;
+    const sel = this.state.sel || plans.reduce((m, p, i) => { m[p.id] = multi || i === 0; return m; }, {});
+    const fmt = (n) => Math.round(n).toLocaleString('en-US');
+    const byId = {};
+    plans.forEach((p) => { byId[p.id] = p; });
+    const fair = this.props.worthLimit ?? 50;
+    // status_key: [name, step index (0-6 of the 7 steps, 7 = finished), text color, badge]
+    const st = {
+      pending_intake_appointment: ['รอนัดหมายนำรถเข้าอู่', 0, '#334155', 1],
+      pending_response: ['รอหน่วยงานตอบรับเข้าอู่', 0, '#334155', 1],
+      rejected: ['หน่วยงานปฏิเสธเข้าอู่', 0, '#B91C1C', 1],
+      pending_inspection: ['รอตรวจรับรถ', 1, '#4338CA', 2],
+      repairing: ['กำลังซ่อม', 2, '#4338CA', 3],
+      under_safety_inspection: ['อยู่ระหว่างรอตรวจ', 3, '#4338CA', 4],
+      pending_return_appointment: ['รอนัดหมาย', 4, '#B45309', 5],
+      return_rejected: ['หน่วยงานปฏิเสธรับรถ', 4, '#B91C1C', 5],
+      closing_in_progress: ['อยู่ระหว่างปิดงาน', 5, '#B45309', 6],
+      pending_approval: ['รออนุมัติ', 6, '#B45309', 7],
+      completed: ['เสร็จสิ้น', 7, '#047857', '✓']
+    };
+    const view = (x) => {
+      const p = byId[x.plan];
+      const per = p.approved_budget / p.overhauled_car_count;
+      const cost = x.actual != null ? x.actual : per;
+      const ratio = Math.round((cost / x.newPrice) * 100);
+      const w = ratio <= fair ? ['คุ้มค่า', '#047857'] : ['ควรพิจารณาซื้อใหม่', '#B91C1C'];
+      return { ...x, p, per, cost, ratio, wLabel: w[0], wColor: w[1], s: st[x.status] };
+    };
+    const inPlans = data.vehicles.filter((x) => sel[x.plan]).map(view);
+    const needle = q.trim().toLowerCase();
+    const shown = inPlans.filter((x) => !needle || (x.plate + ' ' + x.model).toLowerCase().indexOf(needle) >= 0);
+    const PER = 10;
+    const pageCount = Math.max(1, Math.ceil(shown.length / PER));
+    const page = Math.min(this.state.page || 0, pageCount - 1);
+    const done = inPlans.filter((x) => x.status === 'completed');
+    const n = inPlans.length || 1;
+    const cur = inPlans.find((x) => x.plate === picked) || inPlans[0];
+    const yy = cur.p.fiscal_year.slice(2);
+
+    const stepLabels = ['นัดเอารถเข้าอู่', 'ตรวจรับรถ', 'ติดตามงานซ่อม', 'ตรวจสภาพ', 'นัดรับรถ', 'ปิดงาน', 'ยืนยันการส่งอนุมัติ'];
+    const logTpl = [
+      [1, '12 ม.ค. ', 'ตรวจรับรถเข้าอู่ บันทึกสภาพและอุปกรณ์ประจำรถ', 'ส่งมอบครบตามรายการ'],
+      [2, '19 ม.ค. ', 'ถอดเครื่องยนต์และชุดไฮดรอลิก ตรวจประเมินชิ้นส่วน', 'รออะไหล่ 5 วันทำการ'],
+      [2, '2 ก.พ. ', 'ประกอบเครื่องยนต์ เปลี่ยนชุดซีลและสายไฮดรอลิก', ''],
+      [3, '16 ก.พ. ', 'ทดสอบระบบและตรวจสภาพความปลอดภัย', 'ผ่านการทดสอบโหลด'],
+      [4, '23 ก.พ. ', 'แจ้งหน่วยงานนัดหมายรับรถคืน', ''],
+      [5, '2 มี.ค. ', 'ส่งมอบรถ บันทึกอะไหล่และปิดงาน', '']
+    ];
+    const logs = logTpl.filter((l) => l[0] <= cur.s[1]).map((l) => ({ date: l[1] + yy, detail: l[2], note: l[3] }));
+    const avg = Math.floor(inPlans.reduce((s, x) => s + x.progress, 0) / n);
+    const rebuy = inPlans.filter((x) => x.ratio > fair).length;
+
+    const planOpts = plans.map((p) => ({
+      id: p.id, plan_no: p.plan_no, plan_name: p.plan_name, on: !!sel[p.id],
+      pressed: sel[p.id] ? 'true' : 'false',
+      mark: sel[p.id] ? '✓' : '',
+      optBg: sel[p.id] ? '#EEF2FF' : '#FFFFFF',
+      chipBg: sel[p.id] ? '#4338CA' : '#FFFFFF',
+      chipBd: sel[p.id] ? '#4338CA' : '#64748B',
+      toggle: () => {
+        if (!multi) { this.setState({ sel: { [p.id]: true }, open: false, picked: null }); return; }
+        const next = { ...sel, [p.id]: !sel[p.id] };
+        if (plans.some((k) => next[k.id])) this.setState({ sel: next });
+      }
+    }));
+
+    return {
+      year,
+      yearLabel: year === 'all' ? 'ทุกปีงบประมาณ' : 'ปีงบประมาณ ' + year,
+      onYear: (e) => this.setState({ page: 0, year: e.target.value, sel: null, open: false, picked: null }),
+      planId: this.state.sel ? (plans.find((p) => sel[p.id]) || { id: '' }).id : '',
+      onPlan: (e) => this.setState({ page: 0, sel: e.target.value ? { [e.target.value]: true } : null, picked: null }),
+      plans: planOpts,
+      selTags: planOpts.filter((p) => p.on),
+      selCount: planOpts.filter((p) => p.on).length,
+      planCount: plans.length,
+      open: !!this.state.open,
+      openAttr: this.state.open ? 'true' : 'false',
+      toggleOpen: () => this.setState({ open: !this.state.open }),
+      q,
+      onSearch: (e) => this.setState({ q: e.target.value, page: 0 }),
+      showDetail: !!picked && inPlans.some((x) => x.plate === picked),
+      closeDetail: () => this.setState({ picked: null }),
+      brands: (() => {
+        const c = {};
+        inPlans.forEach((x) => { const b = x.model.split(' ')[0]; c[b] = (c[b] || 0) + 1; });
+        const top = Object.keys(c).map((k) => ({ name: k, count: c[k] })).sort((p, q) => q.count - p.count || (p.name < q.name ? -1 : 1)).slice(0, 3);
+        const max = top.length ? top[0].count : 1;
+        return top.map((b, i) => ({ ...b, rank: '0' + (i + 1), pct: Math.round((b.count / n) * 100), w: Math.round((b.count / max) * 100), color: ['#4F46E5', '#2563EB', '#059669'][i] }));
+      })(),
+      shownCount: shown.length,
+      pageFrom: shown.length ? page * PER + 1 : 0,
+      pageTo: Math.min(shown.length, (page + 1) * PER),
+      prevPage: () => this.setState({ page: Math.max(0, page - 1) }),
+      nextPage: () => this.setState({ page: Math.min(pageCount - 1, page + 1) }),
+      prevFg: page > 0 ? '#0F172A' : '#94A3B8',
+      nextFg: page < pageCount - 1 ? '#0F172A' : '#94A3B8',
+      pages: Array.from({ length: pageCount }, (_, i) => ({
+        no: i + 1, current: i === page ? 'page' : 'false',
+        bg: i === page ? '#4338CA' : '#FFFFFF', fg: i === page ? '#FFFFFF' : '#0F172A', bd: i === page ? '#4338CA' : '#CBD5E1',
+        go: () => this.setState({ page: i })
+      })),
+      tiles: [
+        { label: 'รถทั้งหมด', value: inPlans.length, unit: 'คัน', sub: planOpts.filter((p) => p.on).length + ' แผน', bg: 'linear-gradient(135deg, #2F6BEB, #1D4ED8)' },
+        { label: 'ความคืบหน้าเฉลี่ย', value: avg + '%', unit: '', sub: 'เฉลี่ยจากรถ ' + inPlans.length + ' คัน', bg: 'linear-gradient(135deg, #5B4FE9, #4338CA)' },
+        { label: 'เสร็จแล้ว', value: done.length, unit: 'คัน', sub: Math.round((done.length / n) * 100) + '% ของรถ', bg: 'linear-gradient(135deg, #06825F, #047857)' },
+        { label: 'ยังไม่เสร็จ', value: inPlans.length - done.length, unit: 'คัน', sub: 'ค้างอยู่ในแผน', bg: 'linear-gradient(135deg, #C8570E, #B45309)' },
+        { label: 'ค่าใช้จ่ายจริงรวม', value: fmt(done.reduce((s, x) => s + x.actual, 0)), unit: 'บาท', sub: 'จากรถที่ปิดงานแล้ว ' + done.length + ' คัน', bg: 'linear-gradient(135deg, #51607A, #334155)' },
+        { label: 'ควรพิจารณาซื้อใหม่', value: rebuy, unit: 'คัน', sub: 'Overhaul เกิน ' + fair + '% ของราคาใหม่', bg: 'linear-gradient(135deg, #C93030, #B91C1C)' }
+      ],
+      rows: shown.slice(page * PER, (page + 1) * PER).map((x) => ({
+        plate: x.plate, model: x.model, type: x.type, plan_no: x.p.plan_no, po: x.po,
+        statusName: x.s[0], stFg: x.s[2], stNo: x.s[3], progress: x.progress,
+        budget: fmt(x.per), actual: x.actual != null ? fmt(x.actual) : '–',
+        save: x.actual != null ? fmt(x.per - x.actual) : '–',
+        newPrice: fmt(x.newPrice), ratio: x.ratio, wLabel: x.wLabel, wColor: x.wColor,
+        rowBg: x.plate === picked ? '#EEF2FF' : '#FFFFFF',
+        pick: () => this.setState({ picked: x.plate })
+      })),
+      d: {
+        code: cur.p.plan_no, plate: cur.plate, model: cur.model, type: cur.type, vendor: cur.vendor + ' · ' + cur.po,
+        steps: stepLabels.map((label, i) => {
+          const idx = cur.s[1];
+          const isDone = i < idx;
+          const isNow = i === idx;
+          return {
+            label,
+            color: isDone ? '#059669' : isNow ? '#4F46E5' : '#CBD5E1',
+            fg: isDone || isNow ? '#0F172A' : '#475569',
+            state: isDone ? 'เสร็จแล้ว' : isNow ? 'กำลังดำเนินการ' : 'ยังไม่ถึง'
+          };
+        }),
+        logs, noLogs: logs.length === 0,
+        hasParts: !!cur.parts, noParts: !cur.parts,
+        parts: (cur.parts || []).map((p) => ({ name: p[0], serial: p[1], price: fmt(p[2]), qty: p[3], sum: fmt(p[2] * p[3]) })),
+        actual: cur.actual != null ? fmt(cur.actual) : '–',
+        warranty: '180 วัน · 2 มี.ค. ' + yy + ' – 28 ส.ค. ' + yy,
+        newPrice: fmt(cur.newPrice), oldPrice: fmt(cur.oldPrice),
+        costBasis: cur.actual != null ? 'ค่าใช้จ่ายจริง' : 'งบต่อคัน',
+        ohCost: fmt(cur.cost), ratio: cur.ratio, diff: fmt(cur.newPrice - cur.cost),
+        wLabel: cur.wLabel, wColor: cur.wColor
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

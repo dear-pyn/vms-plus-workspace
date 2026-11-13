@@ -1,0 +1,12 @@
+# VMS+ Workspace
+- Read README.md, content/catalog.json, packages/rules/policy.json and design/current-library.json first.
+- A JO is a delivery scope; a domain is a business area; a case is a reviewable revision. Do not guess JO assignments.
+- Use packages/ui and shared tokens. Verify component + UI reference against the latest supplied Figma dump before claiming design fidelity.
+- All money display uses packages/rules/currency.mjs. Do not duplicate a formatter in a feature or generated plugin.
+- Every case must have explicit status, revision, source evidence and ruleVersion. Never label a template/reference as customer-approved.
+- New drafts are safe to edit. Preserve prior reviewed revisions and their links when revising a customer case.
+- AC from screens/dumps must distinguish confirmed, observed and pending. Never infer hidden backend behavior as confirmed.
+- Keep mock services outside reusable feature components. No localStorage dependencies inside packages/ui.
+- Change plugin source, then npm run plugins:build; generated code.js is not an authoring source.
+- Run npm test, npm run check, npm run typecheck and npm run build for relevant changes.
+- This workspace is local until the user requests publication. Do not publish, send invitations or create a remote repository without instruction.

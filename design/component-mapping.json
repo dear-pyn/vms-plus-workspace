@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "components": {
+    "input-label": {
+      "name": "Input label",
+      "key": "100b172084b1ad5149031c2be07b944e763d0614",
+      "kind": "component",
+      "source": "Maintenance-Request-Form/figma-export/current-library.json",
+      "verification": "source-registry; not yet verified in destination Figma"
+    }
+  }
+}

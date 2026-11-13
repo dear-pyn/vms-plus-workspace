@@ -1,0 +1,23 @@
+{
+  "caseId": "example-money-label",
+  "revision": "r1",
+  "ruleVersion": "1.0.0",
+  "screens": [
+    {
+      "id": "MONEY-SAMPLE",
+      "width": 1200,
+      "elements": [
+        {
+          "component": "input-label",
+          "text": [
+            {
+              "nodeName": "Label",
+              "format": "currency",
+              "value": 1000
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

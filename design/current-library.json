@@ -1,0 +1,15 @@
+{
+  "componentFile": "VmOC07pKEsDkHZagOgcSU2",
+  "uiFile": "fYD1yA1uzWsJSjHlcWKMNe",
+  "resolution": "published-key-only",
+  "inputLabel": {
+    "key": "100b172084b1ad5149031c2be07b944e763d0614",
+    "fontSize": 16,
+    "fontWeight": 600,
+    "color": "gray-600",
+    "lineHeight": 24,
+    "gap": 8,
+    "optionalColor": "gray-400",
+    "optionalWeight": 400
+  }
+}
