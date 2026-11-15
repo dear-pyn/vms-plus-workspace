@@ -1,0 +1,209 @@
+{
+  "name": "VMS Plus UI Kit",
+  "fileKey": "fYD1yA1uzWsJSjHlcWKMNe",
+  "fileKeyEvidence": "design/current-library.json; source dump does not embed file identity",
+  "capturedAt": null,
+  "dumpVersion": null,
+  "importedAt": "2026-11-13T10:37:55.488452+07:00",
+  "sourceDirectory": "/Users/preeyanuchanprasert/Workspace/PEA-Maintain-D/Maintenance-Request-Form/figma-export/out/figma-dump/VMS Plus UI Kit",
+  "sourceFormat": "JSON pages: node/page/sets; exporter version not supplied",
+  "fileCount": 38,
+  "totalBytes": 326280634,
+  "validation": {
+    "jsonParsed": true,
+    "sha256CopyVerified": true,
+    "liveFigmaVerified": false
+  },
+  "files": [
+    {
+      "path": "0-1.json",
+      "bytes": 8261,
+      "sha256": "7b97b44cb4ca9b130711c4bd03a407bdb62fb25b7954ce79037c459148ae7b87"
+    },
+    {
+      "path": "1-52.json",
+      "bytes": 50,
+      "sha256": "f2f4a306a41678ce944923d16ce76071caf797df3dccd101f8168cbc7770b900"
+    },
+    {
+      "path": "1-53.json",
+      "bytes": 71,
+      "sha256": "cb01aca420aa9954f793c38637b82de90b7e9ed7d7d0dbd9b48ed509194daec9"
+    },
+    {
+      "path": "1-54.json",
+      "bytes": 9030243,
+      "sha256": "d5a670087b6fd8b9cb5239d29566b910ee6d946aa12926c102644230e5b0f372"
+    },
+    {
+      "path": "1-55.json",
+      "bytes": 47,
+      "sha256": "f7dee6e857f02514bde9b2a612548cbe67e172721c80699488b0524dfd5659e6"
+    },
+    {
+      "path": "1-56.json",
+      "bytes": 195899,
+      "sha256": "77ce52377fff5797b0fe151420316bca9f0d7c7486f835dbecf2ebe8e476f65f"
+    },
+    {
+      "path": "1013-134411.json",
+      "bytes": 20338496,
+      "sha256": "63f91021c9b180947196b8cfa09cdddd9f60d872d67080f180905cfbea358ff1"
+    },
+    {
+      "path": "1029-239841.json",
+      "bytes": 5597655,
+      "sha256": "81ed8efe724fd4e9a61824799b4acc576bf7df8ee419adda0b0c409706feb38d"
+    },
+    {
+      "path": "11-45256.json",
+      "bytes": 16176936,
+      "sha256": "5ffc16fcb25fff723dc1a7825d3ccbc2eb6a72bb26a1e683964ed432237fb291"
+    },
+    {
+      "path": "11-93298.json",
+      "bytes": 7781971,
+      "sha256": "29f3a75d0ea460cf0c7ec80cf0a9e0a0ff104caf6d4ad9cfbe31f5523e4c3d0e"
+    },
+    {
+      "path": "1377-133771.json",
+      "bytes": 26482311,
+      "sha256": "443cfddb666c3aad6c9e8e2319c41c6af02ba0ea039e35745a786217d25d3c97"
+    },
+    {
+      "path": "1389-301267.json",
+      "bytes": 17342084,
+      "sha256": "2830cdaa17ad3fd6077d39613ce0c3e28e766017b1d0e472105a1b390757d945"
+    },
+    {
+      "path": "1389-304181.json",
+      "bytes": 3466897,
+      "sha256": "9c1e2eaffc11ad94364fcd20452fad46f4b2c392a9e536d1e3005e7dbbada9ab"
+    },
+    {
+      "path": "154-86503.json",
+      "bytes": 912954,
+      "sha256": "62ad714ec7051fc8b32987c910e0f43ddbeef54ad856a8204007e178eb1491f7"
+    },
+    {
+      "path": "1579-205060.json",
+      "bytes": 7232570,
+      "sha256": "dc539f9bb53001ea7a8e568fc809366da3045ebcd93352e0c81bcf8ce069a52a"
+    },
+    {
+      "path": "1724-230073.json",
+      "bytes": 20911036,
+      "sha256": "ad2961a76bd7e6c8d8a3bd1841c1978ae2ca08070cb5c6a4ca9062d23be5ad15"
+    },
+    {
+      "path": "18-107053.json",
+      "bytes": 2934273,
+      "sha256": "de53892dfffe8879aa0571aa53a2953b787cd19afee4bb3652525fc390bd655e"
+    },
+    {
+      "path": "1800-132997.json",
+      "bytes": 13035157,
+      "sha256": "aaba35f6b49d7f125555efa21b97c1d5f38e72823227a0ea7c98f01cbe623c9d"
+    },
+    {
+      "path": "1906-179714.json",
+      "bytes": 26758847,
+      "sha256": "65886037de9342a4ebd3f3d2fbcf2c012985d7feb85308bf616390ce24cbded6"
+    },
+    {
+      "path": "2-48355.json",
+      "bytes": 14814063,
+      "sha256": "b5b8b0818e8bb5c601c56c4e8d6169d188c30a3c8eae6a4c3860a394fc8ef752"
+    },
+    {
+      "path": "2014-82509.json",
+      "bytes": 70,
+      "sha256": "33e799a851b05d2ee2318c237add4f5f5a241841c28bba2cdf032236005dd612"
+    },
+    {
+      "path": "2051-245191.json",
+      "bytes": 3162935,
+      "sha256": "92a5034649af4d288574ca5135617b87940ea6ec528f4c9003aed89da50948bd"
+    },
+    {
+      "path": "2377-554806.json",
+      "bytes": 896292,
+      "sha256": "ebb10a1b48df2cecc352f69a64362ab8ca6475cf7ff90dc0614a92d06b00518d"
+    },
+    {
+      "path": "2381-558524.json",
+      "bytes": 4000301,
+      "sha256": "d6ff224d2cbe02f0718700e93b6d1aa54f4c1096ca199456f6d3bff9a3eaf368"
+    },
+    {
+      "path": "24-126686.json",
+      "bytes": 1212545,
+      "sha256": "01ca0e65a4799789d14e2169e2fd62b0814bacb8d705b10f6cce3d20f678f583"
+    },
+    {
+      "path": "249-79380.json",
+      "bytes": 2609731,
+      "sha256": "28717b40e3624e3bf0c31371428f512880654c5c9a43b5003a76a017029af349"
+    },
+    {
+      "path": "25-120329.json",
+      "bytes": 5407472,
+      "sha256": "ecff6ac24cd40b4c8e39eda87a5ca160cfabe3d47a081e823d27286516c39666"
+    },
+    {
+      "path": "261-50051.json",
+      "bytes": 516977,
+      "sha256": "ba430fb6390b9f840294971d5f3a4ecc95291994a781709766cfe7cac848074c"
+    },
+    {
+      "path": "277-230639.json",
+      "bytes": 263834,
+      "sha256": "69a84f880d98c11088a463a6684ec43e76f42cc7184570869762ad7aaa7aeeb4"
+    },
+    {
+      "path": "283-149052.json",
+      "bytes": 18218057,
+      "sha256": "c75ddbac097d5254ba2132cc619849c39f6ebfab5822093146a669d869b7e696"
+    },
+    {
+      "path": "3136-86427.json",
+      "bytes": 1294248,
+      "sha256": "3c6904cdc8a7f38c76fd92b394d06c425af7a6b331f352feb2eb0dc411b3748a"
+    },
+    {
+      "path": "3436-33886.json",
+      "bytes": 5666478,
+      "sha256": "288722b51aee503bdc974d8770e260e696e0d481f4e186ec6ffe0049c946805a"
+    },
+    {
+      "path": "351-181468.json",
+      "bytes": 1012258,
+      "sha256": "780001afd618ca8b685b29cb99f13e8fc14b8761458effd5bf764141453725a0"
+    },
+    {
+      "path": "3677-41488.json",
+      "bytes": 22489382,
+      "sha256": "6d42a5d151dc06b750d58ee09a75af9a22f335d1c7dc12d17bb8363b3cfbfa08"
+    },
+    {
+      "path": "433-192013.json",
+      "bytes": 3362648,
+      "sha256": "b73cb7940571597abfc8a9f796ee7af404682860a2dc76d3bc97d58e380af3ca"
+    },
+    {
+      "path": "58-42887.json",
+      "bytes": 10161194,
+      "sha256": "a51ba629d78dd47a5c3e7d294fe7633d08dbcb3a47732ad3dea003a17ebe98bc"
+    },
+    {
+      "path": "8-47654.json",
+      "bytes": 45012089,
+      "sha256": "555cbbfa9aadaf72cd86dae53741e6d42be391bc54f8a5c049410bc16b870fee"
+    },
+    {
+      "path": "8-47673.json",
+      "bytes": 7974302,
+      "sha256": "3f81254365be06f25f1a66673e4751e3e9fdc4ef0f7824b7950a6ad12625fdcf"
+    }
+  ]
+}

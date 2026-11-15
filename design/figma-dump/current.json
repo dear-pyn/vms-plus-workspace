@@ -1,0 +1,25 @@
+{
+  "component": {
+    "name": "VMS Plus Component",
+    "fileKey": "VmOC07pKEsDkHZagOgcSU2",
+    "directory": "VmOC07pKEsDkHZagOgcSU2/import-2026-11-13",
+    "source": "source.json",
+    "index": "index.json"
+  },
+  "ui": {
+    "name": "VMS Plus UI Kit",
+    "fileKey": "fYD1yA1uzWsJSjHlcWKMNe",
+    "directory": "fYD1yA1uzWsJSjHlcWKMNe/import-2026-11-13",
+    "source": "source.json",
+    "index": "index.json"
+  },
+  "screens": {
+    "overhaul-refinement-09": {
+      "name": "Overhaul — refinement sprint 09 (จอที่ทีมทำ ยังมีจุดต้องแก้)",
+      "fileKey": null,
+      "directory": "overhaul-refinement-09/import-2026-11-13",
+      "source": "source.json",
+      "index": "index.json"
+    }
+  }
+}

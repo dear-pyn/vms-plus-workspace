@@ -1,0 +1,23 @@
+{
+  "name": "Overhaul — refinement sprint 09",
+  "fileKey": null,
+  "fileKeyEvidence": "ยังไม่ทราบ — dump ไม่ฝัง file key; รอเจ้าของงานส่งลิงก์ไฟล์ Figma",
+  "exporter": "Maintenance-Request-Form/figma-export/figjam-dump-plugin (dump เฉพาะ section ที่เลือก)",
+  "capturedAt": "2026-11-13T13:43:43+07:00",
+  "importedAt": "2026-11-13T13:51:41+07:00",
+  "sourceDirectory": "/Users/preeyanuchanprasert/Workspace/PEA-Maintain-D/Maintenance-Request-Form/figma-export/out/figjam-dump/overhaul-refinement-09",
+  "fileCount": 1,
+  "totalBytes": 6293416,
+  "validation": {
+    "jsonParsed": true,
+    "sha256CopyVerified": true,
+    "liveFigmaVerified": false
+  },
+  "files": [
+    {
+      "path": "9962-134168.json",
+      "bytes": 6293416,
+      "sha256": "91afee9b7492bfbca58e00dd68310d6517e9c1f84730f0e82d357af730031867"
+    }
+  ]
+}

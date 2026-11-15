@@ -1,0 +1,5193 @@
+{
+  "name": "Overhaul — refinement sprint 09",
+  "file": "9962-134168.json",
+  "page": "Main",
+  "section": "refinement sprint 09",
+  "nodeId": "9962:134168",
+  "frames": [
+    {
+      "name": "Section 15",
+      "type": "SECTION",
+      "w": 5951,
+      "h": 1685,
+      "children": 14,
+      "texts": 212,
+      "images": 3
+    },
+    {
+      "name": "Section 14",
+      "type": "SECTION",
+      "w": 6864,
+      "h": 2384,
+      "children": 24,
+      "texts": 301,
+      "images": 4
+    },
+    {
+      "name": "Section 13",
+      "type": "SECTION",
+      "w": 6943,
+      "h": 3472,
+      "children": 34,
+      "texts": 618,
+      "images": 11
+    },
+    {
+      "name": "Section 12",
+      "type": "SECTION",
+      "w": 5504,
+      "h": 3148,
+      "children": 21,
+      "texts": 484,
+      "images": 3
+    },
+    {
+      "name": "Section 11",
+      "type": "SECTION",
+      "w": 4555,
+      "h": 2084,
+      "children": 15,
+      "texts": 119,
+      "images": 3
+    },
+    {
+      "name": "Section 10",
+      "type": "SECTION",
+      "w": 14080,
+      "h": 2384,
+      "children": 36,
+      "texts": 1025,
+      "images": 21
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1773,
+      "h": 784,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 1068,
+      "h": 1496,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 2380,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / O.4 · S14 — บันทึกไม่สำเร็จ (toast 26)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1688,
+      "children": 3,
+      "texts": 584,
+      "images": 1
+    },
+    {
+      "name": "OH2 / O.3 · S14 — นำเข้าไฟล์สำเร็จ (toast 23)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1688,
+      "children": 3,
+      "texts": 583,
+      "images": 1
+    },
+    {
+      "name": "OH2 / O.2 · S14 — นำเข้าไฟล์ผิดรูปแบบ (validation ไม่ใช่ toast)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2380,
+      "children": 2,
+      "texts": 164,
+      "images": 3
+    },
+    {
+      "name": "OH2 / O.1 · S14 — ยังไม่ได้ระบุอะไหล่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2096,
+      "children": 2,
+      "texts": 141,
+      "images": 3
+    },
+    {
+      "name": "OH2 · O.4 บันทึกไม่สำเร็จ (toast 26)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O.3 นำเข้าไฟล์สำเร็จ (toast 23)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O.2 นำเข้าไฟล์ผิดรูปแบบ (validation ไม่ใช่ toast)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O.1 ยังไม่ได้ระบุอะไหล่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O S14 กบค. ปิดงาน",
+      "type": "FRAME",
+      "w": 6360,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1024,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / L.2 · S11 — เหลือ 1 รายการ ลบไม่ได้แล้ว (toast 20)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 290,
+      "images": 1
+    },
+    {
+      "name": "OH2 / L.1 · S11 — กดไอคอนลบ → ยืนยันการลบความคืบหน้า",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 306,
+      "images": 2
+    },
+    {
+      "name": "OH2 · L.2 เหลือ 1 รายการ ลบไม่ได้แล้ว (toast 20)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · L.1 กดไอคอนลบ → ยืนยันการลบความคืบหน้า",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · L S11 กบค. ลบ การติดตามผลการดำเนินการ overhaul",
+      "type": "FRAME",
+      "w": 3080,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · J S9 กบค. เพิ่มการติดตามผลการดำเนินการ overhaul",
+      "type": "FRAME",
+      "w": 4720,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · H S7 กบค. นัดหมายหน่วยงาน นำรถเข้า overhaul",
+      "type": "FRAME",
+      "w": 11280,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1691,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / F.4 · S5 — บันทึกสำเร็จ (toast 8)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 292,
+      "images": 1
+    },
+    {
+      "name": "OH2 / F.3 · S5 — ยืนยันการแก้ไข PO",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1469,
+      "children": 3,
+      "texts": 351,
+      "images": 2
+    },
+    {
+      "name": "OH2 / F.2 · S5 — กดแก้ไขในเมนู … ของ PO → ฟอร์มแก้ไข PO",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1469,
+      "children": 2,
+      "texts": 346,
+      "images": 1
+    },
+    {
+      "name": "OH2 / F.1 · S5 — เมนู \"…\" ของ PO → แก้ไข",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1691,
+      "children": 3,
+      "texts": 337,
+      "images": 3
+    },
+    {
+      "name": "OH2 · F.4 บันทึกสำเร็จ (toast 8)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · F.3 ยืนยันการแก้ไข PO",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · F.2 กดแก้ไขในเมนู … ของ PO → ฟอร์มแก้ไข PO",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · F.1 เมนู \"…\" ของ PO → แก้ไข",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · F S5 กบค. แก้ไข Purchase order",
+      "type": "FRAME",
+      "w": 6360,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1927,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / D.2.2 · S3 — ยืนยันการลบแผน ในหน้า Detail",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1927,
+      "children": 3,
+      "texts": 122,
+      "images": 4
+    },
+    {
+      "name": "OH2 / D.1.2 · S3 — ปุ่ม “ลบแผน” ในหน้า Detail",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1927,
+      "children": 2,
+      "texts": 103,
+      "images": 3
+    },
+    {
+      "name": "OH2 / D.3 · S3 — ลบสำเร็จ (ลบที่ List or Detail ก็กลับมานี่)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 274,
+      "images": 1
+    },
+    {
+      "name": "OH2 / D.2.1 · S3 — ยืนยันการลบแผน ในหน้า List",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 289,
+      "images": 2
+    },
+    {
+      "name": "OH2 / D.1.1 · S3 — เมนู \"…\" → ลบ ในหน้า List",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 288,
+      "images": 2
+    },
+    {
+      "name": "OH2 · D.2.2 ยืนยันการลบแผน ในหน้า Detail",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · D.1.2 ปุ่ม “ลบแผน” ในหน้า Detail",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · D.3 ลบสำเร็จ (ลบที่ List or Detail ก็กลับมานี่)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · D.2.1 ยืนยันการลบแผน ในหน้า List",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · D.1.1 เมนู \"…\" → ลบ ในหน้า List",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · D S3 กบค. ลบแผน",
+      "type": "FRAME",
+      "w": 8000,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 2232,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / C.5 · S2 — บันทึกสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1927,
+      "children": 3,
+      "texts": 107,
+      "images": 3
+    },
+    {
+      "name": "OH2 / C.4 · S2 — ยืนยันการแก้ไขแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2232,
+      "children": 3,
+      "texts": 393,
+      "images": 2
+    },
+    {
+      "name": "OH2 / C.3 · S2 — “ยกเลิก” → ยืนยันการออก กรณีที่มีการแก้ไขเกิดขึ้น",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2232,
+      "children": 3,
+      "texts": 393,
+      "images": 2
+    },
+    {
+      "name": "OH2 / C.2 · S2 — ฟอร์มแก้ไข Prefield ข้อมูลที่สร้างไว้",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2232,
+      "children": 2,
+      "texts": 388,
+      "images": 1
+    },
+    {
+      "name": "OH2 / C.1 · S2 — เมนู \"…\" → แก้ไข",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 288,
+      "images": 2
+    },
+    {
+      "name": "OH2 · C.5 บันทึกสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · C.4 ยืนยันการแก้ไขแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · C.3 “ยกเลิก” → ยืนยันการออก กรณีที่มีการแก้ไขเกิดขึ้น",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · C.2 ฟอร์มแก้ไข Prefield ข้อมูลที่สร้างไว้",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · C.1 เมนู \"…\" → แก้ไข",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · C S2 กบค. แก้ไขแผน",
+      "type": "FRAME",
+      "w": 8000,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 2232,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / B.2 · S1 — Validation กรณีไม่ได้เลือก, Out of focus",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1857,
+      "children": 2,
+      "texts": 388,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.1 · S1 — ฟอร์มสร้างแผน Default",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1805,
+      "children": 2,
+      "texts": 378,
+      "images": 1
+    },
+    {
+      "name": "OH2 · B.2 Validation กรณีไม่ได้เลือก, Out of focus",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.1 ฟอร์มสร้างแผน Default",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B S1 กบค. สร้างแผน Overhaul และ ดูรายละเอียด",
+      "type": "FRAME",
+      "w": 21120,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · I S8 กบค. ตรวจรับรถก่อน Overhaul",
+      "type": "FRAME",
+      "w": 8000,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1794,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / A.6 · หน้ารายการแผน — ค้นหา — ตัวกรองรถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1937,
+      "children": 4,
+      "texts": 367,
+      "images": 1
+    },
+    {
+      "name": "OH2 / A.5 · หน้ารายการแผน — ค้นหา — รถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1937,
+      "children": 2,
+      "texts": 320,
+      "images": 1
+    },
+    {
+      "name": "OH2 / A.4 · หน้ารายการแผน — ค้นหา — ยังไม่มีแผน",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1105,
+      "children": 2,
+      "texts": 47,
+      "images": 2
+    },
+    {
+      "name": "OH2 / A.3 · หน้ารายการแผน — ค้นหา — ค้นไม่เจอ",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1105,
+      "children": 2,
+      "texts": 45,
+      "images": 2
+    },
+    {
+      "name": "OH2 / A.2 · หน้ารายการแผน — ค้นหา — ตัวกรอง",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1151,
+      "children": 4,
+      "texts": 310,
+      "images": 1
+    },
+    {
+      "name": "OH2 / A.1 · หน้ารายการแผน — ค้นหา — รายการแผน",
+      "type": "FRAME",
+      "w": 1555,
+      "h": 1151,
+      "children": 2,
+      "texts": 270,
+      "images": 1
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 4597,
+      "h": 1042,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.6 ตัวกรองรถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.5 รถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.4 ยังไม่มีแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.3 ค้นไม่เจอ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.2 ตัวกรอง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.1 รายการแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A หน้ารายการแผน — ค้นหา ตัวกรอง · ค้นไม่เจอ · ยังไม่มีแผน",
+      "type": "FRAME",
+      "w": 12920,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "Scenario 15 Dash board",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1943,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scenario 20 view เจ้าของรถ กรย",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1943,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scenario 16 login",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8418,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scenario 18 notification",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 5070,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "https://docs.google.com/spreadsheets/d/1n2xNS8wUHAXiS13bd1QEYOIiSG9nUvYeIhHhHWtOVgg/edit?gid=1776901454#gid=1776901454",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 190,
+      "h": 74,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1555,
+      "h": 2245,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1360,
+      "h": 688,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1340,
+      "h": 688,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "SP09 · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1410,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "SP09 / A.10 · SP09 — ค้นหาไม่พบ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 2,
+      "texts": 38,
+      "images": 2
+    },
+    {
+      "name": "SP09 / A.9 · SP09 — ไม่มีข้อมูล",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 2,
+      "texts": 37,
+      "images": 2
+    },
+    {
+      "name": "SP09 / A.8 · SP09 — บันทึกสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 262,
+      "images": 1
+    },
+    {
+      "name": "SP09 / A.4 · SP09 — Validation",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1201,
+      "children": 2,
+      "texts": 104,
+      "images": 1
+    },
+    {
+      "name": "SP09 / A.3 · SP09 — เพิ่มอู่ — กรอกครบ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1175,
+      "children": 2,
+      "texts": 111,
+      "images": 1
+    },
+    {
+      "name": "SP09 / A.2 · SP09 — เพิ่มอู่ — ว่าง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1175,
+      "children": 2,
+      "texts": 104,
+      "images": 1
+    },
+    {
+      "name": "SP09 / A.1 · SP09 — รายการอู่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 2,
+      "texts": 258,
+      "images": 1
+    },
+    {
+      "name": "SP09 · A.10 ค้นหาไม่พบ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.9 ไม่มีข้อมูล",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.8 บันทึกสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.4 Validation",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.3 เพิ่มอู่ — กรอกครบ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.2 เพิ่มอู่ — ว่าง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A.1 รายการอู่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "SP09 · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "SP09 · A อู่และศูนย์บริการ · UC-6/18",
+      "type": "FRAME",
+      "w": 17840,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "Scope  ยิง notification 4 ที่ 4 action ",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 336,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 VMS+ PEA life Work-D SMS → vendor only (ไม่ใช่",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 ตัดเรื่องของผู้อนุมัติไปก่อน submit step 7 แล้วส่ง noti ปิดงานเลยไม่ต้องรอผู้อนุมัติอนุมัติคำขอ",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 ขอไปยืนยัน SMS ว่าพนักงาน กฟภ ส่งมั๊ย ANS: SMS ส่งเฉพาะ Vendor field is_employee → “FALSE”",
+      "type": "STICKY",
+      "w": 254,
+      "h": 146,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 Scope: ส่ง noti หาหน่วยงานต้นทาง เมื่อส่งนัดหมายรถเข้าอู่ VMS+ PEA Life Work-D SMS ส่ง noti หา กบค. เมื่อต้นทางยืนยันนัดหมายแล้ว VMS+ PEA Life Work-D SMS ส่ง noti หา หน่วยงานต้นทาง เมื่อตรวจรับรถสำเร็จแล้ว VMS+ PEA Life Work-D SMS ส่ง noti หา หน่วยงานต้นทาง เมื่อยืนยันการส่งอนุมัติ(ขั้นตอนที่7) แล้ว VMS+ PEA Life Work-D SMS กดที่ noti ใน VMS แล้วพาไปที่รายละเอียดของ noti นั้น",
+      "type": "STICKY",
+      "w": 416,
+      "h": 672,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 หาวิธี get EmployeeId ที่เกี่ยวข้อใน role ทั้งหมดมาเพื่อยิง PEA life",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "LG · AC",
+      "type": "FRAME",
+      "w": 300,
+      "h": 2131,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 Q:ประเภทของการส่ง noti ใน “ใบนี้” มีอะไรบ้าง (ex. VMS+ app ?, SMS?) ANS: ทุกอัน ยกเว้น Firebase",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "LG · AC A.4",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1290,
+      "children": 15,
+      "texts": 15,
+      "images": 0
+    },
+    {
+      "name": "LG · AC A.3",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1174,
+      "children": 15,
+      "texts": 15,
+      "images": 0
+    },
+    {
+      "name": "LG · AC A.2",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1551,
+      "children": 15,
+      "texts": 15,
+      "images": 0
+    },
+    {
+      "name": "LG · AC A.1",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1638,
+      "children": 15,
+      "texts": 15,
+      "images": 0
+    },
+    {
+      "name": "LG · Mobile",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 874,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "LG / A.4 · S1 — ไม่มีสิทธิ์เข้าใช้งานระบบ · mobile",
+      "type": "FRAME",
+      "w": 402,
+      "h": 874,
+      "children": 2,
+      "texts": 8,
+      "images": 1
+    },
+    {
+      "name": "LG / A.3 · S1 — SSO กรอกรหัสผิด (ภาพหน้าจริง) · mobile",
+      "type": "FRAME",
+      "w": 402,
+      "h": 874,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG / A.2 · S1 — SSO กฟภ. Login to your account (ภาพหน้าจริง) · mobile",
+      "type": "FRAME",
+      "w": 402,
+      "h": 874,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG / A.1 · S1 — หน้าเข้าสู่ระบบ (ภาพหน้าจริง) · mobile",
+      "type": "FRAME",
+      "w": 402,
+      "h": 874,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG · Desktop",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 1024,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "LG / A.4 · S1 — ไม่มีสิทธิ์เข้าใช้งานระบบ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 1,
+      "texts": 5,
+      "images": 2
+    },
+    {
+      "name": "LG / A.3 · S1 — SSO กรอกรหัสผิด (ภาพหน้าจริง)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG / A.2 · S1 — SSO กฟภ. Login to your account (ภาพหน้าจริง)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG / A.1 · S1 — หน้าเข้าสู่ระบบ (ภาพหน้าจริง)",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "LG · A.4 ไม่มีสิทธิ์เข้าใช้งานระบบ",
+      "type": "INSTANCE",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 3,
+      "images": 0
+    },
+    {
+      "name": "LG · A.3 SSO กรอกรหัสผิด (ภาพหน้าจริง)",
+      "type": "INSTANCE",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 3,
+      "images": 0
+    },
+    {
+      "name": "LG · A.2 SSO กฟภ. Login to your account (ภาพหน้าจริง)",
+      "type": "INSTANCE",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 3,
+      "images": 0
+    },
+    {
+      "name": "LG · A.1 หน้าเข้าสู่ระบบ (ภาพหน้าจริง)",
+      "type": "INSTANCE",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 3,
+      "images": 0
+    },
+    {
+      "name": "LG · Device",
+      "type": "INSTANCE",
+      "w": 300,
+      "h": 120,
+      "children": 2,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "LG · A S1 พนักงาน กฟภ. เข้าสู่ระบบ VMS Plus",
+      "type": "INSTANCE",
+      "w": 6360,
+      "h": 120,
+      "children": 2,
+      "texts": 3,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 576,
+      "h": 344,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 PEA Life หากอยากเห็นจอจริงให้พี่พิชแคปหน้าจอมาให้ หากไม่อยากเห็นจอจริงให้ยิง API",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "wording noti นัดหมายรถเข้าอู่สำเร็จแล้ว \"นัดหมาย {ข้อมูลสำคัญ เช่นเลขแผนหรือ PO} สำเร็จ\"",
+      "type": "STICKY",
+      "w": 192,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "wording noti ต้นทางยืนยันนัดหมายแล้ว \"หน่วยงาน {สังกัด} ของ {ข้อมูลสำคัญ เช่นเลขแผนหรือ PO} ยืนยันนัดหมายแล้ว\"",
+      "type": "STICKY",
+      "w": 192,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "wording noti ตรวจรับรถสำเร็จแล้ว “ยืนยันรับรถสำเร็จ”",
+      "type": "STICKY",
+      "w": 192,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "wording noti ยืนยันส่งอนุมัติแล้ว \"ปิดงาน {ข้อมูลสำคัญ เช่นเลขแผนหรือ PO} เรียบร้อยแล้ว\"",
+      "type": "STICKY",
+      "w": 192,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "21pt",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 670",
+      "type": "RECTANGLE",
+      "w": 503,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ระบบ VMS+ เดิม",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใครได้รับใน VMS (in-app) →",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "API สำหรับยิง noti PEA Life",
+      "type": "STICKY",
+      "w": 209,
+      "h": 209,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใครได้รับใน PEA Life →",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใครได้รับใน PEA Work-D →",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 612,
+      "h": 944,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใครได้รับใน SMS → คนที่เป็น Vendor เงื่อนไข is_employee is “FALSE”",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 0,
+      "h": 48,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 671",
+      "type": "RECTANGLE",
+      "w": 378,
+      "h": 282,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Refinement 9/11/2026 Q: แจ้งเตือนอันนี้ต้องแสดงหรือทำอะไรมันไหม หากเอา Noti มาใช้ ? ANS: ใช้",
+      "type": "STICKY",
+      "w": 416,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 672",
+      "type": "RECTANGLE",
+      "w": 900,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Create Notification Service.bru",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 673",
+      "type": "RECTANGLE",
+      "w": 561,
+      "h": 81,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Q: ขอ url end point นี่แหน ANS:",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 674",
+      "type": "RECTANGLE",
+      "w": 897,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 254,
+      "h": 446,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Question SMS กรอกเบอร์แล้วเข้าระบบไม่ได้ ต้องเพิ่ม user เข้าระบบไหนก่อนรึป่าว",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scenario 16 แจ้งเตือนก่อนหมดสัญญา 30 วัน 15 วัน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8418,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "notification ล่วงหน้า 30 วัน 1 ครั้ง และ 15 วัน 1 ครั้ง นับจากวันที่ สิ้นสุดประกัน title: “แจ้งวันสิ้นสุดประกัน” desc: “แจ้งวันสิ้นสุดประกัน วันที่ {วันสิ้นสุดประกัน} ของรถ {เลขทะเบียน} โปรดตรวจสอบความเรียบร้อย” 🔔 เจ้าของรถ, กรย, กบค",
+      "type": "STICKY",
+      "w": 240,
+      "h": 360,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 Q: ใบนี้การแจ้งเตือน 4 ประเภท ที่เราจะทำ มีอะไรบ้างที่จะมาแสดงใน icon-noti website เรา/เขา (ex. sms จะแสดงทั้งสองที่คือ มือถือและ website) ANS: แสดง badge dot สีเขียว แสดง list notification ถ้ายังไม่กดให้สีเทา กดแล้วสีขาว ล้างข้อความแจ้งเตือน กดแล้วเคลีย list ทั้งหมด และ badge dot ต้องหาย ถ้า อ่านแล้ว/ไม่มี noti ใน list",
+      "type": "STICKY",
+      "w": 358,
+      "h": 316,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ตุ่มสีเขียวว handle การอ่านและยังไม่อ่าน noti ใน list ด้วย (background color, ring color, empty list)",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "link to overhaul screen",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 208,
+      "h": 211,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "maintain-d",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "vms+",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 96,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "SMS",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "PEA life",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Work-D",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 675",
+      "type": "RECTANGLE",
+      "w": 396,
+      "h": 594,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "API",
+      "type": "TEXT",
+      "w": 101,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "หากต้องการจะใช้ link URL เพื่อไปแต่ละหน้า detail (ไม่ว่าจะเป็น Overhaul, PO detail) ควรใช้ Params URL ในการ GET data นะครับพริ่พริ่",
+      "type": "STICKY",
+      "w": 579,
+      "h": 334,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 229,
+      "h": 114,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 168,
+      "h": 251,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 0,
+      "h": 124,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ระบบอื่นๆ",
+      "type": "TEXT",
+      "w": 237,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "ระบบ vms+",
+      "type": "TEXT",
+      "w": 308,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "service  Noti",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "service  SMS",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 676",
+      "type": "RECTANGLE",
+      "w": 176,
+      "h": 138,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 48,
+      "h": 32,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 42,
+      "h": 82,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ค่าเปลี่ยนตอน refresh",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "service  integrate VMS+",
+      "type": "STICKY",
+      "w": 240,
+      "h": 260,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 42,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 114,
+      "h": 283,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 114,
+      "h": 571,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "https://www.scrumpoker-online.org/en/room/91868343/scrum-poker",
+      "type": "STICKY",
+      "w": 528,
+      "h": 528,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เพิ่ม notify_type ว่าแจ้งเตือนนี้เป็นประเภทของ ovehaul และ repair-big-vehicle(????)",
+      "type": "STICKY",
+      "w": 414,
+      "h": 414,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 190,
+      "h": 74,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "poke แต้มให้หน่อยน้า",
+      "type": "TEXT",
+      "w": 802,
+      "h": 144,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Table",
+      "type": "TABLE",
+      "w": 2096,
+      "h": 1304,
+      "children": 56,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 677",
+      "type": "RECTANGLE",
+      "w": 396,
+      "h": 594,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "login จริงๆ",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 7840,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scope Login เข้าระบบได้ทั้ง 3 user แสดงหน้า Login ของ VMS+ แสดงหน้า Login ที่ให้กรอก username , password Login เข้าไปแล้วเห็นหน้า “Overhaul”",
+      "type": "STICKY",
+      "w": 416,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 519",
+      "type": "RECTANGLE",
+      "w": 219,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Expect: หลังจาก Login ต้องได้ token กลับมาถูกต้อง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "สิ่งที่แก้ไขทางฝั่งVMS+ Phase1+2 มีแค่นี้",
+      "type": "STICKY",
+      "w": 400,
+      "h": 400,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "pea",
+      "type": "TEXT",
+      "w": 111,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "login user Username: 700001 → admin-super Password: PEA@@123456 Username: 700003 → general Password: PEA@123456 admin-region Username: 700004 → admin-region Password: PEA@123456 genaral",
+      "type": "STICKY",
+      "w": 222,
+      "h": 228,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "authen keycloak",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "authorize user-hub",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เห็นเมนู และรายละเอียด ตามสิทธิ์ 1 ซ่อม 2 บำรุงรักษา 3 overhaul",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1360,
+      "h": 490,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 521",
+      "type": "RECTANGLE",
+      "w": 899,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "image 520",
+      "type": "RECTANGLE",
+      "w": 931,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "odds",
+      "type": "TEXT",
+      "w": 149,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 615,
+      "h": 432,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 615,
+      "h": 432,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "vms+",
+      "type": "TEXT",
+      "w": 166,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 448,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "general คือ อันไหน ???",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 144,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 522",
+      "type": "RECTANGLE",
+      "w": 1514,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Vector 265",
+      "type": "VECTOR",
+      "w": 172,
+      "h": 13,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 266",
+      "type": "VECTOR",
+      "w": 0,
+      "h": 145,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "admin-region คือ อันไหน ???",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 264",
+      "type": "VECTOR",
+      "w": 2,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "login",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 144,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 259",
+      "type": "VECTOR",
+      "w": 81,
+      "h": 69,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 256",
+      "type": "VECTOR",
+      "w": 428,
+      "h": 274,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "vms+",
+      "type": "TEXT",
+      "w": 166,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 448,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 255",
+      "type": "VECTOR",
+      "w": 146,
+      "h": 3,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 258",
+      "type": "VECTOR",
+      "w": 225,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 257",
+      "type": "VECTOR",
+      "w": 105,
+      "h": 101,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 66,
+      "h": 16,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "login",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 66,
+      "h": 16,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 268",
+      "type": "VECTOR",
+      "w": 41,
+      "h": 32,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 237",
+      "type": "VECTOR",
+      "w": 33,
+      "h": 139,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 263",
+      "type": "VECTOR",
+      "w": 169,
+      "h": 4,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 267",
+      "type": "VECTOR",
+      "w": 29,
+      "h": 150,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 252",
+      "type": "VECTOR",
+      "w": 185,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Screenshot 2569-10-01 at 09.18.58 1",
+      "type": "RECTANGLE",
+      "w": 440,
+      "h": 238,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Screenshot 2569-10-01 at 09.19.21 1",
+      "type": "RECTANGLE",
+      "w": 440,
+      "h": 238,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Vector 253",
+      "type": "VECTOR",
+      "w": 107,
+      "h": 2,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 262",
+      "type": "VECTOR",
+      "w": 399,
+      "h": 160,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 238",
+      "type": "VECTOR",
+      "w": 33,
+      "h": 22,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 248",
+      "type": "VECTOR",
+      "w": 351,
+      "h": 119,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "maintain-d",
+      "type": "TEXT",
+      "w": 319,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "maintain-d",
+      "type": "TEXT",
+      "w": 319,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Vector 249",
+      "type": "VECTOR",
+      "w": 373,
+      "h": 108,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 261",
+      "type": "VECTOR",
+      "w": 49,
+      "h": 151,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 260",
+      "type": "VECTOR",
+      "w": 409,
+      "h": 1,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "mock login",
+      "type": "TEXT",
+      "w": 200,
+      "h": 60,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Vector 250",
+      "type": "VECTOR",
+      "w": 19,
+      "h": 23,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 99,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 235",
+      "type": "VECTOR",
+      "w": 290,
+      "h": 45,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 236",
+      "type": "VECTOR",
+      "w": 32,
+      "h": 46,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 234",
+      "type": "VECTOR",
+      "w": 222,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 247",
+      "type": "VECTOR",
+      "w": 313,
+      "h": 7,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "refinement 1 ตค 70",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 240",
+      "type": "VECTOR",
+      "w": 90,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 244",
+      "type": "VECTOR",
+      "w": 760,
+      "h": 165,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เอาหน้าเลือก user ออก",
+      "type": "STICKY",
+      "w": 184,
+      "h": 184,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 239",
+      "type": "VECTOR",
+      "w": 72,
+      "h": 75,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "dev",
+      "type": "TEXT",
+      "w": 111,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "dev",
+      "type": "TEXT",
+      "w": 111,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Vector 242",
+      "type": "VECTOR",
+      "w": 572,
+      "h": 47,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 241",
+      "type": "VECTOR",
+      "w": 0,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "keycloak",
+      "type": "TEXT",
+      "w": 259,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 197,
+      "h": 483,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 251",
+      "type": "VECTOR",
+      "w": 0,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 245",
+      "type": "VECTOR",
+      "w": 115,
+      "h": 44,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 243",
+      "type": "VECTOR",
+      "w": 108,
+      "h": 86,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "uat",
+      "type": "TEXT",
+      "w": 96,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "uat",
+      "type": "TEXT",
+      "w": 96,
+      "h": 96,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Vector 246",
+      "type": "VECTOR",
+      "w": 124,
+      "h": 38,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "permission from login จริง ( retest)",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 7840,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เห็นเมนู และรายละเอียด ตามสิทธิ์ 1 ซ่อม 2 บำรุงรักษา 3 overhaul",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เห็นรถถายในหน่วยงานตัวเอง จังหวัด กทม general = กทม",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "จะ set data อย่างไร ว่า รถแต่ละคันจะไปแสดงให้ใครเห็นบ้าง",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Screenshot 2569-10-01 at 09.19.49 1",
+      "type": "RECTANGLE",
+      "w": 650,
+      "h": 344,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "role general",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 84,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 84,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 84,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "https://docs.google.com/spreadsheets/d/1zClMcSOCBp153kytgdUdwmG9MLobfPo4y08WXczlWtc/edit?gid=376588538#gid=376588538",
+      "type": "STICKY",
+      "w": 128,
+      "h": 137,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "role admin-region",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เห็นรถถายในหน่วยงาน “เขต” ตัวเอง",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 96,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "admin-super",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เห็นรถ ทั้งหมด",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 96,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "refinement 1 ตค 71",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "wait for refinment",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 384,
+      "h": 112,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "integration",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 7840,
+      "h": 117,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement (1 ตค 69)",
+      "type": "STICKY",
+      "w": 801,
+      "h": 462,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "menu maintain บน VMS+ main",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 523",
+      "type": "RECTANGLE",
+      "w": 190,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 84,
+      "h": 307,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "🙏",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Question",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "อยากได้เมนูแบบไหน แบบ duplicate menu จาก VMS+ มาไว้ที่ฝั่ง odd และ เพิ่ม menu maintain-d refresh token ระยะเวลาเท่าไหร่ 24 ชั่วโมง ถ้า expire ไปหน้า home = landing page COR allow maintain d vmsplus.pea.co.th/*",
+      "type": "STICKY",
+      "w": 240,
+      "h": 432,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "landing page",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 441,
+      "h": 352,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 1121,
+      "h": 491,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "url: /maintain-d",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "13pt",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ตอบรับนัดหมาย",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8418,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "access token",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 244,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ไม่มี access token",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 244,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "VMS+  main",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 436,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "login(vms+)",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 132,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 178,
+      "h": 194,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Table",
+      "type": "TABLE",
+      "w": 541,
+      "h": 128,
+      "children": 4,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Table",
+      "type": "TABLE",
+      "w": 602,
+      "h": 256,
+      "children": 12,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Table",
+      "type": "TABLE",
+      "w": 576,
+      "h": 256,
+      "children": 12,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Table",
+      "type": "TABLE",
+      "w": 576,
+      "h": 256,
+      "children": 12,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 32,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Refinement 9/11/2026 Q:สูตรคำนวณแบบนี้รึป่าว ANS: ?????",
+      "type": "STICKY",
+      "w": 288,
+      "h": 288,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ปรับการค้นหาให้สามารถหาประเภทงบประมาณและรายละเอียดย่อยของงบประมาณได้ด้วย เช่น เลขศูนย์ต้นทุน",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 155,
+      "h": 40,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1799,
+      "h": 1376,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1744,
+      "h": 1376,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1424,
+      "h": 773,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1424,
+      "h": 400,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ข้อมูลสอง section นี้จะไปด้วยกันตามเสมอ ex. หากมีการ filter จาก table ด้านล่างด้านบนจะไปตาม",
+      "type": "CONNECTOR",
+      "w": 387,
+      "h": 1035,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 680",
+      "type": "RECTANGLE",
+      "w": 1095,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "image 682",
+      "type": "RECTANGLE",
+      "w": 505,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Q: ประเภทรถ ถ้ามี 20ประเภทจะแสดงยังไงรึ จะจัดการแสดงสีเสียงยังไง แต่ละสีพยายามจะสื่ออะไร(ถามต่อใน ยี่ห้อที่ overhaul บ่อยสุด) ANS: limit ไว้ที่ 4 อันดับก่อน และ สีเป็นตามนี้ได้เลย",
+      "type": "STICKY",
+      "w": 222,
+      "h": 137,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เพิ่มการกรอง ตามปีงบประมาณด้วย",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "การคำนวณ %ความคืบหน้าเฉลี่ย = sum(%ความคืบหน้าที่มีข้อมูล)/จำนวนรถทั้งหมดตามที่ filter",
+      "type": "STICKY",
+      "w": 240,
+      "h": 384,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ยืนยัน การ PO ว่าอยากรู้จำนวน PO ใน dashboard มั๊ย",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "นับ จาก car_id + car_ยี่ห้อ + plan_no เป็น unique เช่น รถทะเบียน 5ขก 1234 Hino แผน A PO 1, 2,3 รถทะเบียน 5ขก 1234 Hino แผน B PO 1  นับว่า Hino Overhaul 2 ครั้ง",
+      "type": "STICKY",
+      "w": 184,
+      "h": 221,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ครั้ง",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 43,
+      "h": 16,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ครั้ง",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 43,
+      "h": 16,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ครั้ง",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 43,
+      "h": 16,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "3pt",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "13pt",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 495,
+      "h": 194,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "feature: dashboard Overhaul car",
+      "type": "STICKY",
+      "w": 416,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 683",
+      "type": "RECTANGLE",
+      "w": 1344,
+      "h": 259,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 352,
+      "h": 259,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Q:ค้นหารถด้วย?? A:ทะเบียน, ยี่ห้อ/รุ่น (ไม่เอาสังกัด) Q:ค้นหารถจากทั้งหมดใน DB หรือจากหน้าจอ? A: DB >> ยังไม่คอนเฟริมการlistรายการรถเมื่อเข้าหน้าจอมา",
+      "type": "STICKY",
+      "w": 240,
+      "h": 312,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 685",
+      "type": "RECTANGLE",
+      "w": 1385,
+      "h": 623,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Q:ตารางนี้จะแสดงอย่างไร? แปรผันตามตารางข้างบนอย่างไร? A:",
+      "type": "STICKY",
+      "w": 208,
+      "h": 208,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8960,
+      "h": 5701,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 7116,
+      "h": 2416,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "อนุมัติ",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8418,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ประเมินการทำงาน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 8418,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 684",
+      "type": "RECTANGLE",
+      "w": 1145,
+      "h": 120,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "กรอกได้ สงสัยเดินมาหาพี่แก้ว",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 396,
+      "h": 209,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 57,
+      "h": 137,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "อยากเห็นอะไร แต่ละแผน ดำเนินการไปกี่ % แล้ว เหลืออีกกี่% จะเสร็จ รถที่ค้างอยู่ใน แผนมีกี่คัน เสร็จแล้วกี่คัน ยังไม่เสร็จกี่คัน ถ้าเลือกหลายแผน ให้รวมผลมาแสดง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 264,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "format currency 2 digit",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 679",
+      "type": "RECTANGLE",
+      "w": 693,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ข้อมูลแสดงตามผลลัพธ์ที่ Filter และ ค้นหา มา",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 34,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Q: “ซื้อใหม่ทดแทน” และ “ราคาประเมิณ Overhaul” เอาข้อมูลจากไหนมากแสดง ANS: input มาตอนสร้าง แผน",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Q: % Overhaul คำนวนจากอะไร ANS:",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 678",
+      "type": "RECTANGLE",
+      "w": 735,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 384,
+      "h": 74,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ความคืบหน้าระดับ task > car > PO > แผน โดย percent แบบ ทศนิยม 1 ตำแหน่ง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 304,
+      "h": 69,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ดึง หมายเหตุล่าสุดมาแสดง หมายเหตุ สูงสุด X บรรทัด",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เปลี่ยน รอเลข PO → รอเลข Purchase order",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Q: สีที่แสดง 3 อันดับแรกจะเป็นสีนี้ตลอดไป หรือเปลี่ยนตามยี่ห้อ และสีที่แสดงมีความสัมพันธ์อะไร กับ ประเภทรถไหม ANS: Yes!",
+      "type": "STICKY",
+      "w": 222,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เพิ่มหมายเหตุ",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เพิ่มอายุการใช้งาน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "สถานะ Overhaul",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ตัดออกก่อน รอเฟิร์ม",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เปลี่ยนเป็น ยี่ห้อ/ประเภท",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 3941,
+      "h": 1664,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 925,
+      "h": 2072,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 925,
+      "h": 632,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 925,
+      "h": 464,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 925,
+      "h": 2000,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Port",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1965,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Adapter",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1965,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 848,
+      "h": 208,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 / A.8 · หน้ารายการแผน — ค้นหา — รถที่ Overhaul — ไม่พบข้อมูลตามตัวกรอง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1638,
+      "children": 2,
+      "texts": 85,
+      "images": 2
+    },
+    {
+      "name": "OH2 / A.7 · หน้ารายการแผน — ค้นหา — รถที่ Overhaul — กรองรุ่น HINO FM2P",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1438,
+      "children": 2,
+      "texts": 306,
+      "images": 1
+    },
+    {
+      "name": "OH2 / A.6 · หน้ารายการแผน — ค้นหา — ตัวกรองรถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1794,
+      "children": 4,
+      "texts": 377,
+      "images": 1
+    },
+    {
+      "name": "OH2 / A.5 · หน้ารายการแผน — ค้นหา — รถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1794,
+      "children": 2,
+      "texts": 332,
+      "images": 1
+    },
+    {
+      "name": "OH2 · A.8 รถที่ Overhaul — ไม่พบข้อมูลตามตัวกรอง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.7 รถที่ Overhaul — กรองรุ่น HINO FM2P",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.6 ตัวกรองรถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · A.5 รถที่ Overhaul",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 272,
+      "h": 112,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1376,
+      "h": 656,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "↕️",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "↕️",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1552,
+      "h": 2032,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 300,
+      "h": 2171,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / B.11 · S1 — Validation ราคารายคัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1906,
+      "children": 3,
+      "texts": 418,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.10 · S1 — แก้ไขราคาประมาณการและราคา Overhaul รายคัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1906,
+      "children": 3,
+      "texts": 417,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.13 · S1 — Modal กรอกราคารายคัน — ยังไม่กรอก",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1906,
+      "children": 3,
+      "texts": 417,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.9 · S1 — ดูรายละเอียดรถจากแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 2,
+      "texts": 47,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.8 · S1 — เมนู “…” ของรถในแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1966,
+      "children": 3,
+      "texts": 389,
+      "images": 2
+    },
+    {
+      "name": "OH2 / B.18 · S1 — เพิ่มรถสำเร็จ — ยังไม่ระบุราคา",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1906,
+      "children": 3,
+      "texts": 375,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.17 · S1 — เพิ่มรถ — กรองแล้ว ติ๊ก 2 คัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2164,
+      "children": 4,
+      "texts": 406,
+      "images": 2
+    },
+    {
+      "name": "Group 154",
+      "type": "GROUP",
+      "w": 1440,
+      "h": 2164,
+      "children": 1,
+      "texts": 43,
+      "images": 1
+    },
+    {
+      "name": "OH2 / B.15 · S1 — เพิ่มรถ — Modal เลือกรถ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2164,
+      "children": 4,
+      "texts": 409,
+      "images": 2
+    },
+    {
+      "name": "OH2 / B.14 · S1 — ยังไม่มีรถในแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2164,
+      "children": 2,
+      "texts": 152,
+      "images": 2
+    },
+    {
+      "name": "OH2 / B.1 · S1 — ฟอร์มสร้างแผน Default",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1621,
+      "children": 2,
+      "texts": 130,
+      "images": 2
+    },
+    {
+      "name": "OH2 · B.11 Validation ราคารายคัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.10 แก้ไขราคาประมาณการและราคา Overhaul รายคัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.13 Modal กรอกราคารายคัน — ยังไม่กรอก",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.9 ดูรายละเอียดรถจากแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.8 เมนู “…” ของรถในแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.18 เพิ่มรถสำเร็จ — ยังไม่ระบุราคา",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.17 เพิ่มรถ — กรองแล้ว ติ๊ก 2 คัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.16 เพิ่มรถ — เปิดแผงตัวกรอง",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.15 เพิ่มรถ — Modal เลือกรถ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.14 ยังไม่มีรถในแผน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · B.1 ฟอร์มสร้างแผน Default",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 300,
+      "h": 120,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 560,
+      "h": 640,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 681",
+      "type": "RECTANGLE",
+      "w": 903,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 256,
+      "h": 196,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 300,
+      "h": 2729,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / O.2 · S14 — ระบุอะไหล่แล้ว",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2321,
+      "children": 2,
+      "texts": 836,
+      "images": 1
+    },
+    {
+      "name": "OH2 / O.1 · S14 — ยังไม่ได้ระบุอะไหล่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2729,
+      "children": 2,
+      "texts": 397,
+      "images": 3
+    },
+    {
+      "name": "OH2 · O.2 ระบุอะไหล่แล้ว",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O.1 ยังไม่ได้ระบุอะไหล่",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 300,
+      "h": 120,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · O S14 กบค. ปิดงาน",
+      "type": "FRAME",
+      "w": 12920,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 269,
+      "h": 2098,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / P.2 · S15 — ส่งอนุมัติสำเร็จ",
+      "type": "FRAME",
+      "w": 1292,
+      "h": 2108,
+      "children": 2,
+      "texts": 194,
+      "images": 1
+    },
+    {
+      "name": "OH2 / P.1 · S15 — ยืนยันการส่งอนุมัติ",
+      "type": "FRAME",
+      "w": 1292,
+      "h": 2108,
+      "children": 2,
+      "texts": 196,
+      "images": 1
+    },
+    {
+      "name": "OH2 · P.2 ส่งอนุมัติสำเร็จ",
+      "type": "FRAME",
+      "w": 1292,
+      "h": 108,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · P.1 ยืนยันการส่งอนุมัติ",
+      "type": "FRAME",
+      "w": 1292,
+      "h": 108,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 269,
+      "h": 108,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · P S15 กบค. ยืนยันการส่งอนุมัติปิดงาน",
+      "type": "FRAME",
+      "w": 2764,
+      "h": 108,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 300,
+      "h": 2617,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / Q.4 · S15 — เจ้าของรถ — เหลือ 15 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 292,
+      "images": 1
+    },
+    {
+      "name": "OH2 / Q.3 · S15 — เจ้าของรถ — เหลือ 30 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 292,
+      "images": 1
+    },
+    {
+      "name": "OH2 / Q.2 · S15 — กบค. — เหลือ 15 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 293,
+      "images": 1
+    },
+    {
+      "name": "OH2 / Q.1 · S15 — กบค. — เหลือ 30 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1066,
+      "children": 3,
+      "texts": 293,
+      "images": 1
+    },
+    {
+      "name": "OH2 · Q.4 เจ้าของ��ถ — เหลือ 15 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Q.3 เจ้าของรถ — เหลือ 30 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Q.2 กบค. — เหลือ 15 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Q.1 กบค. — เหลือ 30 วัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 300,
+      "h": 120,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Q S15 ระบบแจ้งเตือนประกันงานซ่อมใกล้หมด ถึงเจ้าของรถ และ กบค.",
+      "type": "FRAME",
+      "w": 8000,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "ไปหน้ารายละเอียดรถที่เคยมี",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1552,
+      "h": 1167,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "รอเฟิร์มว่า Required มั๊ย Require",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 300,
+      "h": 2771,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / U.6 · S20 — อนุมัติสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 245,
+      "images": 1
+    },
+    {
+      "name": "OH2 / U.3 · S20 — หน้าพิจารณา — ยังไม่เลือกผล",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 2535,
+      "children": 2,
+      "texts": 201,
+      "images": 1
+    },
+    {
+      "name": "OH2 / U.2 · S20 — รายการรออนุมัติปิดงาน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 2,
+      "texts": 243,
+      "images": 1
+    },
+    {
+      "name": "OH2 / U.1 · S20 — แจ้งเตือนถึงผู้บังคับบัญชา",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 264,
+      "images": 1
+    },
+    {
+      "name": "OH2 · U.6 อนุมัติสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · U.3 หน้าพิจารณา — ยังไม่เลือกผล",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · U.2 รายการรออนุมัติปิดงาน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · U.1 แจ้งเตือนถึงผู้บังคับบัญชา",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 300,
+      "h": 120,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · U S20 ผู้บังคับบัญชา กบค. อนุมัติปิดงาน Overhaul",
+      "type": "FRAME",
+      "w": 21120,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Desktop",
+      "type": "FRAME",
+      "w": 300,
+      "h": 1226,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 / R.1.3 · S16 — ตอบรับ — ค้นหาผู้นำส่งรถ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1146,
+      "children": 3,
+      "texts": 125,
+      "images": 6
+    },
+    {
+      "name": "OH2 / R.1.2 · S16 — ตอบรับ — Validation ไม่เลือกวัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1146,
+      "children": 2,
+      "texts": 107,
+      "images": 1
+    },
+    {
+      "name": "OH2 / R.1.1 · S16 — ตอบรับ — เลือกวันจากช่วงที่เสนอ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1146,
+      "children": 3,
+      "texts": 171,
+      "images": 1
+    },
+    {
+      "name": "OH2 · R.1.3 ตอบรับ — ค้นหาผู้นำส่งรถ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · R.1.2 ตอบรับ — Validation ไม่เลือกวัน",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · R.1.1 ตอบรับ — เลือกวันจากช่วงที่เสนอ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "OH2 · Device",
+      "type": "FRAME",
+      "w": 300,
+      "h": 120,
+      "children": 1,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "OH2 · R S16 หน่วยงานเจ้าของรถ ตอบกลับนัดหมาย ตอบรับ และ ปฏิเสธ",
+      "type": "FRAME",
+      "w": 27680,
+      "h": 120,
+      "children": 2,
+      "texts": 2,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 528,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 688",
+      "type": "RECTANGLE",
+      "w": 1280,
+      "h": 284,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ไ���่เอา",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 464,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 567",
+      "type": "VECTOR",
+      "w": 642,
+      "h": 530,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 568",
+      "type": "VECTOR",
+      "w": 582,
+      "h": 514,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "คำว่า ”รถ” ทั้งหมดจะเปลี่ยนเป็น “ยานพาหนะ”",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "รถ → ยานพาหนะ นับแต่บัดนี้เป็นต้นไป!!!!!!!",
+      "type": "STICKY",
+      "w": 7214,
+      "h": 7214,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ปรับตารางการเลือกรถออกเป็น 2 ตาราง ตารางเลือกรถ ตารางใส่ราคากลางของรถที่เลือกเข้ามา",
+      "type": "STICKY",
+      "w": 416,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Vector 569",
+      "type": "VECTOR",
+      "w": 0,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Step Over haul",
+      "type": "TEXT",
+      "w": 281,
+      "h": 60,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "สร้างแผน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 96,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เลือกรถ",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 96,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "สร้าง PO",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 176,
+      "h": 96,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 63,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Connector line",
+      "type": "CONNECTOR",
+      "w": 81,
+      "h": 0,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "อยากเห็นอะไร แต่ละแผน ดำเนินการไปกี่ % แล้ว เหลืออีกกี่% จะเสร็จ รถที่ค้างอยู่ใน แผนมีกี่คัน เสร็จแล้วกี่คัน ยังไม่เสร็จกี่คัน ถ้าเลือกหลายแผน ให้รวมผลมาแสดง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 264,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Sticky",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ผู้บริหารดู summary อะไรบ้าง เทียบราคาซื้อใหม่ รถอะไรบ้าง จำนวนกี่คัน ราคาประมาณการ dashboard อยากดู progress ได้ด้วย",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 190,
+      "h": 74,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Secondary button",
+      "type": "INSTANCE",
+      "w": 70,
+      "h": 40,
+      "children": 3,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Scenario Export แผน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 2148,
+      "h": 215,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 / A.1 · หน้ารายการแผน — ค้นหา — รายการแผน",
+      "type": "FRAME",
+      "w": 1719,
+      "h": 1338,
+      "children": 2,
+      "texts": 270,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 210,
+      "h": 91,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Secondary button",
+      "type": "INSTANCE",
+      "w": 81,
+      "h": 46,
+      "children": 3,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Question",
+      "type": "STAMP",
+      "w": 44,
+      "h": 44,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "เพิ่มปุ่ม “รายงาน” สำหรับดาวโหลด Excel",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "กด “รายงาน” แล้วดาวโหลดไฟล์ Excel เลย",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ชื่อไฟล์เป็น d",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 691",
+      "type": "RECTANGLE",
+      "w": 1508,
+      "h": 1119,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 464,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ปุ่ม บันทึก จะ Disable เมื่อยังไม่ได้กรอกข้อมูล",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 547,
+      "h": 547,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 479,
+      "h": 479,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 464,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เมนู(ใหม่) ดูข้อมูลยานพาหนะ ดูข้อมูลการซ่อม ระบุราคา ลบ",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 692",
+      "type": "RECTANGLE",
+      "w": 1226,
+      "h": 1826,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Group 155",
+      "type": "GROUP",
+      "w": 1140,
+      "h": 792,
+      "children": 1,
+      "texts": 268,
+      "images": 0
+    },
+    {
+      "name": "ความคืบหน้า ต่อคัน → ต่อ PO (บวกกันหารคัน) → ต่อแผน (บวกกันหาร PO)",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "IMG_2293 1",
+      "type": "RECTANGLE",
+      "w": 437,
+      "h": 400,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ประเมินความคุ้มค่าได้ เช่น ราคาที่ต้องซื้อใหม่ - ราคาประเมิน overhaul = ประหยัดไปเท่าไหร่ ดู progress ได้ รถอะไรบ้าง จำนวนกี่คัน แต่ละแผน ดำเนินการไปกี่ % แล้ว เหลืออีกกี่% จะเสร็จ รถที่ค้างอยู่ใน แผนมีกี่คัน เสร็จแล้วกี่คัน ถ้าเลือกหลายแผน ให้รวมผลมาแสดง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 360,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ตัดออก",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ตัดออก",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 160,
+      "h": 529,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "อยากเห็นอะไร แต่ละแผน ดำเนินการไปกี่ % แล้ว เหลืออีกกี่% จะเสร็จ รถที่ค้างอยู่ใน แผนมีกี่คัน เสร็จแล้วกี่คัน ยังไม่เสร็จกี่คัน ถ้าเลือกหลายแผน ให้รวมผลมาแสดง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 264,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "vehicle price in mas_vehicle",
+      "type": "STICKY",
+      "w": 128,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "↕️",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "image 690",
+      "type": "RECTANGLE",
+      "w": 669,
+      "h": 480,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "แยก section อะไหล่ ตัวรถ เครื่องมือกล Note อะไหล่กรอกมือ ในอนาคตเชื่อมคลัง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ค่าใช้จ่าย overhaul มีอะไรบ้าง เพิ่ม field ให้ครบตาม req",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ระยะสัญญาอาจจะเปลีี่ยนไปแสดงที่หน้าสรุป",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 528,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Screenshot 2569-11-12 at 11.45.44 1",
+      "type": "RECTANGLE",
+      "w": 995,
+      "h": 305,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Screenshot 2569-11-12 at 11.45.44 2",
+      "type": "RECTANGLE",
+      "w": 995,
+      "h": 289,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 144,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 112,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "image 693",
+      "type": "RECTANGLE",
+      "w": 1403,
+      "h": 217,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "เพิ่ม ราคา ลบได้ แก้ได้",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "‼️",
+      "type": "STAMP",
+      "w": 3114,
+      "h": 3114,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "แก้ไข ลบ เท่านั้น",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 140,
+      "h": 85,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scope Serial number= รหัสอะไหล่ serial number show ใน ตารางเป็น description column ชื่ออะไหล่ row อะไหล่ สามารถ action ได้ ดังนี้ แก้ไข ลบ กดแก้ไข จะ prefill modal และสามารถแก้จำนวนใน row ได้เลย",
+      "type": "STICKY",
+      "w": 240,
+      "h": 384,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1356,
+      "h": 528,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scope สามารถใส่ค่าแรง และ ค่าใช้จ่ายอื่นๆ เมื่อ blur จะ apply ค่า ที่ ตาราง",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 479,
+      "h": 479,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ข้อมูลรถในตาราง  ทะเบียนรถ title = เลขทะเบียน desc = สังกัด",
+      "type": "STICKY",
+      "w": 240,
+      "h": 384,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Supporting text",
+      "type": "TEXT",
+      "w": 144,
+      "h": 18,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 272,
+      "h": 54,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "สามารถแสดงข้อมูลรายละเอียดยานพาหนะได้ เช่น ทะเบียนยานพาหนะ, อายุ,                                                  ประเภทยานพาหนะ, สังกัดหน่วยงาน, ยี่ห้อเครื่องมือกล, หมายเลขเครน/เครื่องมือกล, Serial number, เลขไมล์, ชั่วโมงสะสมการทำงานของเครื่องมือกล เป็นต้น",
+      "type": "STICKY",
+      "w": 240,
+      "h": 360,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "เป็นรายการแผน",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 976,
+      "h": 176,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 784,
+      "h": 192,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 304,
+      "h": 336,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 479,
+      "h": 479,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ถ้าไม่อนุมัติ ต้องทำไงต่อ ???? ตอบ: ขึ้น modle ให้ใส่เหตุผล push notic update status → approved rejected vehicle step 6 allowed editable then follow flow normally → 6→7→ wait for approved",
+      "type": "STICKY",
+      "w": 814,
+      "h": 1105,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Disable ทุกวัน ยกเว้น range ที่เค้าเลือกมา ถ้าเลย range ที่กำหนดจะแสดง warning ว่าเลยวันที่รับนัดหมายแล้ว reject ได้อย่างเดียว",
+      "type": "STICKY",
+      "w": 288,
+      "h": 288,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Heart",
+      "type": "STAMP",
+      "w": 345,
+      "h": 345,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "เข้าเมนูใหม่ จัดการนัดหมาย",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 1256,
+      "h": 1190,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ปฏิเสธการอนุมัติ",
+      "type": "TEXT",
+      "w": 77,
+      "h": 18,
+      "children": 0,
+      "texts": 1,
+      "images": 0
+    },
+    {
+      "name": "Sticky",
+      "type": "STICKY",
+      "w": 289,
+      "h": 289,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ต้นทางระบุผู้นำส่งรถ",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 479,
+      "h": 479,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 479,
+      "h": 479,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "ใช้แบบเดิม",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 496,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Dev หาวิธีมาว่าจะข้าม การนัดหมายนำรถเข้ามายังไง และ กบค จะรู้ได้ยังไงว่า นัดนำรถเข้าวันไหน หลังตอบกลับนัดหมาย",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "OH2 / U.6 · S20 — อนุมัติสำเร็จ",
+      "type": "FRAME",
+      "w": 1440,
+      "h": 1024,
+      "children": 3,
+      "texts": 245,
+      "images": 1
+    },
+    {
+      "name": "Shape with text",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 784,
+      "h": 128,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "กดยินยัน แสดง toast สำเร็จ",
+      "type": "STICKY",
+      "w": 240,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใช้แบบเดิม",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 496,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใช้แบบเดิม",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 496,
+      "h": 240,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "ใช้แบบเดิม",
+      "type": "SHAPE_WITH_TEXT",
+      "w": 496,
+      "h": 1120,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 673,
+      "h": 2456,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Code block",
+      "type": "CODE_BLOCK",
+      "w": 576,
+      "h": 3584,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "refinement 2/10/69 Q: ศูนย์บริการ/อู่ ไปดึงข้อมูลมาจากไหนมาแสดง ? ANS:curl -X POST \"https://vendor.pea.co.th/api/vendor-data/vendor-finder\" -H \"Content-Type: application/json\" -d \"{\\\"apikey\\\": \\\"QZCjwxJX4fno4M31e6SY\\\", \\\"keyword\\\": \\\"เพ็ญพจน์\\\"}\" ",
+      "type": "STICKY",
+      "w": 416,
+      "h": 312,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Scope Require ชื่ออู่ เป็น drop down search ประเภทยานพาหนะที่รองรับ เบอร์โทร Optional",
+      "type": "STICKY",
+      "w": 240,
+      "h": 264,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Plan (Overhaul) role: กรย → จะเห็นแผนที่มีรถของ “ของตัวเอง” ตาม county ตัวเอง **เห็นรถคนอื่นด้วย role: General → county AND dept_sap **เห็นรถคนอื่นด้วย",
+      "type": "STICKY",
+      "w": 416,
+      "h": 288,
+      "children": 0,
+      "texts": 0,
+      "images": 0
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    },
+    {
+      "name": "Star",
+      "type": "STAMP",
+      "w": 60,
+      "h": 60,
+      "children": 0,
+      "texts": 0,
+      "images": 1
+    }
+  ]
+}

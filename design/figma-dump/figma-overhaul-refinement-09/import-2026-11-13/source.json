@@ -1,0 +1,20 @@
+{
+  "name": "figma-overhaul-refinement-09",
+  "fileKey": null,
+  "fileKeyEvidence": "dump ไม่ฝัง file key — ใส่เองจากลิงก์ไฟล์ Figma",
+  "exporter": "tools/figma-dump (receive.mjs)",
+  "capturedAt": "2026-11-13T07:17:46.309Z",
+  "fileCount": 1,
+  "totalBytes": 91771578,
+  "validation": {
+    "jsonParsed": true,
+    "liveFigmaVerified": false
+  },
+  "files": [
+    {
+      "path": "1-5795.json",
+      "bytes": 91771578,
+      "sha256": "912cfcb24565de41f95c76f3753a7a79f723f74982026ec7b5e0b635a006eb69"
+    }
+  ]
+}
