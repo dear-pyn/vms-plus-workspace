@@ -25,6 +25,15 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@ui/*": [
+        "./packages/ui/*"
+      ],
+      "@rules/*": [
+        "./packages/rules/*"
+      ],
+      "@overhaul/*": [
+        "./domains/overhaul/*"
       ]
     }
   },

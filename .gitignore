@@ -5,3 +5,10 @@ out/
 .env*
 !.env.example
 .DS_Store
+
+# แคปหน้าจอ (มีข้อมูลจริง) + session ล็อกอิน — ห้ามขึ้น git
+tools/capture/captures/
+tools/capture/.capture-profile/
+
+# HTML ที่แปลงจาก Figma dump — สร้างใหม่ได้ด้วย npm run render
+public/figma-render/

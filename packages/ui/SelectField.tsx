@@ -20,16 +20,19 @@ export interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectEl
   options: SelectOption[];
   /** ตัวเลือกแรกค่าว่าง เช่น "ทั้งหมด" / "เลือก…" */
   placeholder?: string;
+  /** ไอคอนนำหน้า (Input dropdown › Leading icon) เช่น "paid" ของช่องประเภทงบประมาณ (จอ OH2 / B.3.x) */
+  icon?: string;
   readOnly?: boolean;
   className?: string;
 }
 
-export function SelectField({ label, optional, error, helper, options, placeholder, readOnly, disabled, className, id, ...rest }: SelectFieldProps) {
+export function SelectField({ label, optional, error, helper, options, placeholder, icon, readOnly, disabled, className, id, ...rest }: SelectFieldProps) {
   const auto = useId();
   const fid = id ?? auto;
   return (
     <FieldShell id={fid} label={label} optional={optional} error={error} helper={helper} className={className}>
       <div className={fieldBoxClass({ error: !!error, readOnly, disabled })}>
+        {icon && <Icon name={icon} size={24} className="pointer-events-none ml-0.5 text-gray-500" />}
         <select
           id={fid}
           disabled={disabled || readOnly}

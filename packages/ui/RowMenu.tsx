@@ -15,7 +15,9 @@ import { useIsMobile } from "./useMediaQuery";
 import { cx } from "./cx";
 
 export type RowMenuItem =
-  | { label: string; icon?: string; href?: string; onSelect?: () => void; disabled?: boolean }
+  /** danger = รายการลบ — ตัวอักษร+ไอคอน error-600 · ข้อความต้องระบุว่าลบอะไร เช่น "ลบแผน" (เจ้าของงานกำหนด 13 พ.ย. 2569;
+   *  ไลบรารี `_Dropdown menu item` ยังไม่มี variant สีแดง) */
+  | { label: string; icon?: string; href?: string; onSelect?: () => void; disabled?: boolean; danger?: boolean }
   | "divider";
 
 export interface RowMenuProps {
@@ -94,8 +96,8 @@ export function RowMenu({ items, label, icon = "more_horiz", forceSheet }: RowMe
       {items.map((it, i) => {
         if (it === "divider") return <div key={i} role="separator" className="my-1 h-px bg-gray-200" />;
         const inner = (
-          <span className={cx("flex items-center gap-2 rounded-md px-3 py-2 text-sm leading-6 font-medium", it.disabled ? "text-gray-400" : "text-black group-hover:bg-gray-100 group-focus-visible:bg-gray-50")}>
-            {it.icon && <Icon name={it.icon} size={16} className="text-gray-500" />}
+          <span className={cx("flex items-center gap-2 rounded-md px-3 py-2 text-sm leading-6 font-medium", it.disabled ? "text-gray-400" : cx(it.danger ? "text-error-600" : "text-black", "group-hover:bg-gray-100 group-focus-visible:bg-gray-50"))}>
+            {it.icon && <Icon name={it.icon} size={16} className={it.danger && !it.disabled ? "text-error-600" : "text-gray-500"} />}
             {it.label}
           </span>
         );

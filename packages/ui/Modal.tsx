@@ -135,13 +135,15 @@ export interface ModalProps {
   headerAction?: ReactNode;
   /** auto = สลับเป็น bottom sheet เมื่อจอ < 768 · sheet = บังคับ bottom sheet (ใช้ในแกลเลอรี) · dialog = บังคับกล่องกลาง */
   mode?: "auto" | "sheet" | "dialog";
+  /** สูงคงที่ + เนื้อหาไม่เลื่อนทั้งก้อน (ให้ลูกจัดส่วนที่เลื่อนเอง เช่นเลื่อนเฉพาะตาราง) */
+  fill?: boolean;
 }
 
 export function Modal(props: ModalProps) {
   const {
     open, onClose, variant = "form", size = "md", title, description, icon = "info", iconTone = "brand", children,
     cancelLabel = "ยกเลิก", onCancel, hideCancel, confirmLabel = "ยืนยัน", onConfirm, confirmVariant = "primary",
-    confirmLoading, confirmDisabled, footer, headerAction, mode = "auto",
+    confirmLoading, confirmDisabled, footer, headerAction, mode = "auto", fill,
   } = props;
   const mobile = useIsMobile();
   const tid = useId();
@@ -210,7 +212,7 @@ export function Modal(props: ModalProps) {
           role="dialog"
           aria-modal="true"
           aria-labelledby={tid}
-          className={cx("relative m-auto flex max-h-[calc(100dvh-48px)] w-full animate-fade-in flex-col overflow-hidden rounded-lg bg-white shadow-float", SIZE[size])}
+          className={cx("relative m-auto flex max-h-[calc(100dvh-48px)] w-full animate-fade-in flex-col overflow-hidden rounded-lg bg-white shadow-float", SIZE[size], fill && "h-[min(860px,calc(100dvh-48px))]")}
         >
           {variant === "centered" ? (
             <div className="shrink-0 px-6 pt-6">
@@ -224,31 +226,30 @@ export function Modal(props: ModalProps) {
               <Button variant="tertiary" iconOnly="close" aria-label="ปิด" onClick={onClose} className="absolute top-4 right-4" />
             </div>
           ) : (
-            <div className="shrink-0 px-6 pb-4">
-              <div className="flex min-h-16 items-center gap-2">
-                <div className="min-w-0 flex-1">
-                  <h2 id={tid} className="text-lg font-semibold text-gray-900">{title}</h2>
-                  {description && <p className="text-md text-gray-600">{description}</p>}
+            /* `Modal header` Alignment=Left (dump 2-16.json): Content pad 24/24/0/24 · gap 8 · ข้อความหัวข้อกับรอง gap 4 ·
+               Divider = เว้น 20 + เส้น 1px (14 พ.ย. 2569 แก้ "header แคบแปลกๆ" — เดิมไม่มี padding บน) */
+            <div className="shrink-0 border-b border-gray-200 px-6 pt-6 pb-5">
+              <div className="flex items-start gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <h2 id={tid} className="text-lg font-semibold text-black">{title}</h2>
+                  {description && <p className="text-sm text-gray-600">{description}</p>}
                 </div>
-                <Button variant="tertiary" iconOnly="close" aria-label="ปิด" onClick={onClose} />
+                <Button variant="tertiary" iconOnly="close" aria-label="ปิด" onClick={onClose} className="-mt-2 -mr-2" />
               </div>
             </div>
           )}
           {children != null && (
-            <div className={cx("flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 [&>*]:shrink-0", variant === "centered" && "pt-4")}>{children}</div>
+            <div className={cx("flex min-h-0 flex-1 flex-col gap-3 px-6", fill ? "overflow-hidden" : "overflow-y-auto [&>*]:shrink-0", variant === "centered" ? "pt-4" : "py-5")}>{children}</div>
           )}
-          <div className="shrink-0 px-6 pt-6 pb-6">
+          {/* `Modal footer` Alignment=Horizontal right: ปุ่มกว้างพอดีข้อความ (hug) ชิดขวา gap 12 · ฟอร์มมีเส้นคั่น · pad 20/24/24 —
+              เจ้าของงาน 14 พ.ย. 2569: ไม่ใช้ปุ่มกว้าง 50% (Horizontal fill) */}
+          <div className={cx("shrink-0 px-6 pb-6", variant === "centered" ? "pt-6" : "border-t border-gray-200 pt-5")}>
             {footer ? (
               <div className="flex flex-wrap items-center justify-between gap-3">{footer}</div>
-            ) : variant === "centered" ? (
-              <div className="flex items-center gap-3 [&>*]:min-w-0 [&>*]:flex-1">
+            ) : (
+              <div className="flex min-h-10 flex-wrap items-center justify-end gap-3">
                 {cancelBtn}
                 {confirmBtn}
-              </div>
-            ) : (
-              <div className="flex min-h-10 flex-wrap items-center justify-between gap-3">
-                {cancelBtn || <span />}
-                <div className="ml-auto flex items-center gap-3 [&>*]:min-w-[220px]">{confirmBtn}</div>
               </div>
             )}
           </div>
@@ -271,10 +272,12 @@ export interface ConfirmDialogProps {
   icon?: string;
   loading?: boolean;
   mode?: ModalProps["mode"];
+  /** แจ้งอย่างเดียว ปุ่มเดียว (เช่น บันทึกไม่ได้เพราะยานพาหนะถูกนำออกจากแผน — FigJam Section 10) */
+  hideCancel?: boolean;
 }
 
 /** ทางลัดของ Modal variant="centered" — ยืนยัน / ยืนยันลบ / ยืนยันการออก */
-export function ConfirmDialog({ open, onClose, onConfirm, title, description, danger, confirmLabel = "ยืนยัน", cancelLabel = "ยกเลิก", icon = "info", loading, mode }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, onClose, onConfirm, title, description, danger, confirmLabel = "ยืนยัน", cancelLabel = "ยกเลิก", icon = "info", loading, mode, hideCancel }: ConfirmDialogProps) {
   return (
     <Modal
       open={open}
@@ -289,6 +292,7 @@ export function ConfirmDialog({ open, onClose, onConfirm, title, description, da
       confirmVariant={danger ? "danger" : "primary"}
       confirmLoading={loading}
       mode={mode}
+      hideCancel={hideCancel}
     />
   );
 }

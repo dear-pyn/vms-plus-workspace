@@ -48,7 +48,7 @@ export function FieldShell({ id, label, optional, error, helper, className, chil
   return (
     <div className={cx("min-w-0", className)}>
       {label && (
-        <label htmlFor={id} className="mb-2 block text-md font-semibold leading-6 text-gray-600">
+        <label htmlFor={id} className="mb-2 block text-md leading-6 font-semibold text-gray-600">
           {label}
           {optional && <small className="text-md font-normal text-gray-400"> (ถ้ามี)</small>}
         </label>

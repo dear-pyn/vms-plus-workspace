@@ -1,4 +1,4 @@
-import "./globals.css";
+import "../globals.css";
 import Link from "next/link";
 export const metadata = { title: "VMS+ Workspace", description: "Requirements, flows, prototypes and review cases" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,0 +1,35 @@
+{
+  // Cmd+Shift+P → "Run Task" → เลือกงาน · ความคืบหน้าแสดงในแผง Terminal ด้านล่าง (หยุด: ไอคอนถังขยะ หรือ Ctrl+C)
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dump Figma (รอรับไฟล์จากปลั๊กอิน)",
+      "type": "shell",
+      "command": "npm run -s dump",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": false, "clear": true }
+    },
+    {
+      "label": "Capture หน้าจอตาม flow",
+      "type": "shell",
+      "command": "npm run -s capture -- '--web=${input:captureWeb}' '${input:captureName}'",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": false, "clear": true }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "captureWeb",
+      "type": "promptString",
+      "description": "เว็บ: 1 = VMS เว็บเก่า · 2 = UAT ใหม่ · หรือวางลิงก์หน้าที่ต้องการ",
+      "default": "1"
+    },
+    {
+      "id": "captureName",
+      "type": "promptString",
+      "description": "ชื่อชุดภาพ (เว้นว่าง = ใช้วันเวลา)",
+      "default": ""
+    }
+  ]
+}

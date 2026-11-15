@@ -2,6 +2,10 @@
 
 พื้นที่ทำงาน Next.js สำหรับหลาย JO / domain / เคสรีวิว ตั้งแต่ requirement, Business Flow, prototype, Figma export และ AC บน FigJam
 
+## ลำดับทำงาน
+
+อ่าน [Workflow แบบยืนยันทีละขั้น](docs/WORKFLOW.md): โจทย์สั้น → Prototype → ยืนยัน UI/behavior → Flow → Figma → AC/ FigJam
+
 ## เริ่มใช้งาน
 
 ```sh

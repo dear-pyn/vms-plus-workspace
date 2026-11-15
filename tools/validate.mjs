@@ -27,7 +27,7 @@ for(const c of catalog.cases){
  for(const jo of c.joIds) assert(catalog.jos.some(j=>j.id===jo),`Unknown JO ${jo}`);
  for(const field of ["prototype","requirements","flow","ac","screenSpec"]) if(c[field]) {
   assert(c[field].startsWith("/")&&!c[field].includes(".."),`Unsafe artifact ${c.id}`);
-  assert(existsSync(`public${c[field]}`),`Missing ${field}: ${c.id}`);
+  assert(existsSync(`public${c[field]}`)||(field==="prototype"&&c[field].endsWith("/")&&existsSync(`src/app/(prototype)${c[field]}page.tsx`)),`Missing ${field}: ${c.id}`);
  }
  if(c.ac){const ac=JSON.parse(readFileSync(`public${c.ac}`,"utf8"));assert(ac.caseId===c.id&&ac.revision===c.revision&&ac.ruleVersion===c.ruleVersion,`AC revision mismatch ${c.id}`);for(const item of ac.items){assert(["confirmed","observed","pending"].includes(item.status));assert(item.source&&item.screenId,`AC must have evidence ${item.id}`);}}
  if(c.status==="review") {for(const key of ["prototype","requirements","flow","ac"]) assert(c[key],`Review case needs ${key}`);assert(c.joIds.length,`Review case needs a confirmed JO`);assert(c.approval?.by&&c.approval?.at&&c.approval?.evidence,`Review case needs explicit approval evidence`);}

@@ -1,0 +1,20 @@
+{
+  "name": "VMS+ · Dump หน้าใน Figma",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ],
+    "devAllowedDomains": [
+      "http://localhost:8124"
+    ],
+    "reasoning": "ส่งผล dump ไปที่ตัวรับไฟล์ในเครื่อง (tools/figma-dump/receive.mjs) — ไม่ต่อออกอินเทอร์เน็ต"
+  }
+}
