@@ -131,6 +131,7 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
             <VehicleTable
               rows={plan.vehicles}
               label="ยานพาหนะในแผน"
+              hideProgress /* เจ้าของงาน 16 พ.ย. 2569 */
               action={(v) => (
                 <RowMenu
                   label={`จัดการ ${v.plate}`}

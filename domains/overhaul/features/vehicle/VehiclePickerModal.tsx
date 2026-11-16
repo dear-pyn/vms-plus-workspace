@@ -179,6 +179,7 @@ export function VehiclePickerModal<T extends PickRow>({
             rows={shown}
             label="ยานพาหนะที่เลือกได้"
             scrollY
+            hideProgress /* เจ้าของงาน 16 พ.ย. 2569: เพิ่มยานพาหนะเข้าแผน/Purchase Order ไม่มีความคืบหน้า */
             sort={sort}
             onSort={onSort}
             rowClassName={(v) => (v.unavailableReason ? "text-gray-400" : undefined)}

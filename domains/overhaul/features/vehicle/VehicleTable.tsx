@@ -55,6 +55,7 @@ export function VehicleTable<T extends VehicleRow>({
   status,
   rowClassName,
   scrollY,
+  hideProgress,
 }: {
   rows: T[];
   label: string;
@@ -69,6 +70,8 @@ export function VehicleTable<T extends VehicleRow>({
   rowClassName?: (v: T) => string | undefined;
   /** เลื่อนเฉพาะตาราง หัวตารางอยู่กับที่ (ใน Modal) */
   scrollY?: boolean;
+  /** ไม่มีคอลัมน์ "ความคืบหน้า" — ตารางยานพาหนะในแผนและ Purchase Order (เจ้าของงานสั่ง 16 พ.ย. 2569) · แท็บยานพาหนะที่ Overhaul ยังมี */
+  hideProgress?: boolean;
 }) {
   const sortTh = (k: VehicleSortKey, text: string) =>
     onSort ? (
@@ -89,7 +92,7 @@ export function VehicleTable<T extends VehicleRow>({
           <Th>ราคากลาง</Th>
           <Th>ประเมิน Overhaul (บาท)</Th>
           {sortTh("ageYears", "อายุการใช้งาน")}
-          {sortTh("progress", "ความคืบหน้า")}
+          {!hideProgress && sortTh("progress", "ความคืบหน้า")}
           {status && <Th>สถานะ</Th>}
           {action && <Th aria-label="จัดการ" />}
         </tr>
@@ -108,7 +111,7 @@ export function VehicleTable<T extends VehicleRow>({
             <Td className="tabular-nums">{price(v.referencePrice)}</Td>
             <Td className="tabular-nums">{price(v.overhaulEstimate)}</Td>
             <Td>{v.ageYears} ปี</Td>
-            <Td className="w-40">{v.progress === null ? "—" : <ProgressBar tone="info" decimals={1} value={v.progress} label={`ความคืบหน้า ${v.plate}`} />}</Td>
+            {!hideProgress && <Td className="w-40">{v.progress === null ? "—" : <ProgressBar tone="info" decimals={1} value={v.progress} label={`ความคืบหน้า ${v.plate}`} />}</Td>}
             {status && <Td>{status(v)}</Td>}
             {action && <Td className="w-14 text-right">{action(v)}</Td>}
           </tr>

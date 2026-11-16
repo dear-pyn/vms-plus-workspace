@@ -207,6 +207,7 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
             <VehicleBrowser
               rows={d.vehicles}
               label="ยานพาหนะในแผน"
+              hideProgress /* เจ้าของงาน 16 พ.ย. 2569: ตารางรถในแผนไม่มีความคืบหน้า */
               toolbarActions={
                 /* T1: ปุ่มเพิ่มอยู่ขวามือของปุ่มตัวกรอง · B.18 ปุ่ม "รายงาน" (มติ FigJam Scenario Export แผน: ดาวน์โหลด Excel ทันที) */
                 <>

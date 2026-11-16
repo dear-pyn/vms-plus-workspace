@@ -26,6 +26,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
   showYear,
   toolbarExtra,
   toolbarActions,
+  hideProgress,
 }: {
   rows: T[];
   label: string;
@@ -38,6 +39,8 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
   toolbarExtra?: ReactNode;
   /** ปุ่มต่อท้ายปุ่มตัวกรอง (เช่น "เพิ่มยานพาหนะ" ในฟอร์มแผน — T1) */
   toolbarActions?: ReactNode;
+  /** ไม่มีคอลัมน์ความคืบหน้า (ฟอร์มแผน) */
+  hideProgress?: boolean;
 }) {
   const [q, setQ] = useState("");
   const [year, setYear] = useState("");
@@ -127,6 +130,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
           <VehicleTable
             rows={shown}
             label={label}
+            hideProgress={hideProgress}
             rowKey={rowKey}
             sort={sort}
             onSort={(k) => {
