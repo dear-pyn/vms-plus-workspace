@@ -214,7 +214,6 @@ export function PlanList({ plans, onOpen, onEdit, onDelete, onCreate, onNotInSco
             page={cur}
             pageSize={size}
             total={rows.length}
-            pageSizes={[10, 20, 50]}
             onPageChange={setPage}
             onPageSizeChange={(s) => {
               setSize(s);

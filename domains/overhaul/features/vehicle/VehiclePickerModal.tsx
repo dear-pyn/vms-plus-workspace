@@ -5,8 +5,9 @@
  *    T8 สถานะดูแค่ ระหว่างซ่อม / รอจำหน่าย · T9 แถบเลือกทั้งหมดไม่มีพื้นชมพู · T16 เลื่อนเฉพาะตาราง (หัว/เครื่องมือ/ท้ายอยู่กับที่)
  *  การเลือกจำนวนมาก: ติ๊กหัวตาราง = หน้านี้ + ลิงก์เลือกทั้งหมดตามคำค้นและตัวกรอง · ที่เลือกค้างข้ามหน้า/คำค้น/ตัวกรอง (M3 M4)
  *  M8 เพดานต่อครั้ง = prop maxSelect (ยังไม่กำหนด)
- *  เจ้าของงานสั่ง 16 พ.ย. 2569: เรียงคอลัมน์ได้แบบแท็บยานพาหนะที่ Overhaul (SortTh/sortRows ตัวเดียวกัน) — มูลค่า · อายุการใช้งาน
- *    (+ ราคากลาง · ประเมิน Overhaul เมื่อ showPrices) · ไม่มีข้อมูลอยู่ท้าย · เปลี่ยนการเรียงแล้วกลับหน้า 1 · ที่เลือกไว้ค้างอยู่ */
+ *  เจ้าของงานสั่ง 16 พ.ย. 2569: ตารางเหมือนแท็บยานพาหนะที่ Overhaul ทั้งคอลัมน์และการเรียง — ใช้ VehicleTable ตัวเดียวกัน
+ *    + คอลัมน์ Checkbox หน้าสุด + "สถานะ" ท้ายสุด (เมื่อมีคันที่เลือกไม่ได้) · ยังไม่มีราคา = ยังไม่ระบุ · ยังไม่มีความคืบหน้า = —
+ *    เรียง มูลค่า · อายุการใช้งาน · ความคืบหน้า (ไม่มีข้อมูลอยู่ท้าย) · เปลี่ยนการเรียงแล้วกลับหน้า 1 · ที่เลือกไว้ค้างอยู่ */
 import { useMemo, useState } from "react";
 import { Button } from "@ui/Button";
 import { CountPill, OutlineBadge } from "@ui/Badge";
@@ -16,17 +17,15 @@ import { Modal } from "@ui/Modal";
 import { Pagination } from "@ui/Pagination";
 import { SearchInput } from "@ui/SearchInput";
 import { SelectField } from "@ui/SelectField";
-import { CellStack, DataTable, Td, Th } from "@ui/Table";
-import { cx } from "@ui/cx";
-import { currency } from "@rules/currency.mjs";
 import type { VehicleInfo } from "./types";
-import { nextSort, SortTh, sortRows, type VehicleSort } from "./VehicleTable";
+import { nextSort, sortRows, VehicleTable, type VehicleSort, type VehicleSortKey } from "./VehicleTable";
 
 /** แถวที่เลือกได้ — fleet (เพิ่มเข้าแผน B.15) หรือยานพาหนะในแผน (เพิ่มเข้า Purchase Order E.5) */
-export type PickRow = VehicleInfo & { unavailableReason?: string; referencePrice?: number | null; overhaulEstimate?: number | null };
+export type PickRow = VehicleInfo & { unavailableReason?: string; referencePrice?: number | null; overhaulEstimate?: number | null; progress?: number | null };
+/** แถวที่ส่งให้ VehicleTable — ค่าที่ยังไม่มี = null (แสดง ยังไม่ระบุ / —) */
+type TableRow<T> = T & { referencePrice: number | null; overhaulEstimate: number | null; progress: number | null };
 
 type Key = "type" | "make" | "affiliation";
-type PickSortKey = "value" | "referencePrice" | "overhaulEstimate" | "ageYears";
 type Filter = Record<Key, string>;
 const EMPTY: Filter = { type: "", make: "", affiliation: "" };
 const LABEL: Record<Key, string> = { type: "ประเภทยานพาหนะ", make: "ยี่ห้อ", affiliation: "สังกัด" };
@@ -39,7 +38,6 @@ export function VehiclePickerModal<T extends PickRow>({
   onAdd,
   maxSelect,
   description = "ยานพาหนะในระบบที่ยังไม่อยู่ในแผนนี้" /* B.15 (จอ: "รถในระบบที่ยังไม่อยู่ในแผนนี้") */,
-  showPrices,
 }: {
   open: boolean;
   onClose: () => void;
@@ -49,8 +47,6 @@ export function VehiclePickerModal<T extends PickRow>({
   onAdd: (picked: T[]) => void;
   maxSelect?: number;
   description?: string;
-  /** E.5 แสดงราคากลาง/ประเมิน Overhaul ที่ได้มาจากแผน (FigJam Section 10) */
-  showPrices?: boolean;
 }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>(EMPTY);
@@ -58,13 +54,16 @@ export function VehiclePickerModal<T extends PickRow>({
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
-  const [sort, setSort] = useState<VehicleSort<PickSortKey>>(null);
-  const onSort = (k: PickSortKey) => {
+  const [sort, setSort] = useState<VehicleSort<VehicleSortKey>>(null);
+  const onSort = (k: VehicleSortKey) => {
     setSort((s) => nextSort(s, k));
     setPage(1);
   };
 
-  const pool = useMemo(() => fleet.filter((v) => !excludePlates.includes(v.plate)), [fleet, excludePlates]);
+  const pool = useMemo<TableRow<T>[]>(
+    () => fleet.filter((v) => !excludePlates.includes(v.plate)).map((v) => ({ ...v, referencePrice: v.referencePrice ?? null, overhaulEstimate: v.overhaulEstimate ?? null, progress: v.progress ?? null })),
+    [fleet, excludePlates],
+  );
   const opts = (k: Key) => [...new Set(pool.map((v) => String(v[k])))].sort((a, b) => a.localeCompare(b, "th"));
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
@@ -121,7 +120,7 @@ export function VehiclePickerModal<T extends PickRow>({
             <Button
               disabled={picked.size === 0 || over}
               onClick={() => {
-                onAdd(pool.filter((v) => picked.has(v.plate)));
+                onAdd(fleet.filter((v) => picked.has(v.plate)));
                 reset();
               }}
             >
@@ -195,58 +194,33 @@ export function VehiclePickerModal<T extends PickRow>({
         <EmptyState kind="search-not-found" title="ไม่พบยานพาหนะ" description="เปลี่ยนคำค้นหรือตัวกรอง" />
       ) : (
         <>
-          {/* T16 เลื่อนเฉพาะตาราง */}
-          <DataTable label="ยานพาหนะที่เลือกได้" striped scrollY>
-            <thead>
-              <tr>
-                <Th className="w-12">
-                  <Checkbox
-                    label="เลือกทุกคันในหน้านี้"
-                    checked={pageEligible.length > 0 && pagePicked === pageEligible.length}
-                    indeterminate={pagePicked > 0 && pagePicked < pageEligible.length}
-                    disabled={pageEligible.length === 0}
-                    onChange={(on) => set(pageEligible.map((v) => v.plate), on)}
-                  />
-                </Th>
-                <Th>ทะเบียน</Th>
-                <Th>ประเภทยานพาหนะ</Th>
-                <SortTh k="value" sort={sort} onSort={onSort}>{showPrices ? "ราคาที่ได้มา (บาท)" : "มูลค่ายานพาหนะ (บาท)"}</SortTh>
-                {showPrices && <SortTh k="referencePrice" sort={sort} onSort={onSort}>ราคากลาง (บาท)</SortTh>}
-                {showPrices && <SortTh k="overhaulEstimate" sort={sort} onSort={onSort}>ประเมิน Overhaul (บาท)</SortTh>}
-                <SortTh k="ageYears" sort={sort} onSort={onSort}>อายุการใช้งาน</SortTh>
-                {anyUnavailable && <Th>สถานะ</Th>}
-              </tr>
-            </thead>
-            <tbody>
-              {shown.map((v) => {
-                const why = v.unavailableReason;
-                return (
-                  <tr key={v.plate} className={cx(why && "text-gray-400")}>
-                    <Td>
-                      <Checkbox label={`เลือก ${v.plate}`} checked={picked.has(v.plate)} disabled={!!why} onChange={(on) => set([v.plate], on)} />
-                    </Td>
-                    <Td>
-                      <CellStack main={<span className="font-semibold">{v.plate}</span>} sub={v.affiliation} />
-                    </Td>
-                    <Td>
-                      <CellStack main={`${v.make} ${v.model}`} sub={v.type} />
-                    </Td>
-                    <Td className="tabular-nums">{currency(v.value)}</Td>
-                    {showPrices && <Td className="tabular-nums">{v.referencePrice == null ? "—" : currency(v.referencePrice)}</Td>}
-                    {showPrices && <Td className="tabular-nums">{v.overhaulEstimate == null ? "—" : currency(v.overhaulEstimate)}</Td>}
-                    <Td>{v.ageYears} ปี</Td>
-                    {anyUnavailable && <Td>{why ? <OutlineBadge>{why}</OutlineBadge> : "—"}</Td>}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </DataTable>
+          {/* T16 เลื่อนเฉพาะตาราง · คอลัมน์/การเรียงเหมือนแท็บยานพาหนะที่ Overhaul (VehicleTable ตัวเดียวกัน) */}
+          <VehicleTable
+            rows={shown}
+            label="ยานพาหนะที่เลือกได้"
+            scrollY
+            sort={sort}
+            onSort={onSort}
+            rowClassName={(v) => (v.unavailableReason ? "text-gray-400" : undefined)}
+            select={{
+              head: (
+                <Checkbox
+                  label="เลือกทุกคันในหน้านี้"
+                  checked={pageEligible.length > 0 && pagePicked === pageEligible.length}
+                  indeterminate={pagePicked > 0 && pagePicked < pageEligible.length}
+                  disabled={pageEligible.length === 0}
+                  onChange={(on) => set(pageEligible.map((v) => v.plate), on)}
+                />
+              ),
+              cell: (v) => <Checkbox label={`เลือก ${v.plate}`} checked={picked.has(v.plate)} disabled={!!v.unavailableReason} onChange={(on) => set([v.plate], on)} />,
+            }}
+            status={anyUnavailable ? (v) => (v.unavailableReason ? <OutlineBadge>{v.unavailableReason}</OutlineBadge> : "—") : undefined}
+          />
           <Pagination
             className="shrink-0"
             page={cur}
             pageSize={size}
             total={rows.length}
-            pageSizes={[10, 20, 50]}
             onPageChange={setPage}
             onPageSizeChange={(s) => {
               setSize(s);

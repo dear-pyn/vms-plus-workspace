@@ -7,6 +7,7 @@ import { StatusBadge } from "@ui/Badge";
 import { Icon } from "@ui/Icon";
 import { ProgressBar } from "@ui/ProgressBar";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
+import { cx } from "@ui/cx";
 import { currency } from "@rules/currency.mjs";
 import type { VehicleInfo } from "./types";
 
@@ -50,6 +51,10 @@ export function VehicleTable<T extends VehicleRow>({
   sort,
   onSort,
   rowKey = (v) => v.plate,
+  select,
+  status,
+  rowClassName,
+  scrollY,
 }: {
   rows: T[];
   label: string;
@@ -57,6 +62,13 @@ export function VehicleTable<T extends VehicleRow>({
   sort?: { key: VehicleSortKey; dir: 1 | -1 } | null;
   onSort?: (k: VehicleSortKey) => void;
   rowKey?: (v: T) => string;
+  /** คอลัมน์ Checkbox หน้าสุด (Modal เพิ่มยานพาหนะ) — head = เลือกทั้งหน้า */
+  select?: { head: ReactNode; cell: (v: T) => ReactNode };
+  /** คอลัมน์ "สถานะ" ท้ายตาราง (Modal เพิ่มยานพาหนะ: เลือกไม่ได้เพราะอะไร) */
+  status?: (v: T) => ReactNode;
+  rowClassName?: (v: T) => string | undefined;
+  /** เลื่อนเฉพาะตาราง หัวตารางอยู่กับที่ (ใน Modal) */
+  scrollY?: boolean;
 }) {
   const sortTh = (k: VehicleSortKey, text: string) =>
     onSort ? (
@@ -67,9 +79,10 @@ export function VehicleTable<T extends VehicleRow>({
       <Th>{text}</Th>
     );
   return (
-    <DataTable label={label} striped>
+    <DataTable label={label} striped scrollY={scrollY}>
       <thead>
         <tr>
+          {select && <Th className="w-12">{select.head}</Th>}
           <Th>ทะเบียน</Th>
           <Th>ประเภทยานพาหนะ</Th>
           {sortTh("value", "มูลค่ายานพาหนะ (บาท)")}
@@ -77,12 +90,14 @@ export function VehicleTable<T extends VehicleRow>({
           <Th>ประเมิน Overhaul (บาท)</Th>
           {sortTh("ageYears", "อายุการใช้งาน")}
           {sortTh("progress", "ความคืบหน้า")}
+          {status && <Th>สถานะ</Th>}
           {action && <Th aria-label="จัดการ" />}
         </tr>
       </thead>
       <tbody>
         {rows.map((v) => (
-          <tr key={rowKey(v)}>
+          <tr key={rowKey(v)} className={cx(rowClassName?.(v))}>
+            {select && <Td>{select.cell(v)}</Td>}
             <Td>
               <CellStack main={<span className="font-semibold">{v.plate}</span>} sub={v.affiliation} />
             </Td>
@@ -94,6 +109,7 @@ export function VehicleTable<T extends VehicleRow>({
             <Td className="tabular-nums">{price(v.overhaulEstimate)}</Td>
             <Td>{v.ageYears} ปี</Td>
             <Td className="w-40">{v.progress === null ? "—" : <ProgressBar tone="info" decimals={1} value={v.progress} label={`ความคืบหน้า ${v.plate}`} />}</Td>
+            {status && <Td>{status(v)}</Td>}
             {action && <Td className="w-14 text-right">{action(v)}</Td>}
           </tr>
         ))}

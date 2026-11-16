@@ -217,7 +217,6 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
               page={cur}
               pageSize={size}
               total={vehicles.length}
-              pageSizes={[10, 20, 50]}
               onPageChange={setPage}
               onPageSizeChange={(s) => {
                 setSize(s);
@@ -251,7 +250,6 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
         fleet={plan.vehicles.map((v) => ({ ...v, unavailableReason: takenBy[v.plate] ? `อยู่ใน ${takenBy[v.plate]}` : undefined }))}
         excludePlates={d.plates}
         description={`ยานพาหนะในแผน ${plan.id}`}
-        showPrices
         onAdd={(picked) => {
           const x = { ...d, plates: [...d.plates, ...picked.map((v) => v.plate)] };
           setD(x);
