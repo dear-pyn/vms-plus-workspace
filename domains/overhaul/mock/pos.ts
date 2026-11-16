@@ -3,7 +3,7 @@
 import { formatThaiDate } from "@ui/DateField";
 import { BUDGET_TYPES, type Plan } from "../features/plan/types";
 import { JOB_STATUS, type JobCode, type PurchaseOrder, type VehicleJob } from "../features/po/types";
-import { INTAKE_CHECKS } from "../features/job/intake";
+import { emptyChecks } from "../features/job/intake";
 import { IMPORT_SAMPLE, seedStock } from "../features/job/close";
 import type { OverhaulVehicle, PlanVehicle } from "../features/vehicle/types";
 
@@ -49,7 +49,9 @@ export function enrichJob(j: VehicleJob): VehicleJob {
     out.intake = {
       date: "07/10/2569",
       mileageKm: 182_400,
-      checks: INTAKE_CHECKS.map((item, i) => ({ item, ok: i !== 6, note: i === 6 ? "แม่แรงชำรุด" : "" })),
+      checks: emptyChecks().map((c, i) => ({ ...c, has: i !== 3, damaged: i === 5, note: i === 5 ? "แม่แรงชำรุด" : "", ...(c.brand !== undefined ? { brand: "GS", count: "2" } : {}) })),
+      delivererId: "600201",
+      receiverId: "500101",
       photos: [{ name: "รูปด้านหน้า.jpg", sizeKb: 820 }, { name: "รูปด้านข้าง.jpg", sizeKb: 760 }],
       approvals: [
         { side: "กบค.", staffId: "500101", sentAt: "07/10/2569 10:15", result: "approved", at: "07/10/2569 11:02" },
@@ -96,6 +98,7 @@ export function seedPOs(plans: Plan[], fleet: OverhaulVehicle[]): { plans: Plan[
   const jobs: VehicleJob[] = [];
   const byPlate = new Map(fleet.map((v) => [v.plate, v]));
   let k = 0;
+  let w = 0;
   const out = plans.map((p) => {
     if (p.id === "ORZ6900001") {
       const plates4 = JOB_FIGMA.map((r) => r[0]);
@@ -110,7 +113,14 @@ export function seedPOs(plans: Plan[], fleet: OverhaulVehicle[]): { plans: Plan[
       jobs.push({ poId: "PO-690103", plate: "72-6648 สงขลา", code: "V11", progress: 100, detail: ["ปิดงาน 30/10/2569", "ประกันถึง 30/10/2570"] });
       return { ...p, name: "Overhaul ประจำปีงบ 2569 — รถเครน", budget: 10_000_000, budgetType: BUDGET_TYPES[2], costCenter: "", orderNo: "", budgetNote: "", wbs: "C-69-OH-0101", network: "60001234", activity: "0010", createdAt: "12/08/2569", status: "รอดำเนินการ" as const, progress: 66.7, vehicles, poCount: 3 };
     }
-    if (p.poCount === 0) return p;
+    // EC-46 แผนมียานพาหนะเสมอ — แผนที่ยังไม่มี PO ได้ 1–3 คันจากชุดเดียวกัน (ทุกคันที่ 3 ยังไม่ระบุราคา → ป้าย "ยังไม่ระบุ")
+    if (p.poCount === 0) {
+      if (p.vehicles.length) return p;
+      const n = 1 + (w % 3);
+      const pick = Array.from({ length: n }, (_, i) => fleet[(w * 5 + i * 11) % fleet.length]);
+      w += 1;
+      return { ...p, vehicles: pick.map((v, i) => ({ ...toPlanVehicle(v, 140_000 + i * 15_500), ...((w + i) % 3 === 0 ? { referencePrice: null, overhaulEstimate: null } : {}) })) };
+    }
     const pick = [fleet[k % fleet.length], fleet[(k + 7) % fleet.length]];
     k += 1;
     const id = `PO-${String(p.fiscalYear).slice(-2)}${String(k).padStart(4, "0")}`;

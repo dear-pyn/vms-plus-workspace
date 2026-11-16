@@ -4,7 +4,9 @@
  *    หมายเหตุ · Tertiary button แก้ไข stylus / ลบ) · Pagination · Modal Form (Text input "ความคืบหน้า (%)" · Card form row รายละเอียด / หมายเหตุ (ถ้ามี)) ·
  *    Modal Destructive centered (L.2 ยืนยันการลบ) · Secondary lg "ย้อนกลับ" · Primary lg "ซ่อมสำเร็จ"
  *  FigJam Section 13 (refinement 12 พ.ย. 2569): เพิ่มช่อง percent · ฟอร์มไม่มีวันที่/เวลา (ระบบใส่ตอนเพิ่ม) · แก้ไข = พรีฟิลค่าเดิม บันทึกแล้วไม่อัปเดตวันเวลา ·
- *    แก้ได้ตลอดจนกว่าจะกดซ่อมสำเร็จ */
+ *    แก้ได้ตลอดจนกว่าจะกดซ่อมสำเร็จ
+ *  ภาพ UAT 16 พ.ย. 2569: ทั้งขั้น (หัว + ตาราง/Empty state + ปุ่มท้าย) อยู่ในการ์ดกรอบ gray-200 r-lg pad 24 · ข้อความ Empty state ตรงภาพ ·
+ *    ไม่มีข้อความช่วยข้างปุ่ม · ซ่อมสำเร็จได้เมื่อมีความคืบหน้าอย่างน้อย 1 รายการ (แทน D-J1 "ต้องถึง 100%") */
 import { useState } from "react";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
@@ -19,8 +21,9 @@ import type { ProgressEntry } from "../po/types";
 
 export type ProgressDraft = Pick<ProgressEntry, "percent" | "detail" | "note">;
 
-/** ซ่อมสำเร็จได้เมื่อมีความคืบหน้าถึง 100% (D-J1: จอ J.3 มี 1 รายการ 40% ปุ่มยังปิด · L.2 มีรายการ 100% ปุ่มเปิด) */
-export const canFinish = (log: ProgressEntry[]) => log.some((e) => e.percent >= 100);
+/** ซ่อมสำเร็จได้เมื่อมีความคืบหน้าอย่างน้อย 1 รายการ — ภาพ UAT 16 พ.ย. 2569 "เพิ่มความคืบหน้าอย่างน้อย 1 รายการก่อนกด “ซ่อมสำเร็จ”"
+ *  (เดิม D-J1 ต้องมีรายการถึง 100% ตามจอ J.3/L.2) */
+export const canFinish = (log: ProgressEntry[]) => log.length > 0;
 
 export function StepProgress({
   log, readOnly, onBack, onSave, onDelete, onFinish,
@@ -69,6 +72,8 @@ export function StepProgress({
 
   return (
     <>
+      {/* การ์ดครอบทั้งขั้นตามภาพ UAT (ไม่มี Card ใน packages/ui — ใช้ utility) */}
+      <div className="flex flex-col gap-8 rounded-lg border border-gray-200 bg-white p-6">
       <section className="flex flex-col gap-4">
         <SectionHeader
           title="รายละเอียดการติดตาม"
@@ -88,7 +93,7 @@ export function StepProgress({
           }
         />
         {log.length === 0 ? (
-          <EmptyState kind="data-empty" title="ยังไม่มีความคืบหน้า" description={readOnly ? undefined : "เพิ่มความคืบหน้าอย่างน้อย 1 รายการ และบันทึกถึง 100% ก่อนกดซ่อมสำเร็จ"} />
+          <EmptyState kind="data-empty" title="ยังไม่มีความคืบหน้า" description={readOnly ? undefined : "เพิ่มความคืบหน้าอย่างน้อย 1 รายการก่อนกด “ซ่อมสำเร็จ”"} />
         ) : (
           <div className="flex flex-col gap-4">
             <DataTable label="รายละเอียดการติดตาม" striped>
@@ -149,13 +154,11 @@ export function StepProgress({
           ย้อนกลับ
         </Button>
         {!readOnly && (
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            {!ok && <span className="text-sm text-gray-600">กดซ่อมสำเร็จได้เมื่อความคืบหน้าถึง 100%</span>}
-            <Button size="lg" disabled={!ok} onClick={() => setAskFinish(true)}>
-              ซ่อมสำเร็จ
-            </Button>
-          </div>
+          <Button size="lg" disabled={!ok} onClick={() => setAskFinish(true)}>
+            ซ่อมสำเร็จ
+          </Button>
         )}
+      </div>
       </div>
       <Modal
         open={!!form}
@@ -167,16 +170,7 @@ export function StepProgress({
       >
         {form && (
           <div className="flex flex-col gap-3">
-            {/* K.2 ลำดับช่อง: รายละเอียด (Text area) · หมายเหตุ (Text input) · ความคืบหน้า (%) ท้ายสุด (ช่องที่ FigJam เพิ่ม) */}
-            <TextArea
-              label="รายละเอียด"
-              placeholder="ระบุรายละเอียด"
-              value={form.detail}
-              onChange={(e) => setForm({ ...form, detail: e.target.value })}
-              onBlur={() => setErr((x) => ({ ...x, detail: check("detail") }))}
-              error={err.detail || undefined}
-            />
-            <TextField label="หมายเหตุ" optional placeholder="ระบุหมายเหตุ" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            {/* เจ้าของงานสั่ง 16 พ.ย. 2569: ความคืบหน้า (%) อยู่บนสุด → รายละเอียด (Text area) → หมายเหตุ (Text input) (เดิม K.2 ไว้ท้ายสุด) */}
             <TextField
               label="ความคืบหน้า (%)"
               placeholder="ระบุตัวเลข 0-100"
@@ -186,6 +180,15 @@ export function StepProgress({
               onBlur={() => setErr((x) => ({ ...x, percent: check("percent") }))}
               error={err.percent || undefined}
             />
+            <TextArea
+              label="รายละเอียด"
+              placeholder="ระบุรายละเอียด"
+              value={form.detail}
+              onChange={(e) => setForm({ ...form, detail: e.target.value })}
+              onBlur={() => setErr((x) => ({ ...x, detail: check("detail") }))}
+              error={err.detail || undefined}
+            />
+            <TextField label="หมายเหตุ" optional placeholder="ระบุหมายเหตุ" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
           </div>
         )}
       </Modal>

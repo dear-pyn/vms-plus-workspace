@@ -105,19 +105,38 @@ export interface AuditEntry {
   action: string;
 }
 
-/** รายการตรวจสอบก่อนซ่อม 1 ข้อ (ตาราง I.1: รายการตรวจสอบ ติ๊ก · ผลตรวจ · หมายเหตุ) */
+/** รายการเอกสารรับรถ 1 ข้อ — ภาพ UAT 16 พ.ย. 2569 (ตาราง: รายการ · มี/ไม่มี (Radio) · ชำรุด · ผิดรุ่น (Checkbox) · หมายเหตุ) */
 export interface CheckItem {
   item: string;
-  ok: boolean;
+  /** มี = true · ไม่มี = false · ยังไม่เลือก = null */
+  has: boolean | null;
+  /** ชำรุด / ผิดรุ่น — เลือกได้เมื่อ "มี" เท่านั้น */
+  damaged: boolean;
+  wrongModel: boolean;
   note: string;
+  /** ข้อ "แบตเตอรี่" — ยี่ห้อ · จำนวน (ลูก) */
+  brand?: string;
+  count?: string;
 }
 
 /** ขั้น 2 ตรวจรับรถ (S8 · scene I) */
+/** ขั้น 1 "นำรถเข้า" — ยานพาหนะอยู่อู่แล้ว ไม่นัดหมายกับหน่วยงาน */
+export interface DirectIntake {
+  /** dd/mm/yyyy (พ.ศ.) */
+  date: string;
+  mileageKm: number;
+  /** ผู้ประสานงาน (กบค.) ที่รับรถเข้าอู่ — รหัสพนักงาน (เจ้าของงาน 16 พ.ย. 2569: เดิมช่อง "ชื่อผู้รับ" พิมพ์เอง) */
+  coordinatorId: string;
+}
+
 export interface Intake {
-  /** วันที่รับรถเข้าอู่ dd/mm/yyyy */
+  /** วันที่รับรถเข้าอู่ dd/mm/yyyy — ระบบใส่จากขั้น 1 (วันที่หน่วยงานเลือก / วันที่นำรถเข้า) หรือวันที่บันทึก */
   date: string;
   mileageKm: number | null;
   checks: CheckItem[];
+  /** ลงนามการรับมอบรถ (ภาพ UAT 16 พ.ย. 2569): ผู้ส่งมอบรถ (หน่วยงาน) · ผู้รับมอบ (กบค.) — รหัสพนักงาน */
+  delivererId?: string;
+  receiverId?: string;
   photos: Photo[];
   approvals: Approval[];
   log: AuditEntry[];
@@ -194,6 +213,8 @@ export interface VehicleJob {
   /** ขั้น 1 — ไม่มี = ยังไม่นัด · skipped = ข้ามขั้นตอน (FigJam Section 11: ยานพาหนะอยู่อู่แล้ว) */
   appt1?: Appointment;
   skipped1?: boolean;
+  /** ขั้น 1 เลือก "นำรถเข้า" (16 พ.ย. 2569): ข้อมูลตอนรับรถเข้าอู่ — ใช้เป็นค่าตั้งต้นของขั้น 2 */
+  direct1?: DirectIntake;
   /** ขั้น 2 */
   intake?: Intake;
   /** ขั้น 3 */

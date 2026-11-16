@@ -207,6 +207,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
                   error={dateErr || undefined}
                 />
                 <Combobox
+                  minChars={3}
                   label={W.person}
                   optional
                   placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"

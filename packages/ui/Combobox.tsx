@@ -4,7 +4,8 @@
  *  รายการ: Dropdown list pad 12/8 · gap 8 (ระหว่างรายการ 0 ในจอ E.4) · r8 · พื้นขาว ขอบ gray-300 · เงา 0 12 16 -4 (shadow-lg)
  *    item h40 (มีข้อความรอง = สูงตามเนื้อหา) pad 0/8 · r4 · hover พื้น gray-200 · ข้อความ 16/400 ดำ · เลือกแล้วตัวอักษร brand-900 + check 24 brand-900
  *    ข้อความรอง 12/400 gray-600 (เช่น "02-111-2202 · เขตพระนคร กรุงเทพฯ" จอ OH2 / E.4)
- *  ใช้เมื่อ: ตัวเลือกเยอะ ต้องพิมพ์ค้น (ศูนย์บริการ/อู่ · ผู้ประสานงาน) — ตัวเลือกน้อยใช้ <SelectField> */
+ *  ใช้เมื่อ: ตัวเลือกเยอะ ต้องพิมพ์ค้น (ศูนย์บริการ/อู่ · ผู้ประสานงาน) — ตัวเลือกน้อยใช้ <SelectField>
+ *  minChars (เจ้าของงานสั่ง 16 พ.ย. 2569 "รายชื่อคนต้อง search 3 ตัวก่อนถึงจะเจอชื่อ"): พิมพ์ไม่ครบ = ไม่แสดงรายชื่อ แสดงข้อความแนะนำแทน */
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { FieldShell, fieldBoxClass, fieldControlClass } from "./Field";
 import { Icon } from "./Icon";
@@ -20,7 +21,7 @@ export interface ComboOption {
 }
 
 export function Combobox({
-  label, optional, error, helper, options, value, onChange, placeholder, emptyText = "ไม่พบข้อมูล", icon = "search", className, disabled, footer,
+  label, optional, error, helper, options, value, onChange, placeholder, emptyText = "ไม่พบข้อมูล", icon = "search", className, disabled, footer, minChars = 0,
 }: {
   label?: ReactNode;
   optional?: boolean;
@@ -36,6 +37,8 @@ export function Combobox({
   disabled?: boolean;
   /** ต่อท้ายรายการ เช่น ปุ่ม "เพิ่มอู่/ศูนย์บริการ" */
   footer?: ReactNode;
+  /** ต้องพิมพ์อย่างน้อยกี่ตัวอักษรจึงแสดงรายการ (รายชื่อคน = 3) */
+  minChars?: number;
 }) {
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -45,8 +48,10 @@ export function Combobox({
   const sel = options.find((o) => o.value === value);
   const list = useMemo(() => {
     const k = q.trim().toLowerCase();
+    if (k.length < minChars) return [];
     return k ? options.filter((o) => [o.label, o.sub, o.keywords].some((s) => s?.toLowerCase().includes(k))) : options;
-  }, [options, q]);
+  }, [options, q, minChars]);
+  const tooShort = q.trim().length < minChars;
 
   useEffect(() => {
     if (!open) return;
@@ -111,7 +116,7 @@ export function Combobox({
         {open && (
           <div className="absolute top-full right-0 left-0 z-30 mt-1 rounded-md border border-gray-300 bg-white px-2 py-3 [box-shadow:var(--shadow-lg)]">
             <ul id={`${id}-list`} role="listbox" className="flex max-h-72 flex-col overflow-y-auto">
-              {list.length === 0 && <li className="px-2 py-2 text-md text-gray-600">{emptyText}</li>}
+              {list.length === 0 && <li className="px-2 py-2 text-md text-gray-600">{tooShort ? `พิมพ์อย่างน้อย ${minChars} ตัวอักษรเพื่อค้นหา` : emptyText}</li>}
               {list.map((o, i) => {
                 const on = o.value === value;
                 return (

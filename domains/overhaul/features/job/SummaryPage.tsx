@@ -70,7 +70,7 @@ export function SummaryPage({
 
   const stepRows: Array<[string, ReactNode, ReactNode, ReactNode]> = [
     ["การนำรถเข้าอู่", job.skipped1 ? job.intake?.date : job.appt1?.reply?.at, job.skipped1 ? "ข้ามนัดหมาย (ยานพาหนะอยู่อู่แล้ว)" : `หน่วยงานตอบรับ · ผู้นำส่งรถ ${job.appt1?.reply?.deliverer ?? "—"}`, job.appt1 ? `นัด ${job.appt1.from} - ${job.appt1.to}` : "—"],
-    ["ตรวจรับรถ", job.intake?.confirmedAt?.slice(0, 10), "ผู้ยืนยัน 2 ฝ่าย กบค. และหน่วยงาน อนุมัติแล้ว", `รายการตรวจสอบผ่าน ${job.intake?.checks.filter((x) => x.ok).length ?? 0}/${job.intake?.checks.length ?? 0} รายการ`],
+    ["ตรวจรับรถ", job.intake?.confirmedAt?.slice(0, 10), `ผู้ส่งมอบ ${staff.find((x) => x.id === job.intake?.delivererId)?.name ?? "—"} · ผู้รับมอบ ${staff.find((x) => x.id === job.intake?.receiverId)?.name ?? "—"}`, `รายการเอกสารรับรถ มี ${job.intake?.checks.filter((x) => x.has).length ?? 0}/${job.intake?.checks.length ?? 0} รายการ`],
     ["ติดตามงานซ่อม", finishedRepair, `ความคืบหน้า ${job.progressLog?.length ?? 0} รายการ`, finishedRepair ? `ซ่อมสำเร็จ ${finishedRepair}` : "—"],
     ["ตรวจสภาพ", job.inspection?.confirmedAt?.slice(0, 10), `เอกสาร Safety Inspection ${job.inspection?.safety.length ?? 0} ไฟล์`, "ยืนยันการตรวจสภาพ"],
     ["นัดรับรถ", job.appt5?.reply?.at, `หน่วยงานตอบรับ · ผู้รับรถ ${c?.receiver ?? job.appt5?.reply?.deliverer ?? "—"}`, job.appt5 ? `นัด ${job.appt5.from} - ${job.appt5.to}` : "—"],

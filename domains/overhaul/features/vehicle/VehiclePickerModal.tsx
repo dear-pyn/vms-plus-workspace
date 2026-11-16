@@ -3,14 +3,16 @@
  *  ฟีดแบ็กเจ้าของงาน 14 พ.ย. 2569 (docs/TODO-overhaul.md):
  *    T4 ตัวกรองกางลงมาในตัว modal · T5 ไม่มี "แสดงเฉพาะที่เลือก" · T6 title "เพิ่มยานพาหนะ" (common) subtitle จาก senior-ux-writing ·
  *    T8 สถานะดูแค่ ระหว่างซ่อม / รอจำหน่าย · T9 แถบเลือกทั้งหมดไม่มีพื้นชมพู · T16 เลื่อนเฉพาะตาราง (หัว/เครื่องมือ/ท้ายอยู่กับที่)
- *  การเลือกจำนวนมาก: ติ๊กหัวตาราง = หน้านี้ + ลิงก์เลือกทั้งหมดตามคำค้นและตัวกรอง · ที่เลือกค้างข้ามหน้า/คำค้น/ตัวกรอง (M3 M4)
+ *  การเลือกจำนวนมาก: ติ๊กหัวตาราง = หน้านี้ · ที่เลือกค้างข้ามหน้า/คำค้น/ตัวกรอง (M4) · ลิงก์เลือกทั้งหมด (M3) ตัดออก 16 พ.ย. 2569
  *  M8 เพดานต่อครั้ง = prop maxSelect (ยังไม่กำหนด)
  *  เจ้าของงานสั่ง 16 พ.ย. 2569: ตารางเหมือนแท็บยานพาหนะที่ Overhaul ทั้งคอลัมน์และการเรียง — ใช้ VehicleTable ตัวเดียวกัน
  *    + คอลัมน์ Checkbox หน้าสุด + "สถานะ" ท้ายสุด (เมื่อมีคันที่เลือกไม่ได้) · ยังไม่มีราคา = ยังไม่ระบุ · ยังไม่มีความคืบหน้า = —
- *    เรียง มูลค่า · อายุการใช้งาน · ความคืบหน้า (ไม่มีข้อมูลอยู่ท้าย) · เปลี่ยนการเรียงแล้วกลับหน้า 1 · ที่เลือกไว้ค้างอยู่ */
+ *    เรียง มูลค่า · อายุการใช้งาน · ความคืบหน้า (ไม่มีข้อมูลอยู่ท้าย) · เปลี่ยนการเรียงแล้วกลับหน้า 1 · ที่เลือกไว้ค้างอยู่
+ *  เจ้าของงานสั่ง 16 พ.ย. 2569: ใน modal ไม่มีคอลัมน์ "สถานะ" และไม่มีแถบ "เลือก n คันในหน้านี้แล้ว · เลือกทั้งหมด … ตามคำค้นและตัวกรอง"
+ *    (ติ๊กหัวตาราง = เลือกเฉพาะหน้านี้) · คันที่เลือกไม่ได้ยังปิด checkbox + ตัวอักษรเทา (เหตุผลไม่แสดงแล้ว — EC-02) */
 import { useMemo, useState } from "react";
 import { Button } from "@ui/Button";
-import { CountPill, OutlineBadge } from "@ui/Badge";
+import { CountPill } from "@ui/Badge";
 import { Checkbox } from "@ui/Checkbox";
 import { EmptyState } from "@ui/EmptyState";
 import { Modal } from "@ui/Modal";
@@ -76,11 +78,9 @@ export function VehiclePickerModal<T extends PickRow>({
   const cur = Math.min(page, pages);
   const shown = rows.slice((cur - 1) * size, cur * size);
   const pageEligible = shown.filter((v) => !v.unavailableReason);
-  const allEligible = rows.filter((v) => !v.unavailableReason);
   const pagePicked = pageEligible.filter((v) => picked.has(v.plate)).length;
   const over = maxSelect !== undefined && picked.size > maxSelect;
   const active = (Object.keys(filter) as Key[]).filter((k) => filter[k]).length;
-  const anyUnavailable = pool.some((v) => v.unavailableReason);
 
   const set = (plates: string[], on: boolean) =>
     setPicked((s) => {
@@ -168,26 +168,6 @@ export function VehiclePickerModal<T extends PickRow>({
             </Button>
           </div>
         )}
-        {/* M3 เลือกทั้งหน้าแล้ว → เสนอเลือกทั้งหมดตามคำค้นและตัวกรอง (T9 ไม่มีพื้นชมพู) */}
-        {pageEligible.length > 0 && pagePicked === pageEligible.length && allEligible.length > pageEligible.length && (
-          <div role="status" className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
-            {allEligible.every((v) => picked.has(v.plate)) ? (
-              <>
-                เลือกทั้งหมด {allEligible.length} คันตามคำค้นและตัวกรองแล้ว
-                <Button variant="tertiaryBrand" size="sm" onClick={() => set(allEligible.map((v) => v.plate), false)}>
-                  ล้างที่เลือก
-                </Button>
-              </>
-            ) : (
-              <>
-                เลือก {pagePicked} คันในหน้านี้แล้ว
-                <Button variant="tertiaryBrand" size="sm" onClick={() => set(allEligible.map((v) => v.plate), true)}>
-                  เลือกทั้งหมด {allEligible.length} คันตามคำค้นและตัวกรอง
-                </Button>
-              </>
-            )}
-          </div>
-        )}
       </div>
 
       {shown.length === 0 ? (
@@ -214,7 +194,6 @@ export function VehiclePickerModal<T extends PickRow>({
               ),
               cell: (v) => <Checkbox label={`เลือก ${v.plate}`} checked={picked.has(v.plate)} disabled={!!v.unavailableReason} onChange={(on) => set([v.plate], on)} />,
             }}
-            status={anyUnavailable ? (v) => (v.unavailableReason ? <OutlineBadge>{v.unavailableReason}</OutlineBadge> : "—") : undefined}
           />
           <Pagination
             className="shrink-0"

@@ -127,9 +127,7 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
       {pos.length === 0 && (
         <section className="flex flex-col gap-5">
           <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title={`ยานพาหนะในแผน (${plan.vehicles.length} คัน)`} />
-          {plan.vehicles.length === 0 ? (
-            <EmptyState kind="data-empty" title="ยังไม่มียานพาหนะในแผน" description="แก้ไขแผนเพื่อเพิ่มยานพาหนะที่จะเข้า Overhaul" action={<Button iconLeft="stylus" onClick={onEdit}>แก้ไขแผน</Button>} />
-          ) : (
+          {/* EC-46 แผนมียานพาหนะเสมอ (เจ้าของงานเคาะ 16 พ.ย. 2569) — ไม่มี Empty state "ยังไม่มียานพาหนะในแผน" แล้ว */}
             <VehicleTable
               rows={plan.vehicles}
               label="ยานพาหนะในแผน"
@@ -143,7 +141,6 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
                 />
               )}
             />
-          )}
         </section>
       )}
 

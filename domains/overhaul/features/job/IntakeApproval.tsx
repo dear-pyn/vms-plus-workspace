@@ -92,7 +92,7 @@ export function IntakeApproval({
                 {intake.checks.map((c) => (
                   <tr key={c.item}>
                     <Td>{c.item}</Td>
-                    <Td>{c.ok ? <Pill tone="success">ผ่าน</Pill> : "—"}</Td>
+                    <Td>{c.has ? <Pill tone="success">มี</Pill> : c.has === false ? "ไม่มี" : "—"}</Td>
                     <Td>{c.note || "—"}</Td>
                   </tr>
                 ))}

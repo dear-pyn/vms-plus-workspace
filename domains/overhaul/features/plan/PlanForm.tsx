@@ -95,6 +95,8 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
     if (!x.budgetType) e.budgetType = "กรุณาเลือกประเภทงบประมาณ";
     if (!x.docs.principle.length) e.principle = "กรุณาแนบหนังสืออนุมัติหลักการ";
     if (!x.docs.budget.length) e.budgetDoc = "กรุณาแนบเอกสารอนุมัติงบ";
+    // เจ้าของงานเคาะ 16 พ.ย. 2569 "แผนต้องมีรถตลอด" (EC-46) — บันทึกไม่ได้ถ้ายังไม่มียานพาหนะ (ปุ่มบันทึก disable ตามกติกาเดิม)
+    if (!x.vehicles.length) e.vehicles = "กรุณาเพิ่มยานพาหนะอย่างน้อย 1 คัน";
     return e;
   };
   /** B.2 "กรณีไม่ได้เลือก (Out of focus)": ออกจากช่องแล้วยังว่าง → แสดงข้อความของช่องนั้น */
@@ -180,11 +182,13 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
 
       <section className="flex flex-col gap-4">
         <SectionHeader title="เลือกยานพาหนะที่จะเข้า Overhaul" badge={<OutlineBadge>{d.vehicles.length}</OutlineBadge>} />
+        {/* EC-46 ลบคันสุดท้ายออก → แจ้งทันที (สร้างแผนใหม่ยังไม่แจ้ง ใช้คำอธิบายใน Empty state แทน) */}
+        {errors.vehicles && <span role="alert" className="text-sm text-error-600">{errors.vehicles}</span>}
         {d.vehicles.length === 0 ? (
           <EmptyState
             kind="data-empty"
             title="ยังไม่มียานพาหนะในแผน"
-            description="เพิ่มยานพาหนะที่จะเข้า Overhaul และระบุราคาของแต่ละคัน"
+            description="เพิ่มยานพาหนะอย่างน้อย 1 คันเพื่อบันทึกแผน และระบุราคาของแต่ละคัน"
             action={
               <Button iconLeft="add" onClick={() => setPicker(true)}>
                 เพิ่มยานพาหนะ
@@ -209,9 +213,12 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
                   <Button variant="secondary" iconLeft="add" onClick={() => setPicker(true)}>
                     เพิ่มยานพาหนะ
                   </Button>
-                  <Button variant="secondary" onClick={() => downloadPlanExcel(d.vehicles)}>
-                    รายงาน
-                  </Button>
+                  {/* เจ้าของงานสั่ง 16 พ.ย. 2569: หน้าสร้างแผนไม่มีปุ่มรายงาน (มีเฉพาะแก้ไขแผน) */}
+                  {!isNew && (
+                    <Button variant="secondary" onClick={() => downloadPlanExcel(d.vehicles)}>
+                      รายงาน
+                    </Button>
+                  )}
                 </>
               }
               action={(v) => (
@@ -310,7 +317,9 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
         description={removeFor ? `${removeFor.plate} จะถูกนำออกจากแผนนี้ และราคาที่ระบุไว้จะหายไป` : undefined}
         onClose={() => setRemoveFor(null)}
         onConfirm={() => {
-          set("vehicles", d.vehicles.filter((v) => v.plate !== removeFor?.plate));
+          const vehicles = d.vehicles.filter((v) => v.plate !== removeFor?.plate);
+          set("vehicles", vehicles);
+          blurCheck("vehicles", { ...d, vehicles }); // EC-46 ลบคันสุดท้าย = แสดงข้อความบังคับ · เพิ่มกลับแล้วข้อความหาย
           onNotify(`ลบ ${removeFor?.plate} ออกจากแผนแล้ว`);
           setRemoveFor(null);
         }}

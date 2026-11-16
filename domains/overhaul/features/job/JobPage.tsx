@@ -12,7 +12,6 @@ import type { PlanVehicle } from "../vehicle/types";
 import { JOB_STATUS, JOB_STEPS, type Appointment, type Garage, type JobCode, type PurchaseOrder, type Staff, type VehicleJob } from "../po/types";
 import { Row, StepAppointment } from "./StepAppointment";
 import { StepIntake, type IntakeDraft } from "./StepIntake";
-import { sendIntake } from "./intake";
 import { StepProgress, type ProgressDraft } from "./StepProgress";
 import { StepInspection } from "./StepInspection";
 import type { Inspection } from "../po/types";
@@ -91,21 +90,18 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   /** จำลองบันทึกไม่สำเร็จ (toast แถว 26): ข้อความที่กรอกมีคำว่า "error" */
   const fail = (...texts: string[]) => texts.some((t) => /error/i.test(t));
 
-  async function sendIntakeReq(side: "กบค." | "หน่วยงาน", d: IntakeDraft): Promise<boolean> {
+  /** ขั้น 2 (ภาพ UAT 16 พ.ย. 2569): "บันทึกและถัดไป" → ไปขั้นติดตามงานซ่อมเลย (ไม่มีส่งขอยืนยัน 2 ฝ่ายแล้ว)
+   *  วันที่/เลขไมล์รับรถ ระบบใส่ให้จากขั้น 1 (นำรถเข้า · วันที่หน่วยงานเลือก) หรือวันที่บันทึก */
+  async function saveIntake(d: IntakeDraft): Promise<boolean> {
     await wait(600);
     if (fail(...d.checks.map((c) => c.note))) {
       onNotify("500 Internal Server Error", "error");
       return false;
     }
-    const who = staff.find((s) => s.id === d.staff[side])?.name ?? "";
-    const intake = sendIntake(job.intake, side, d, nowStamp(), who);
-    set("V4.1", { intake, detail: ["รอผู้ยืนยันรับมอบ", `รับรถ ${d.date}`] }, { msg: `ส่งขอยืนยันถึง ${who} สำเร็จ` });
-    return true;
-  }
-  async function confirmIntake(): Promise<boolean> {
-    await wait(600);
-    if (!job.intake) return false;
-    set("V5", { intake: { ...job.intake, confirmedAt: nowStamp(), log: [...job.intake.log, { at: nowStamp(), who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "ยืนยันรับรถ" }] }, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${job.intake.date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
+    const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
+    const at = nowStamp();
+    const intake = { date, mileageKm: job.direct1?.mileageKm ?? null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: [], approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
+    set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
     return true;
   }
 
@@ -186,7 +182,14 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         return (
           <section className="flex flex-col gap-4">
             <SectionHeader title="นัดหมายนำรถเข้าอู่" />
-            <p className="text-md text-gray-600">ข้ามขั้นตอนนัดหมาย (ยานพาหนะอยู่ที่อู่แล้ว)</p>
+            {job.direct1 ? (
+              /* นำรถเข้า (16 พ.ย. 2569): แสดงข้อมูลที่บันทึกตอนเลือก "นำรถเข้า" */
+              <dl className="rounded-lg bg-gray-50 p-6">
+                <Row cols={3} items={[["วันที่นำรถเข้า", job.direct1.date], ["เลขไมล์ปัจจุบัน (กม.)", job.direct1.mileageKm.toLocaleString()], ["ผู้ประสานงาน (กบค.)", staff.find((x) => x.id === job.direct1!.coordinatorId)?.name]]} />
+              </dl>
+            ) : (
+              <p className="text-md text-gray-600">ข้ามขั้นตอนนัดหมาย (ยานพาหนะอยู่ที่อู่แล้ว)</p>
+            )}
           </section>
         );
       return (
@@ -201,7 +204,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           past={view < current}
           onBack={onGoPO}
           onSubmit={(a) => sendAppt(1, a)}
-          onSkip={() => set("V4.1", { skipped1: true, detail: ["ข้ามนัดหมาย", "รอตรวจรับรถ"] }, { msg: "ข้ามขั้นตอนนัดหมายแล้ว", tone: "info" })}
+          onSkip={(d) => set("V4.1", { skipped1: true, direct1: d, detail: [`นำรถเข้า ${d.date}`, "รอตรวจรับรถ"] }, { msg: "ข้ามขั้นตอนนัดหมายแล้ว", tone: "info" })}
           onSimulateReply={(ok) => reply(1, ok)}
         />
       );
@@ -209,15 +212,12 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     if (view === 2) {
       return (
         <StepIntake
-          key={`i-${job.code}-${job.intake?.log.length ?? 0}`}
+          key={`i-${job.code}`}
           intake={job.intake}
-          defaultDate={job.skipped1 ? "" : (job.appt1?.reply?.date ?? job.appt1?.from ?? "")}
           staff={staff}
           readOnly={ro}
           onBack={onGoPO}
-          onSend={sendIntakeReq}
-          onConfirm={confirmIntake}
-          onOpenApproval={onOpenApproval}
+          onSave={saveIntake}
         />
       );
     }

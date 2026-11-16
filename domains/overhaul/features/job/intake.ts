@@ -1,26 +1,31 @@
-/** ตรรกะขั้น 2 ตรวจรับรถ (ไม่ผูก UI) — ส่งคำขอยืนยัน · ผลการยืนยัน · audit log (FigJam Section 12) */
-import type { Approval, Intake } from "../po/types";
-import type { IntakeDraft } from "./StepIntake";
+/** ตรรกะขั้น 2 ตรวจรับรถ (ไม่ผูก UI)
+ *  ภาพ UAT 16 พ.ย. 2569: รายการเอกสารรับรถ + ลงนามการรับมอบรถ → "บันทึกและถัดไป" (แทนการส่งขอยืนยัน 2 ฝ่ายของ FigJam Section 12)
+ *  decideIntake ยังเก็บไว้ให้หน้าผู้ยืนยันเดิม (route approve) คอมไพล์ผ่าน — ไม่มีทางเข้าจากขั้น 2 แล้ว */
+import type { CheckItem, Intake } from "../po/types";
 
-/** รายการตรวจสอบก่อนซ่อม 7 ข้อ — ยกจากจอ I.1 (ข้อมูลจำลอง · AC-S8 ยังไม่เคาะว่าชุดตายตัวหรือแยกตามประเภทยานพาหนะ) */
-export const INTAKE_CHECKS = ["สำเนาคู่มือจดทะเบียนรถ", "กุญแจรถ (ตัวจริง + สำรอง)", "สภาพตัวรถภายนอกและสี", "ระบบไฟส่องสว่างและสัญญาณ", "ยางและล้อ (รวมยางอะไหล่)", "ระดับน้ำมันเครื่องและของเหลว", "เครื่องมือประจำรถ"];
+/** รายการเอกสารรับรถ 13 ข้อ — ยกจากภาพ UAT 16 พ.ย. 2569 (แทนชุด 7 ข้อของจอ I.1) · ข้อที่มี brand/count = แบตเตอรี่ */
+export const INTAKE_CHECKS = [
+  "แผ่นป้ายทะเบียนหน้า-หลัง",
+  "ป้ายทะเบียนติดกระจก และ พรบ.",
+  "กระจกมองข้างซ้าย-ขวา, กระจกมองหลัง",
+  "ยางอะไหล่",
+  "แบตเตอรี่",
+  "เครื่องมือประจำรถ, แม่แรง, ประแจถอดล้อ",
+  "ฝาถังน้ำมัน",
+  "อุปกรณ์บนหน้าปัด, แตร",
+  "ใบปัดน้ำฝน",
+  "วิทยุ, ลำโพง, เสาอากาศ, วิทยุรับ-ส่ง",
+  "ระบบไฟส่องสว่าง",
+  "สภาพยาง",
+  "สภาพตัวถังและสี",
+];
+export const BATTERY = "แบตเตอรี่";
 
-/** ส่งคำขอยืนยันถึง 1 ฝ่าย — หลังถูกปฏิเสธ: ล้างผลรอบก่อนทั้ง 2 ฝ่าย (D-I4 ข้อมูลอาจเปลี่ยน ต้องยืนยันใหม่) */
-export function sendIntake(prev: Intake | undefined, side: Approval["side"], d: IntakeDraft, at: string, staffName: string): Intake {
-  const reset = !prev || !!prev.rejected;
-  const base: Approval[] = (["กบค.", "หน่วยงาน"] as const).map((s) => {
-    const old = prev?.approvals.find((a) => a.side === s);
-    return reset || !old ? { side: s, staffId: d.staff[s] } : old;
-  });
-  return {
-    date: d.date,
-    mileageKm: Number(d.mileage.replace(/,/g, "")),
-    checks: d.checks,
-    photos: d.photos,
-    approvals: base.map((a) => (a.side === side ? { side, staffId: d.staff[side], sentAt: at } : a.sentAt ? a : { ...a, staffId: d.staff[a.side] })),
-    log: [...(prev?.log ?? []), { at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: `ส่งขอยืนยันการรับมอบถึง ${staffName} (ฝั่ง ${side})` }],
-  };
-}
+export const emptyChecks = (): CheckItem[] =>
+  INTAKE_CHECKS.map((item) => ({ item, has: null, damaged: false, wrongModel: false, note: "", ...(item === BATTERY ? { brand: "", count: "" } : {}) }));
+
+/** บันทึกได้เมื่อตอบ มี/ไม่มี ครบทุกข้อ + เลือกผู้ส่งมอบและผู้รับมอบแล้ว */
+export const intakeComplete = (checks: CheckItem[], delivererId: string, receiverId: string) => checks.every((c) => c.has !== null) && !!delivererId && !!receiverId;
 
 export function decideIntake(prev: Intake, staffId: string, approved: boolean, reason: string, at: string, staffName: string): Intake {
   const approvals = prev.approvals.map((a) => (a.staffId === staffId && a.sentAt && !a.result ? { ...a, result: approved ? ("approved" as const) : ("rejected" as const), reason: approved ? undefined : reason, at } : a));
