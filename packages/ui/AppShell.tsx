@@ -18,6 +18,12 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { cx } from "./cx";
 
+/** เมนูย่อยที่ชี้ hash route (เช่น #/agency) ใช้ <a> ธรรมดา ให้เบราว์เซอร์ยิง hashchange — Next Link เปลี่ยน hash ด้วย pushState หน้าเลยไม่สลับมุมมอง */
+function ChildLink(props: React.ComponentProps<typeof Link>) {
+  const { href, ...rest } = props;
+  return typeof href === "string" && href.includes("#/") ? <a href={href} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)} /> : <Link href={href} {...rest} />;
+}
+
 export interface NavChild {
   id: string;
   label: string;
@@ -126,7 +132,7 @@ export function AppShell({ nav, activeId, children, user = "ผู้ใช้",
                         const cur = c.id === activeId;
                         return (
                           <li key={c.id}>
-                            <Link
+                            <ChildLink
                               href={c.href || "#"}
                               aria-current={cur ? "page" : undefined}
                               aria-disabled={c.href ? undefined : true}
@@ -138,7 +144,7 @@ export function AppShell({ nav, activeId, children, user = "ผู้ใช้",
                               )}
                             >
                               {c.label}
-                            </Link>
+                            </ChildLink>
                           </li>
                         );
                       })}

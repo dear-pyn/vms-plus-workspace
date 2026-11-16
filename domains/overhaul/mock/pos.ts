@@ -1,7 +1,7 @@
 /** ข้อมูลจำลอง Purchase Order + งานรายคัน — แผน ORZ6900001 และ PO-690101/02/03 ยกจากจอ OH2 / G.1 · F.4.2 · E.9
  *  แผนอื่นที่มี PO (poCount 1) สร้าง PO ละ 2 คันวนจากยานพาหนะที่ Overhaul · ⚠ ไม่ใช่ข้อมูลจริง ห้ามใช้เป็นเกณฑ์ AC */
 import { formatThaiDate } from "@ui/DateField";
-import type { Plan } from "../features/plan/types";
+import { BUDGET_TYPES, type Plan } from "../features/plan/types";
 import { JOB_STATUS, type JobCode, type PurchaseOrder, type VehicleJob } from "../features/po/types";
 import { INTAKE_CHECKS } from "../features/job/intake";
 import { IMPORT_SAMPLE, seedStock } from "../features/job/close";
@@ -108,7 +108,7 @@ export function seedPOs(plans: Plan[], fleet: OverhaulVehicle[]): { plans: Plan[
       JOB_FIGMA.forEach(([plate, code, progress, detail]) => jobs.push({ poId: "PO-690101", plate, code, progress, detail }));
       jobs.push({ poId: "PO-690102", plate: "80-3316 เชียงใหม่", code: "V5", progress: 40, detail: ["อยู่อู่ 20 วัน", "รับรถ 01/10/2569"] });
       jobs.push({ poId: "PO-690103", plate: "72-6648 สงขลา", code: "V11", progress: 100, detail: ["ปิดงาน 30/10/2569", "ประกันถึง 30/10/2570"] });
-      return { ...p, name: "Overhaul ประจำปีงบ 2569 — รถเครน", budget: 10_000_000, wbs: "C-69-OH-0101", network: "60001234", activity: "0010", createdAt: "12/08/2569", status: "รอดำเนินการ" as const, progress: 66.7, vehicles, poCount: 3 };
+      return { ...p, name: "Overhaul ประจำปีงบ 2569 — รถเครน", budget: 10_000_000, budgetType: BUDGET_TYPES[2], costCenter: "", orderNo: "", budgetNote: "", wbs: "C-69-OH-0101", network: "60001234", activity: "0010", createdAt: "12/08/2569", status: "รอดำเนินการ" as const, progress: 66.7, vehicles, poCount: 3 };
     }
     if (p.poCount === 0) return p;
     const pick = [fleet[k % fleet.length], fleet[(k + 7) % fleet.length]];

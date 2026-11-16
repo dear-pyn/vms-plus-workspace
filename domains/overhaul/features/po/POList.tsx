@@ -31,7 +31,7 @@ export function POList({ pos, jobs, garages, onOpen, onEdit, onDelete }: { pos: 
           const note = contractNote(po.contractEnd, pr >= 100);
           return (
             <tr key={po.id} className="cursor-pointer hover:bg-gray-50" onClick={() => onOpen(po.id)}>
-              <Td className="font-semibold text-brand-900">{po.id}</Td>
+              <Td className="font-semibold text-black" /* UAT: หมายเลขสีดำ ตัวหนา */>{po.id}</Td>
               <Td>{po.name}</Td>
               <Td>{garages.find((g) => g.id === po.garageId)?.name ?? "-"}</Td>
               <Td>{po.plates.length}</Td>

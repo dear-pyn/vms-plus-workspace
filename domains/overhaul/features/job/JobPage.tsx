@@ -42,11 +42,21 @@ export interface JobPageProps {
   onOpenSummary: () => void;
   /** S17 หน่วยงานเจ้าของยานพาหนะ / กรย. — ดูอย่างเดียวทุกขั้น */
   viewOnly?: boolean;
+  /** ปุ่มขวาบนของหัวหน้า (มุมหน่วยงาน: ปฏิเสธนัดหมาย / ตอบรับนัดหมาย) */
+  actions?: ReactNode;
+  /** ส่วนบนสุดก่อน "ข้อมูลยานพาหนะ" (มุมหน่วยงาน: ฟอร์มตอบรับนัดหมาย) */
+  top?: ReactNode;
+  /** ใต้แถบขั้นตอน แทนเนื้อหาขั้นปัจจุบัน (มุมหน่วยงาน: ช่องวันที่ตอบรับ) */
+  belowSteps?: ReactNode;
+  /** ซ่อน Progress steps — แสดงเฉพาะเนื้อหาขั้นปัจจุบัน (มุมหน่วยงาน: เจ้าของงานสั่ง 16 พ.ย. 2569 "เอา step ออก") */
+  hideSteps?: boolean;
+  /** แทน breadcrumb เดิม (มุมหน่วยงานเข้าจากเมนู "ตอบรับนัดหมาย") */
+  crumbs?: Array<{ label: string; onClick?: () => void }>;
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, onOpenSummary, viewOnly }: JobPageProps) {
+export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, onOpenSummary, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
   const st = JOB_STATUS[job.code];
   const current = job.code === "V11" ? 8 : st.step; // ปิดงานแล้ว = ครบทุกขั้น
   const [viewing, setViewing] = useState<number>(Math.min(current, 7));
@@ -188,6 +198,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           garage={garage}
           staff={staff}
           readOnly={ro}
+          past={view < current}
           onBack={onGoPO}
           onSubmit={(a) => sendAppt(1, a)}
           onSkip={() => set("V4.1", { skipped1: true, detail: ["ข้ามนัดหมาย", "รอตรวจรับรถ"] }, { msg: "ข้ามขั้นตอนนัดหมายแล้ว", tone: "info" })}
@@ -226,6 +237,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           garage={garage}
           staff={staff}
           readOnly={ro}
+          past={view < current}
           onBack={onGoPO}
           onSubmit={(a) => sendAppt(5, a)}
           onSkip={() => set("V10", { skipped5: true, detail: ["ข้ามนัดรับรถ", "รอปิดงาน"] }, { msg: "ข้ามขั้นตอนนัดหมายแล้ว", tone: "info" })}
@@ -261,10 +273,12 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
-        crumbs={[{ label: "จัดการงาน Overhaul", onClick: onGoPlans }, { label: `แผน ${plan.id}`, onClick: onGoPlan }, { label: po.id, onClick: onGoPO }, { label: job.plate }]}
+        crumbs={crumbs ?? [{ label: "จัดการงาน Overhaul", onClick: onGoPlans }, { label: `แผน ${plan.id}`, onClick: onGoPlan }, { label: po.id, onClick: onGoPO }, { label: job.plate }]}
         title={job.plate}
         badge={<OutlineBadge tone={BADGE[st.tone]}>{st.label}</OutlineBadge>}
+        actions={actions}
       />
+      {top}
       {/* P.1/P.2 (ขั้น 7): ไม่มี section ข้อมูลยานพาหนะด้านบน — ย้ายไปคอลัมน์ขวา "ยานพาหนะ" ของสรุป */}
       {view !== 7 && (
       <section className="flex flex-col gap-4">
@@ -275,8 +289,9 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         </dl>
       </section>
       )}
-      <ProgressSteps steps={JOB_STEPS} current={current} viewing={view} onSelect={setViewing} />
-      {renderStep()}
+      {!hideSteps && <ProgressSteps steps={JOB_STEPS} current={current} viewing={view} onSelect={setViewing} />}
+      {/* มุมหน่วยงานรอตอบรับ: ข้อมูลนัดของขั้นปัจจุบันอยู่ในส่วน "ตอบรับนัดหมาย" ด้านบนแล้ว — ไม่แสดงซ้ำ (ขั้นอื่นยังกดดูย้อนหลังได้) */}
+      {belowSteps && view === current ? belowSteps : renderStep()}
     </div>
   );
 }

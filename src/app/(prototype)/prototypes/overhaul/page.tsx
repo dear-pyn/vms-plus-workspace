@@ -439,25 +439,16 @@ export default function OverhaulPrototype() {
       />
     );
   } else if (route.view === "agencyJob" && closeItem(route.po, route.plate)) {
+    /* เจ้าของงาน 16 พ.ย. 2569: หน้ายานพาหนะรายคันมุมหน่วยงาน — รอตอบรับ = ส่วนตอบรับนัดหมายบนสุด + ปุ่มขวาบน · สถานะอื่น = ดูอย่างเดียว */
     const item = agencyItems().find((x) => x.po.id === route.po && x.job.plate === route.plate)!;
-    body = awaitingReply(item.job) ? (
-      <AgencyReply key={`ar-${item.job.code}`} item={item} staff={staff} onBack={() => go({ view: "agency" })} onSubmit={(a) => agencyAnswer(item, a)} />
-    ) : (
-      <JobPage
-        key={`ag-${item.po.id}-${item.job.plate}-${item.job.code}`}
-        viewOnly
-        plan={item.plan}
-        po={item.po}
-        job={item.job}
-        vehicle={item.vehicle}
-        garage={item.garage}
+    body = (
+      <AgencyReply
+        key={`ar-${item.po.id}-${item.job.plate}-${item.job.code}`}
+        item={item}
         staff={staff}
-        onGoPlans={() => go({ view: "agency" })}
-        onGoPlan={() => go({ view: "agency" })}
-        onGoPO={() => go({ view: "agency" })}
-        onUpdate={() => undefined}
+        onBack={() => go({ view: "agency" })}
+        onSubmit={(a) => agencyAnswer(item, a)}
         onNotify={notify}
-        onOpenApproval={() => undefined}
         onOpenSummary={() => go({ view: "summary", po: item.po.id, plate: item.job.plate })}
       />
     );
@@ -508,7 +499,7 @@ export default function OverhaulPrototype() {
   return (
     <AppShell
       nav={mainNav(process.env.NEXT_PUBLIC_BASE_PATH || "")}
-      activeId="overhaul"
+      activeId={route.view === "agency" || route.view === "agencyJob" ? "overhaul-reply" : "overhaul"}
       notifications={
         <NotificationBell
           items={noti}
@@ -521,20 +512,7 @@ export default function OverhaulPrototype() {
         />
       }
     >
-      {/* D-R1 ต้นแบบเท่านั้น (ไม่มีใน Figma/FigJam): สลับมุมมองผู้ใช้ — ระบบจริงแยกตามสิทธิ์ที่ login ·
-          ย่อเป็นแถบเล็กลอยมุมล่างซ้าย ไม่ดันเนื้อหา (docs/AUDIT-figma-2026-11-15.md) · มุมผู้บังคับบัญชาตัดออกตามมติ Refinement 9/11/2026 */}
-      <div aria-label="ต้นแบบ: สลับมุมมอง" className="fixed bottom-3 left-24 z-40 flex items-center gap-1 rounded-md border border-gray-200 bg-white p-1 text-xs text-gray-500 opacity-70 hover:opacity-100 max-md:left-3">
-        {(
-          [
-            ["กบค.", "/", route.view !== "agency" && route.view !== "agencyJob"],
-            ["หน่วยงานเจ้าของยานพาหนะ", "/agency", route.view === "agency" || route.view === "agencyJob"],
-          ] as const
-        ).map(([label, h, on]) => (
-          <button key={h} type="button" onClick={() => (window.location.hash = h)} className={on ? "rounded px-2 py-1 font-semibold text-brand-900" : "rounded px-2 py-1 hover:bg-gray-50"}>
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* D-R1 เดิม: แถบ "ต้นแบบ: มุมมอง" — เอาออก 16 พ.ย. 2569 · มุมหน่วยงานเข้าจากเมนู "ตอบรับนัดหมาย" ใต้ Overhaul แทน */}
       {body}
       <ConfirmDialog
         open={askEdit}

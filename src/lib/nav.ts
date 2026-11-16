@@ -19,7 +19,9 @@ export function mainNav(prototypeBase: string): NavGroup[] {
       label: "จัดการยานพาหนะขนาดใหญ่",
       icon: "local_shipping",
       children: [
-        { id: "overhaul", label: "Overhaul", href: `${prototypeBase}/prototypes/overhaul/` },
+        { id: "overhaul", label: "Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/` },
+        /* เจ้าของงาน 16 พ.ย. 2569: เมนูใหม่ใต้ Overhaul สำหรับหน่วยงานเจ้าของยานพาหนะ — รายการรายคันที่รอตอบรับนัดหมาย (S16) */
+        { id: "overhaul-reply", label: "ตอบรับนัดหมาย", href: `${prototypeBase}/prototypes/overhaul/#/agency` },
         { id: "h2", label: "บำรุงรักษาตามวาระ" },
         { id: "h3", label: "แจ้งซ่อม" },
         { id: "h4", label: "ยืม-คืน" },

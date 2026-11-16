@@ -135,7 +135,8 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
             error={err("garage")}
           />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* เจ้าของงาน 16 พ.ย. 2569: วันเริ่ม/สิ้นสุดสัญญา กว้างช่องละ 50% (เดิม 1 ใน 3 ตามจอ E.2) */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <DateField label="วันเริ่มสัญญา" optional value={d.contractStart} onChange={(v) => set("contractStart", v)} onBlur={() => touch("start")} error={err("start")} />
           <DateField label="วันสิ้นสุดสัญญา" optional value={d.contractEnd} onChange={(v) => set("contractEnd", v)} onBlur={() => touch("end")} error={err("end")} />
         </div>

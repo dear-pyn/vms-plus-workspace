@@ -1,5 +1,8 @@
 "use client";
 /** หน้ารายละเอียดแผน — ตาม refinement sprint 09: OH2 / C.5 · S2 (หลังบันทึกแก้ไข) · D.1.2 · S3 (ปุ่ม "ลบแผน") · D.2.2 (ยืนยันลบในหน้า Detail)
+ *  เจ้าของงานสั่ง 16 พ.ย. 2569 "ปรับตามหน้าจอ" UAT (maintain-d/overhaul-utility-vehicle/<id>): breadcrumb "หมายเลขแผน …" · ปุ่ม lg "แก้ไขแผน" ·
+ *  เอกสารเรียงซ้อนในกล่องเทา · ซ่อน "ยานพาหนะในแผน" เมื่อมี PO แล้ว · ปุ่มเพิ่ม PO ใต้ตาราง · อะไหล่ในกล่องเทา
+ *  คงตาม Figma ที่เคาะแล้ว: ความคืบหน้า % + แถบ · วันเริ่ม/สิ้นสุดสัญญาแยกคอลัมน์ · คำว่า "Purchase Order" (มติ FigJam Section 10) · "ยานพาหนะ" แทน "รถ"
  *  component: Page header · Badge outline (Gray) · Pill outline · Section header · Secondary danger button · Secondary button · File upload item (แสดงอย่างเดียว) */
 import type { ReactNode } from "react";
 import { Button } from "@ui/Button";
@@ -59,23 +62,24 @@ const DOC_GROUPS = [
 ] as const;
 
 /** ป้ายสถานะบนหัวหน้า = `Badge outline` (ไม่ใช่ pill — เจ้าของงาน 14 พ.ย. 2569 pill มีเฉพาะในตาราง)
- *  E.1 Gray "ยังไม่มี Purchase Order" · G.1 Brand "รอดำเนินการ" · เสร็จสิ้น = Success */
+ *  รอเลข Purchase Order = Gray · G.1 Brand "รอดำเนินการ" · เสร็จสิ้น = Success */
 const BADGE_TONE = { "รอเลข Purchase Order": "gray", รอดำเนินการ: "brand", เสร็จสิ้น: "success" } as const;
 
 export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpenVehicle, pos, jobs, garages, onAddPO, onOpenPO, onEditPO, onDeletePO }: PlanDetailProps) {
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
-        crumbs={[{ label: "จัดการงาน Overhaul", onClick: onBack }, { label: `แผน ${plan.id}` }]}
+        crumbs={[{ label: "จัดการงาน Overhaul", onClick: onBack }, { label: `หมายเลขแผน ${plan.id}` }]}
         title={`หมายเลขแผน ${plan.id}`}
-        badge={pos.length === 0 ? <OutlineBadge>ยังไม่มี Purchase Order</OutlineBadge> : <OutlineBadge tone={BADGE_TONE[plan.status]}>{plan.status}</OutlineBadge>}
+        /* เจ้าของงาน 16 พ.ย. 2569: ป้ายบนหัว = สถานะแผนเสมอ (ยังไม่มี PO = "รอเลข Purchase Order") ไม่ใช้ข้อความ "ยังไม่มี Purchase Order" ของจอ E.1 */
+        badge={<OutlineBadge tone={BADGE_TONE[plan.status]}>{plan.status}</OutlineBadge>}
         actions={
           <>
-            <Button variant="secondaryDanger" iconLeft="delete" onClick={onDelete}>
+            <Button variant="secondaryDanger" size="lg" iconLeft="delete" onClick={onDelete}>
               ลบแผน
             </Button>
-            <Button variant="secondary" iconLeft="stylus" onClick={onEdit}>
-              แก้ไข
+            <Button variant="secondary" size="lg" iconLeft="stylus" onClick={onEdit}>
+              แก้ไขแผน
             </Button>
           </>
         }
@@ -87,12 +91,14 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
           <Item label="ชื่อแผน">{plan.name}</Item>
           <Item label="ประจำปีงบประมาณ">{plan.fiscalYear}</Item>
           <Item label="วงเงินอนุมัติ (บาท)">{currency(plan.budget)}</Item>
-          {/* B.7: ไม่มีช่องประเภทงบประมาณ · จำนวน = ยานพาหนะในแผน (จอ B.7/E.1/E.8 เป็นค่าคงที่ "0 คัน" แม้มี PO แล้ว — ไม่ใช้เป็นสูตร) */}
+          {/* จำนวน = ยานพาหนะในแผน (จอ B.7/E.1/E.8 เป็นค่าคงที่ "0 คัน" แม้มี PO แล้ว — ไม่ใช้เป็นสูตร) */}
           <Item label="จำนวนยานพาหนะที่ Overhaul">{`${plan.vehicles.length} คัน`}</Item>
           <Item label="วันที่สร้าง">{plan.createdAt}</Item>
-          {/* ช่องตามประเภทงบ (AC-S1 ยังไม่เคาะ: หน้ารายละเอียดแสดงช่องตามประเภทงบ) — แสดงเฉพาะช่องที่มีค่า */}
+          {/* เจ้าของงานเคาะ 16 พ.ย. 2569: ช่องงบประมาณตามประเภทงบ แบบ AC-S1 + UAT (ไม่ใช้ "เลข WBS (ศูนย์ต้นทุน)" รวมช่องของจอ B.7/G.1)
+              ประเภทงบประมาณ แล้วตามด้วยช่องของประเภทนั้น (ป้ายเดียวกับฟอร์ม B.3.2–B.3.6) — แสดงเฉพาะช่องที่มีค่า */}
+          <Item label="ประเภทงบประมาณ">{plan.budgetType || "-"}</Item>
           {plan.costCenter && <Item label="ศูนย์ต้นทุน">{plan.costCenter}</Item>}
-          {plan.wbs && <Item label="เลข WBS (ศูนย์ต้นทุน)">{plan.wbs}</Item>}
+          {plan.wbs && <Item label="เลข WBS">{plan.wbs}</Item>}
           {plan.network && <Item label="เลขโครงข่าย">{plan.network}</Item>}
           {plan.activity && <Item label="เลขกิจกรรม">{plan.activity}</Item>}
           {plan.orderNo && <Item label="เลขที่ใบสั่ง">{plan.orderNo}</Item>}
@@ -102,10 +108,11 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
 
       <section className="flex flex-col gap-5">
         <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title="เอกสาร" />
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          {DOC_GROUPS.map(([k, label]) => (
-            <div key={k} className="flex flex-col gap-3">
-              <span className="text-sm font-semibold text-gray-700">{label}</span>
+        {/* UAT: กล่องเทา หัวกลุ่มแล้วการ์ดไฟล์เต็มความกว้าง เรียงซ้อน · "เอกสารอื่น ๆ" แสดงเมื่อมีไฟล์ (UAT ไม่มีกลุ่มนี้) */}
+        <div className="flex flex-col gap-6 rounded-lg bg-gray-50 p-6 max-md:p-4">
+          {DOC_GROUPS.filter(([k]) => k !== "other" || plan.docs.other.length > 0).map(([k, label]) => (
+            <div key={k} className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold text-black">{label}</h3>
               {plan.docs[k].length ? (
                 <ul className="flex flex-col gap-2">{plan.docs[k].map((f) => <FileRow key={f.name} file={f} />)}</ul>
               ) : (
@@ -116,39 +123,32 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
         </div>
       </section>
 
-      <section className="flex flex-col gap-5">
-        <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title={`ยานพาหนะในแผน (${plan.vehicles.length} คัน)`} />
-        {plan.vehicles.length === 0 ? (
-          <EmptyState kind="data-empty" title="ยังไม่มียานพาหนะในแผน" description="แก้ไขแผนเพื่อเพิ่มยานพาหนะที่จะเข้า Overhaul" action={<Button iconLeft="stylus" onClick={onEdit}>แก้ไขแผน</Button>} />
-        ) : (
-          <VehicleTable
-            rows={plan.vehicles}
-            label="ยานพาหนะในแผน"
-            action={(v) => (
-              <RowMenu
-                label={`จัดการ ${v.plate}`}
-                items={[
-                  { label: "ดูข้อมูลยานพาหนะ", icon: "quick_reference_all", onSelect: () => onOpenVehicle(v.plate, "info") },
-                  { label: "ดูข้อมูลการซ่อม", icon: "build", onSelect: () => onOpenVehicle(v.plate, "repair") },
-                ]}
-              />
-            )}
-          />
-        )}
-      </section>
+      {/* UAT + G.1: มี Purchase Order แล้วไม่แสดงส่วนนี้ (B.7 ยังไม่มี PO = แสดง) */}
+      {pos.length === 0 && (
+        <section className="flex flex-col gap-5">
+          <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title={`ยานพาหนะในแผน (${plan.vehicles.length} คัน)`} />
+          {plan.vehicles.length === 0 ? (
+            <EmptyState kind="data-empty" title="ยังไม่มียานพาหนะในแผน" description="แก้ไขแผนเพื่อเพิ่มยานพาหนะที่จะเข้า Overhaul" action={<Button iconLeft="stylus" onClick={onEdit}>แก้ไขแผน</Button>} />
+          ) : (
+            <VehicleTable
+              rows={plan.vehicles}
+              label="ยานพาหนะในแผน"
+              action={(v) => (
+                <RowMenu
+                  label={`จัดการ ${v.plate}`}
+                  items={[
+                    { label: "ดูข้อมูลยานพาหนะ", icon: "quick_reference_all", onSelect: () => onOpenVehicle(v.plate, "info") },
+                    { label: "ดูข้อมูลการซ่อม", icon: "build", onSelect: () => onOpenVehicle(v.plate, "repair") },
+                  ]}
+                />
+              )}
+            />
+          )}
+        </section>
+      )}
 
       <section className="flex flex-col gap-5">
-        <SectionLabel /* Section label (หน้าดูรายละเอียด) */
-          title={`Purchase Order (${pos.length})`}
-          actions={
-            pos.length > 0 && (
-              /* F.1.1: Section label action = Tertiary brand button + add (จอเขียนแค่ "Purchase Order" — ใช้คำกลาง "เพิ่ม Purchase Order" ตามมติ FigJam Section 10) */
-              <Button variant="tertiaryBrand" iconLeft="add" onClick={onAddPO}>
-                เพิ่ม Purchase Order
-              </Button>
-            )
-          }
-        />
+        <SectionLabel /* Section label (หน้าดูรายละเอียด) · UAT ไม่มีจำนวนในหัว */ title="Purchase Order" />
         {pos.length === 0 ? (
           /* T19 empty state แบบมีภาพประกอบ (Empty state/Data empty) · E.1 */
           <EmptyState
@@ -162,23 +162,33 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
             }
           />
         ) : (
-          <POList pos={pos} jobs={jobs} garages={garages} onOpen={onOpenPO} onEdit={onEditPO} onDelete={onDeletePO} />
+          <>
+            <POList pos={pos} jobs={jobs} garages={garages} onOpen={onOpenPO} onEdit={onEditPO} onDelete={onDeletePO} />
+            {/* UAT: ปุ่มเพิ่มอยู่ใต้ตาราง ชิดซ้าย (Secondary lg) แทน Tertiary brand ที่หัว section ของจอ F.1.1 */}
+            <div>
+              <Button variant="secondary" size="lg" iconLeft="add" onClick={onAddPO}>
+                เพิ่ม Purchase Order
+              </Button>
+            </div>
+          </>
         )}
       </section>
 
-      {/* E.1 "อะไหล่ที่ใช้" — จองไว้ตาม userflow ขั้นเบิกอะไหล่ยังไม่อยู่ในต้นแบบรอบนี้ */}
+      {/* E.1 "อะไหล่ที่ใช้" — จองไว้ตาม userflow ขั้นเบิกอะไหล่ยังไม่อยู่ในต้นแบบรอบนี้ · UAT: empty state อยู่ในกล่องเทา */}
       <section className="flex flex-col gap-5">
         <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title="อะไหล่ที่ใช้" />
-        <EmptyState
-          kind="data-empty"
-          title="ยังไม่มีรายการเบิกอะไหล่"
-          description="รายการอะไหล่ที่เบิกให้แผนนี้จะแสดงที่นี่"
-          action={
-            <Button variant="secondary" iconLeft="add" onClick={() => onNotInScope("เบิกอะไหล่")}>
-              เบิกอะไหล่
-            </Button>
-          }
-        />
+        <div className="rounded-lg bg-gray-50 [&>div]:bg-transparent">
+          <EmptyState
+            kind="data-empty"
+            title="ยังไม่มีรายการเบิกอะไหล่"
+            description="รายการอะไหล่ที่เบิกให้แผนนี้จะแสดงที่นี่"
+            action={
+              <Button variant="secondary" iconLeft="add" onClick={() => onNotInScope("เบิกอะไหล่")}>
+                เบิกอะไหล่
+              </Button>
+            }
+          />
+        </div>
       </section>
     </div>
   );

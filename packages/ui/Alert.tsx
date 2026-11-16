@@ -18,7 +18,7 @@ const TONE: Record<AlertTone, { box: string; icon: string; name: string }> = {
 export function Alert({ tone = "error", title, children, onClose, className }: { tone?: AlertTone; title: ReactNode; children?: ReactNode; onClose?: () => void; className?: string }) {
   const t = TONE[tone];
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={cx("flex items-start gap-3 rounded-md border p-3", t.box, className)}>
+    <div role={tone === "error" ? "alert" : undefined} className={cx("flex items-start gap-3 rounded-md border p-3", t.box, className)}>
       <Icon name={t.name} filled size={24} className={cx("shrink-0", t.icon)} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="text-md font-semibold tracking-[-0.2px] text-black">{title}</p>

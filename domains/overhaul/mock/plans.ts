@@ -1,7 +1,7 @@
 /** ข้อมูลจำลองของต้นแบบ — ค่า 10 แถวแรกและแผน ORZ7000011 ยกจากหน้าจอ refinement sprint 09
  *  (OH2 / C.1 รายการแผน · C.2 ฟอร์มแก้ไข · C.5 รายละเอียดแผน) ที่เหลือสร้างให้ครบ 96 รายการเพื่อทดสอบการแบ่งหน้า
  *  ⚠ ไม่ใช่ข้อมูลจริง ห้ามใช้เป็นเกณฑ์ AC */
-import type { Plan } from "../features/plan/types";
+import { BUDGET_TYPES, type Plan } from "../features/plan/types";
 
 const FIGMA_ROWS: Array<[string, string, number, number | null]> = [
   ["ORZ7000010", "Overhaul ประจำปีงบ 2570 — รถกระเช้า ภาคใต้", 20_000_000, null],
@@ -19,19 +19,26 @@ const FIGMA_ROWS: Array<[string, string, number, number | null]> = [
 /** T20: หนังสืออนุมัติหลักการ + เอกสารอนุมัติงบ บังคับ (AC-S1) → ทุกแผนที่สร้างแล้วมีไฟล์เสมอ */
 const emptyDocs = () => ({ principle: [{ name: "หนังสืออนุมัติหลักการ.pdf", sizeKb: 240 }], budget: [{ name: "เอกสารอนุมัติงบ.pdf", sizeKb: 180 }], other: [] });
 
+/** ประเภทงบ + ช่องตามประเภท (AC-S1 · ฟอร์ม B.3.2–B.3.6) — เจ้าของงานเคาะ 16 พ.ย. 2569 ให้ทุกแผนใช้ค่าตาม AC (เดิมทุกแผนเป็น "งบลงทุน" + WBS) */
+function budgetOf(i: number): Pick<Plan, "budgetType" | "costCenter" | "wbs" | "network" | "activity" | "orderNo" | "budgetNote"> {
+  const none = { costCenter: "", wbs: "", network: "", activity: "", orderNo: "", budgetNote: "" };
+  const seq = String(i + 2).padStart(4, "0");
+  switch (i % 5) {
+    case 0: return { ...none, budgetType: BUDGET_TYPES[2], wbs: `I-70-Z-DPMXX.JM.${seq}`, network: `6000${seq}`, activity: "0010" };
+    case 1: return { ...none, budgetType: BUDGET_TYPES[3], orderNo: `410001${seq}` };
+    case 2: return { ...none, budgetType: BUDGET_TYPES[0], costCenter: "Z903021100  ผจค.กพค.-บริหาร" };
+    case 3: return { ...none, budgetType: BUDGET_TYPES[1], costCenter: "Z903031100  ผบร.กบค.-บริหาร" };
+    default: return { ...none, budgetType: BUDGET_TYPES[4], budgetNote: "งบเหลือจ่ายปีก่อน (ข้อมูลจำลอง)" };
+  }
+}
+
 function row([id, name, budget, progress]: (typeof FIGMA_ROWS)[number], i: number): Plan {
   return {
     id,
     name,
-    budgetType: "งบลงทุน",
     fiscalYear: 2570,
     budget,
-    wbs: `I-70-Z-DPMXX.JM.${String(i + 2).padStart(4, "0")}`,
-    network: "",
-    activity: "",
-    costCenter: "",
-    orderNo: "",
-    budgetNote: "",
+    ...budgetOf(i),
     progress,
     status: progress === null ? "รอเลข Purchase Order" : "รอดำเนินการ",
     createdAt: `${String(21 - i).padStart(2, "0")}/10/2569`,

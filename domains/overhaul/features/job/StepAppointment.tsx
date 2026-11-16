@@ -1,17 +1,17 @@
 "use client";
 /** ขั้น 1 การนำรถเข้าอู่ (S7 · จอ OH2 / H.1–H.7) และขั้น 5 นัดรับรถ (S13 · N.1–N.5) — ฟอร์มเดียวกัน ต่างแค่คำ
  *  component: Section header · Text input (วันที่) · Input dropdown พิมพ์ค้น (ผู้ประสานงาน — Dropdown list item มีข้อความรอง "ตำแหน่ง · เบอร์") ·
- *    Text input State=Readonly (เบอร์ผู้ประสานงาน · ข้อมูลอู่จาก Purchase Order) · Text area · Alert Info/Warning/Success · Content item row ·
+ *    Text input State=Readonly (เบอร์ผู้ประสานงาน · ข้อมูลอู่จาก Purchase Order) · Alert Info/Warning/Success · Content item row ·
  *    Secondary button lg "ย้อนกลับ" · Tertiary button "ข้ามขั้นตอน" · Primary button lg "ยืนยันนัดหมาย"
  *  FigJam Section 11/15: ขั้น 1 ข้ามได้ (ยานพาหนะอยู่อู่แล้ว) · ขั้น 5 เพิ่มหมายเหตุ · ข้อความ toast จาก 16-overhaul-toast-notification.md ข้อ 13–16 */
 import { useMemo, useState, type ReactNode } from "react";
 import { Alert } from "@ui/Alert";
 import { Button } from "@ui/Button";
 import { Combobox } from "@ui/Combobox";
-import { DateField, formatThaiDate, parseThaiDate } from "@ui/DateField";
+import { DateRangeField, formatThaiDate, parseThaiDate } from "@ui/DateField";
+import { EmptyState } from "@ui/EmptyState";
 import { ConfirmDialog } from "@ui/Modal";
 import { SectionHeader, ContentItem } from "@ui/PageHeader";
-import { TextArea } from "@ui/TextArea";
 import { TextField } from "@ui/TextField";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
 import type { Appointment, Garage, Staff } from "../po/types";
@@ -36,7 +36,7 @@ export function Row({ items, cols = 4 }: { items: Array<[string, ReactNode]>; co
 }
 
 export function StepAppointment({
-  kind, appt, rejected, garage, staff, readOnly, onBack, onSubmit, onSkip, onSimulateReply,
+  kind, appt, rejected, garage, staff, readOnly, past, onBack, onSubmit, onSkip, onSimulateReply,
 }: {
   kind: 1 | 5;
   appt?: Appointment;
@@ -44,8 +44,10 @@ export function StepAppointment({
   rejected?: boolean;
   garage?: Garage;
   staff: Staff[];
-  /** ดูย้อนหลัง (ขั้นที่ผ่านไปแล้ว) */
+  /** อ่านอย่างเดียว (ขั้นที่ผ่านไปแล้ว หรือมุมมองดูอย่างเดียวของหน่วยงาน S17) */
   readOnly?: boolean;
+  /** ย้อนกลับมาดูขั้นที่ผ่านไปแล้ว — ใช้หน้าตาแบบ UAT (รายละเอียดการนัดหมาย) */
+  past?: boolean;
   onBack: () => void;
   onSubmit: (a: Appointment) => Promise<boolean>;
   onSkip: () => void;
@@ -53,7 +55,11 @@ export function StepAppointment({
   onSimulateReply?: (accepted: boolean) => void;
 }) {
   const w = WORD[kind];
-  const [editing, setEditing] = useState(!appt);
+  /* เจ้าของงาน 16 พ.ย. 2569 (ภาพ UAT): ยังไม่ส่ง / ถูกปฏิเสธ = ฟอร์มกรอกได้ ค่าตั้งต้นจากนัดเดิม ·
+     ส่งนัดแล้วรอตอบรับ = หน้ารอตอบกลับ (กด "แก้ไขนัดหมาย" แล้วเป็นฟอร์ม) · ตอบรับแล้ว / ย้อนดู / มุมมองดูอย่างเดียว = อ่านอย่างเดียว */
+  const waiting = !!appt && !appt.reply && !rejected;
+  const [editMode, setEditMode] = useState(false);
+  const editing = !past && !readOnly && !appt?.reply?.accepted && (!waiting || editMode);
   const init = useMemo(() => ({ from: appt?.from ?? "", to: appt?.to ?? "", coordinatorId: appt?.coordinatorId ?? "", note: appt?.note ?? "" }), [appt]);
   const [f, setF] = useState(init);
   const [err, setErr] = useState<Record<string, string>>({});
@@ -82,73 +88,82 @@ export function StepAppointment({
     return "";
   }
   async function submit() {
-    const e = { from: check("from"), to: check("to"), coord: check("coord") };
+    const e = { range: check("from") || check("to"), coord: check("coord") };
     setErr(e);
     if (Object.values(e).some(Boolean)) return;
     setSaving(true);
     const ok = await runSave(() => onSubmit({ ...f, sentAt: formatThaiDate(new Date()) }), (r) => r);
     setSaving(false);
-    if (ok) setEditing(false);
+    if (ok) setEditMode(false);
   }
 
-  const garageRows: Array<[string, ReactNode]> = [
-    [w.garage.replace(" (ค่าตั้งต้นจาก Purchase Order)", ""), garage?.name],
-    ["เบอร์อู่", garage?.phone],
-    ["ที่อยู่", garage?.address],
-  ];
+  /* ดูย้อนหลัง (ขั้นที่ผ่านไปแล้ว) — เจ้าของงานส่งภาพ UAT 16 พ.ย. 2569 "หน้า step 1 แบบย้อนกลับมาดูจะเป็นแบบนี้":
+     Section header "รายละเอียดการนัดหมาย" · กล่องเทา Content item row 3 ช่อง (อู่ · เบอร์อู่ · ที่อยู่) ·
+     Text input Readonly 3 ช่อง (ช่วงวัน · ผู้ประสานงาน · เบอร์ผู้ประสานงาน) · ไม่มี Alert และไม่มีปุ่มท้ายหน้า */
+  /* ข้อมูลนัดหมายแบบ UAT — ใช้ทั้งตอนย้อนดูและตอนส่งนัดแล้ว (รอตอบรับ / ตอบรับแล้ว / ถูกปฏิเสธ) */
+  const summary = appt && (
+    <>
+      <dl className="rounded-lg bg-gray-50 p-6">
+        <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+      </dl>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <TextField label={w.range} readOnly value={`${appt.from} - ${appt.to}`} />
+        <TextField label="ผู้ประสานงาน (กบค.)" readOnly value={coord?.name ?? ""} />
+        <TextField label="เบอร์โทรผู้ประสานงาน (กบค.)" readOnly value={coord?.phone ?? ""} />
+      </div>
+    </>
+  );
+
+  if (past && appt) {
+    return (
+      <section className="flex flex-col gap-6">
+        <SectionHeader title="รายละเอียดการนัดหมาย" />
+        {summary}
+      </section>
+    );
+  }
+
+  /* ภาพ UAT 16 พ.ย. 2569 "ยืนยันนัดหมายแล้ว ต้องปรับเป็นหน้ารอตอบกลับ": ข้อมูลอู่ + Empty state "รอตอบกลับจากหน่วยงาน" ·
+     ปุ่ม แก้ไขนัดหมาย (Secondary) อย่างเดียว */
+  if (waiting && !editMode && !past && !readOnly && appt) {
+    return (
+      <section className="flex flex-col gap-6">
+        <SectionHeader title="รายละเอียดการนัดหมาย" />
+        <dl className="rounded-lg bg-gray-50 p-6">
+          <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+        </dl>
+        <EmptyState
+          kind="data-empty"
+          title="รอตอบกลับจากหน่วยงาน"
+          action={
+            /* เจ้าของงาน 16 พ.ย. 2569: มีปุ่มแก้ไขอย่างเดียว — ปุ่มปฏิเสธ/ตอบรับในภาพ UAT เป็น mock ของทีม dev (หน่วยงานตอบจากมุมมองหน่วยงาน S16) */
+            <Button variant="secondary" size="lg" onClick={() => { setF(init); setErr({}); setEditMode(true); }}>
+              แก้ไขนัดหมาย
+            </Button>
+          }
+        />
+      </section>
+    );
+  }
 
   if (!editing && appt) {
-    const waiting = !appt.reply && !rejected;
     return (
       <>
-        <section className="flex flex-col gap-4">
-          <SectionHeader title={w.section} />
-          {!readOnly && waiting && (
-            <Alert tone="info" title="รอหน่วยงานเจ้าของยานพาหนะตอบกลับ">
-              ส่งนัดหมายแล้ว {appt.sentAt} · แก้ไขนัดหมายได้จนกว่าหน่วยงานจะตอบรับ
-            </Alert>
-          )}
+        <section className="flex flex-col gap-6">
+          <SectionHeader title="รายละเอียดการนัดหมาย" />
+          {/* เจ้าของงาน 16 พ.ย. 2569: ไม่แสดง Alert "รอหน่วยงานเจ้าของยานพาหนะตอบกลับ" (UAT ไม่มี · สถานะอยู่ที่ป้ายบนหัวหน้าแล้ว) */}
           {!readOnly && rejected && (
             <Alert tone="warning" title="หน่วยงานปฏิเสธนัดหมาย">
               หมายเหตุ: {appt.reply?.reason || "—"}
             </Alert>
           )}
           {appt.reply?.accepted && <Alert tone="success" title={`หน่วยงานยืนยันนัดหมายแล้ว ${appt.reply.at}`}>{appt.reply.date ? `วันที่หน่วยงานเลือก ${appt.reply.date}` : null}{appt.reply.deliverer ? ` · ผู้นำส่งรถ ${appt.reply.deliverer}` : null}</Alert>}
-          <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
-            <Row items={[[w.range, `${appt.from} – ${appt.to}`], ["ผู้ประสานงาน (กบค.)", coord?.name], ["เบอร์โทรผู้ประสานงาน (กบค.)", coord?.phone]]} />
-            <Row items={garageRows} />
-            <Row items={[["หมายเหตุ", appt.note]]} />
-          </dl>
-          {/* ต้นแบบเท่านั้น (ไม่มีใน Figma): จำลองหน่วยงานตอบกลับ — ย่อเป็นข้อความเล็กไม่เด่น (ฝั่งหน่วยงานจริงอยู่ที่มุมมอง "หน่วยงานเจ้าของยานพาหนะ") */}
-          {!readOnly && waiting && onSimulateReply && (
-            <p className="flex items-center gap-2 text-xs text-gray-400">
-              ต้นแบบ: จำลองหน่วยงานตอบกลับ
-              <button type="button" className="underline hover:text-gray-600" onClick={() => onSimulateReply(true)}>
-                ตอบรับ
-              </button>
-              <button type="button" className="underline hover:text-gray-600" onClick={() => onSimulateReply(false)}>
-                ปฏิเสธ
-              </button>
-            </p>
-          )}
+          {summary}
         </section>
-        <div className="flex items-center justify-between gap-3" /* H.5 ไม่มีเส้นคั่น · ปุ่มแก้ไขนัดหมายไม่มีไอคอน */>
+        <div className="flex items-center justify-between gap-3" /* H.5 ไม่มีเส้นคั่น */>
           <Button variant="secondary" size="lg" onClick={onBack}>
             ย้อนกลับ
           </Button>
-          {!readOnly && !appt.reply?.accepted && (
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => {
-                setF(init);
-                setErr({});
-                setEditing(true);
-              }}
-            >
-              แก้ไขนัดหมาย
-            </Button>
-          )}
         </div>
       </>
     );
@@ -156,13 +171,28 @@ export function StepAppointment({
 
   return (
     <>
-      <section className="flex flex-col gap-4">
-        <SectionHeader title={w.section} />
+      <section className="flex flex-col gap-6">
+        <SectionHeader title="รายละเอียดการนัดหมาย" />
+        {rejected && (
+          <Alert tone="warning" title="หน่วยงานปฏิเสธนัดหมาย">
+            หมายเหตุ: {appt?.reply?.reason || "—"}
+          </Alert>
+        )}
+        {/* UAT: ข้อมูลอู่ (จาก Purchase Order) เป็นกล่องเทาด้านบน แทน Text input Readonly 3 ช่อง */}
+        <dl className="rounded-lg bg-gray-50 p-6">
+          <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+        </dl>
+        {/* ภาพ UAT 16 พ.ย. 2569: ช่วงวันช่องเดียว (ไม่มี "ถึงวันที่") · ผู้ประสานงาน · เบอร์ เรียงแถวเดียว 3 ช่อง */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <DateField label={w.from} value={f.from} onChange={(v) => setF({ ...f, from: v })} onBlur={() => setErr((e) => ({ ...e, from: check("from") }))} error={err.from || undefined} />
-          <DateField label="ถึงวันที่" value={f.to} onChange={(v) => setF({ ...f, to: v })} onBlur={() => setErr((e) => ({ ...e, to: check("to") }))} error={err.to || undefined} />
-        </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <DateRangeField
+            label={w.range}
+            min={new Date()} /* D-H2 วันเริ่มต้องไม่ก่อนวันนี้ — ปิดวันในอดีตในปฏิทิน */
+            from={f.from}
+            to={f.to}
+            onChange={(from, to) => setF((x) => ({ ...x, from, to }))}
+            onBlur={() => setErr((e) => ({ ...e, range: check("from") || check("to") }))}
+            error={err.range || undefined}
+          />
           <Combobox
             label="ผู้ประสานงาน (กบค.)"
             placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
@@ -177,15 +207,11 @@ export function StepAppointment({
           />
           <TextField label="เบอร์โทรผู้ประสานงาน (กบค.)" readOnly placeholder="แสดงเมื่อเลือกผู้ประสานงาน" value={coord?.phone ?? ""} />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <TextField label={w.garage} readOnly value={garage?.name ?? ""} />
-          <TextField label="เบอร์อู่" readOnly value={garage?.phone ?? ""} />
-          <TextField label="ที่อยู่" readOnly value={garage?.address ?? ""} />
-        </div>
-        <TextArea label="หมายเหตุ" optional placeholder="ระบุหมายเหตุ" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+        {/* เจ้าของงาน 16 พ.ย. 2569: ไม่มีช่องหมายเหตุ (ตามภาพ UAT) */}
       </section>
       <div className="flex items-center justify-between gap-6" /* H.1 ไม่มีเส้นคั่นเหนือปุ่ม */>
-        <Button variant="secondary" size="lg" onClick={() => requestLeave()}>
+        {/* แก้นัดที่ส่งแล้ว: ย้อนกลับ = กลับหน้ารอตอบกลับ (ไม่บันทึก) */}
+        <Button variant="secondary" size="lg" onClick={() => (editMode ? setEditMode(false) : requestLeave())}>
           ย้อนกลับ
         </Button>
         <div className="flex items-center gap-3">

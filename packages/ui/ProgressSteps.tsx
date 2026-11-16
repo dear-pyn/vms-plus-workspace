@@ -4,7 +4,8 @@
  *    Current:   พื้นขาว ขอบ brand-900 เลข 16/600 brand-900 · ข้อความ 16/600 brand-900
  *    Incomplete: พื้นขาว ขอบ gray-300 เลข 16/600 gray-400 · ข้อความ 16/600 gray-600
  *  Connector = เส้นหักมุม (chevron) สูงเต็ม item ขอบ gray-300 คั่นระหว่างขั้น
- *  ไลบรารีมี 5 ขั้น — จอจริงใช้ 6–7 ขั้น (หน้างานรายคัน) จึงรับจำนวนขั้นเท่าไรก็ได้ · คลิกขั้นที่ผ่านแล้วเพื่อดูย้อนหลังได้ (S17 "ดูย้อนหลัง") */
+ *  ไลบรารีมี 5 ขั้น — จอจริงใช้ 6–7 ขั้น (หน้างานรายคัน) จึงรับจำนวนขั้นเท่าไรก็ได้ · คลิกขั้นที่ผ่านแล้วเพื่อดูย้อนหลังได้ (S17 "ดูย้อนหลัง")
+ *  ย้อนดูขั้นที่ผ่านแล้ว (ตามภาพ UAT 16 พ.ย. 2569): ขั้นที่กำลังดู = Current · ขั้นที่งานอยู่จริง = Incomplete · ขั้นอื่นที่ผ่านแล้ว = Completed · ไม่มีพื้นเน้น */
 import { Icon } from "./Icon";
 import { cx } from "./cx";
 
@@ -13,14 +14,16 @@ export function ProgressSteps({ steps, current, viewing, onSelect, label = "ข�
     <ol aria-label={label} className="flex overflow-x-auto rounded-md border border-gray-300 bg-white">
       {steps.map((s, i) => {
         const n = i + 1;
-        const state = n < current ? "done" : n === current ? "current" : "todo";
+        const past = viewing !== undefined && viewing < current;
+        const state = past ? (n === viewing ? "current" : n < current ? "done" : "todo") : n < current ? "done" : n === current ? "current" : "todo";
         const clickable = !!onSelect && n <= current;
         return (
-          <li key={s} className={cx("relative flex min-w-0 flex-1 items-stretch", viewing === n && "bg-gray-50")}>
+          <li key={s} className="relative flex min-w-0 flex-1 items-stretch">
             <button
               type="button"
               disabled={!clickable}
               aria-current={state === "current" ? "step" : undefined}
+              title={past && n === current ? "ขั้นปัจจุบันของงาน" : undefined}
               onClick={() => onSelect?.(n)}
               className={cx("flex min-w-0 flex-1 items-center gap-4 py-4 pr-2 pl-6 text-left", clickable ? "cursor-pointer" : "cursor-default")}
             >

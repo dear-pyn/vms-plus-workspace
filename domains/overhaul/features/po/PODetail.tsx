@@ -87,7 +87,8 @@ export function PODetail({
 
       <section className="flex flex-col gap-5">
         <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title="เอกสาร" />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* เจ้าของงาน 16 พ.ย. 2569: การ์ดไฟล์กว้างเต็ม 100% (กลุ่มเรียงซ้อนแทน 2 คอลัมน์) */}
+        <div className="flex flex-col gap-6">
           {(
             [
               ["order", "ใบสั่งจ้าง"],
