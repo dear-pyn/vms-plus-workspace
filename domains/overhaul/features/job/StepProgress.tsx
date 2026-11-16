@@ -5,8 +5,7 @@
  *    Modal Destructive centered (L.2 ยืนยันการลบ) · Secondary lg "ย้อนกลับ" · Primary lg "ซ่อมสำเร็จ"
  *  FigJam Section 13 (refinement 12 พ.ย. 2569): เพิ่มช่อง percent · ฟอร์มไม่มีวันที่/เวลา (ระบบใส่ตอนเพิ่ม) · แก้ไข = พรีฟิลค่าเดิม บันทึกแล้วไม่อัปเดตวันเวลา ·
  *    แก้ได้ตลอดจนกว่าจะกดซ่อมสำเร็จ
- *  ภาพ UAT 16 พ.ย. 2569: ทั้งขั้น (หัว + ตาราง/Empty state + ปุ่มท้าย) อยู่ในการ์ดกรอบ gray-200 r-lg pad 24 · ข้อความ Empty state ตรงภาพ ·
- *    ไม่มีข้อความช่วยข้างปุ่ม · ซ่อมสำเร็จได้เมื่อมีความคืบหน้าอย่างน้อย 1 รายการ (แทน D-J1 "ต้องถึง 100%") */
+ *  เจ้าของงาน 16 พ.ย. 2569: ไม่มีกรอบการ์ดรอบ "รายละเอียดการติดตาม" · ไม่มีข้อความช่วยข้างปุ่ม · ซ่อมสำเร็จได้เมื่อมีรายการใดรายการหนึ่งถึง 100% (D-J1 เดิม) */
 import { useState } from "react";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
@@ -21,9 +20,8 @@ import type { ProgressEntry } from "../po/types";
 
 export type ProgressDraft = Pick<ProgressEntry, "percent" | "detail" | "note">;
 
-/** ซ่อมสำเร็จได้เมื่อมีความคืบหน้าอย่างน้อย 1 รายการ — ภาพ UAT 16 พ.ย. 2569 "เพิ่มความคืบหน้าอย่างน้อย 1 รายการก่อนกด “ซ่อมสำเร็จ”"
- *  (เดิม D-J1 ต้องมีรายการถึง 100% ตามจอ J.3/L.2) */
-export const canFinish = (log: ProgressEntry[]) => log.length > 0;
+/** ซ่อมสำเร็จได้เมื่อมีรายการใดรายการหนึ่งถึง 100% (D-J1: จอ J.3 มี 1 รายการ 40% ปุ่มยังปิด · L.2 มีรายการ 100% ปุ่มเปิด · เจ้าของงานยืนยัน 16 พ.ย. 2569) */
+export const canFinish = (log: ProgressEntry[]) => log.some((e) => e.percent >= 100);
 
 export function StepProgress({
   log, readOnly, onBack, onSave, onDelete, onFinish,
@@ -72,8 +70,6 @@ export function StepProgress({
 
   return (
     <>
-      {/* การ์ดครอบทั้งขั้นตามภาพ UAT (ไม่มี Card ใน packages/ui — ใช้ utility) */}
-      <div className="flex flex-col gap-8 rounded-lg border border-gray-200 bg-white p-6">
       <section className="flex flex-col gap-4">
         <SectionHeader
           title="รายละเอียดการติดตาม"
@@ -93,7 +89,7 @@ export function StepProgress({
           }
         />
         {log.length === 0 ? (
-          <EmptyState kind="data-empty" title="ยังไม่มีความคืบหน้า" description={readOnly ? undefined : "เพิ่มความคืบหน้าอย่างน้อย 1 รายการก่อนกด “ซ่อมสำเร็จ”"} />
+          <EmptyState kind="data-empty" title="ยังไม่มีความคืบหน้า" description={readOnly ? undefined : "เพิ่มความคืบหน้าอย่างน้อย 1 รายการ และบันทึกถึง 100% ก่อนกด “ซ่อมสำเร็จ”"} />
         ) : (
           <div className="flex flex-col gap-4">
             <DataTable label="รายละเอียดการติดตาม" striped>
@@ -158,7 +154,6 @@ export function StepProgress({
             ซ่อมสำเร็จ
           </Button>
         )}
-      </div>
       </div>
       <Modal
         open={!!form}
