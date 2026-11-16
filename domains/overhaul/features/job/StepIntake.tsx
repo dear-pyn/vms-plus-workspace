@@ -6,6 +6,8 @@
  *  → File upload Type=Gallery "รูปสภาพยานพาหนะ (ก่อน Overhaul)" (ตาม I.1 + FigJam Section 12)
  *  → Secondary button lg "ย้อนกลับ" · Primary button lg "บันทึกและถัดไป" (disable จนตอบ มี/ไม่มี ครบทุกข้อ + เลือกผู้ลงนามครบ)
  *  ย้อนดู (ขั้นที่ผ่านแล้ว) = ตารางปิดแก้ไข · ผู้ลงนามเป็น Text input Readonly (ภาพ UAT ชุดแรก)
+ *  เจ้าของงานสั่ง 16 พ.ย. 2569: เลขไมล์ย้ายมาจากขั้น 1 ("ไม่มีการนัดหมาย") → ขั้น 2 ช่อง "เลขไมล์ปัจจุบัน (กม.)" บังคับกรอก
+ *    วางใต้ Section header "ข้อมูลการรับรถเข้าอู่" ตามโครงจอ OH2 / I.1 (Text input "เลขไมล์ ณ วันรับรถ (กม.)") · ใส่จุลภาคหลักพันอัตโนมัติ · เต็มจำนวนไม่เกิน 7 หลัก
  *  component: Radio button · Checkbox · Text input · Input dropdown (Combobox) · Table — ไฟล์ Component VMS Plus */
 import { usePrototypeFill } from "../../prototype/MockTools";
 import { useMemo, useState } from "react";
@@ -22,6 +24,8 @@ import type { CheckItem, Intake, Staff, Photo } from "../po/types";
 import { BATTERY, emptyChecks, intakeComplete } from "./intake";
 
 export interface IntakeDraft {
+  /** เลขไมล์ปัจจุบัน (กม.) — ข้อความที่มีจุลภาค ("182,400") */
+  mileage: string;
   photos: Photo[];
   checks: CheckItem[];
   delivererId: string;
@@ -39,24 +43,29 @@ export function StepIntake({
   onSave: (d: IntakeDraft) => Promise<boolean>;
 }) {
   const init = useMemo<IntakeDraft>(
-    () => ({ photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
+    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
     [intake],
   );
   const [f, setF] = useState(init);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   usePrototypeFill((mode) => {
-    setF({ photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
+    setF({ mileage: mode === "missing" ? "" : mode === "error" ? "12a" : "182,400", photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
   }, !readOnly && !busy);
   const locked = !!readOnly;
   const dirty = !locked && JSON.stringify(f) !== JSON.stringify(init);
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);
   const name = (id: string) => staff.find((s) => s.id === id)?.name ?? "";
-  const ready = intakeComplete(f.checks, f.delivererId, f.receiverId);
+  const [mileErr, setMileErr] = useState("");
+  const checkMileage = (v = f.mileage) => (!v.trim() ? "กรุณาระบุเลขไมล์ปัจจุบัน" : /^\d{1,7}$/.test(v.replace(/,/g, "")) ? "" : "กรุณาระบุเลขไมล์เป็นตัวเลข");
+  const ready = intakeComplete(f.checks, f.delivererId, f.receiverId) && !checkMileage();
 
   const patch = (i: number, p: Partial<CheckItem>) => setF((x) => ({ ...x, checks: x.checks.map((c, j) => (j === i ? { ...c, ...p } : c)) }));
 
   async function save() {
+    const e = checkMileage();
+    setMileErr(e);
+    if (e) return;
     setBusy(true);
     await runSave(() => onSave(f), (r) => r);
     setBusy(false);
@@ -64,6 +73,26 @@ export function StepIntake({
 
   return (
     <>
+      <section className="flex flex-col gap-4">
+        <SectionHeader title="ข้อมูลการรับรถเข้าอู่" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <TextField
+            label="เลขไมล์ปัจจุบัน (กม.)"
+            inputMode="numeric"
+            placeholder="ระบุเลขไมล์"
+            readOnly={locked}
+            value={f.mileage}
+            onChange={(e) => {
+              const n = e.target.value.replace(/[^\d]/g, "").slice(0, 7);
+              setF((x) => ({ ...x, mileage: n ? Number(n).toLocaleString() : "" }));
+              setMileErr("");
+            }}
+            onBlur={() => !locked && setMileErr(checkMileage())}
+            error={mileErr || undefined}
+          />
+        </div>
+      </section>
+
       <section className="flex flex-col gap-4">
         <SectionHeader title="รายการเอกสารรับรถ" />
         <DataTable label="รายการเอกสารรับรถ" striped>

@@ -69,38 +69,42 @@ export function StepAppointment({
   const [f, setF] = useState(init);
   const [err, setErr] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  /** ขั้น 1 ยังไม่ส่งนัด: เลือกได้ว่าจะนัดหมาย หรือนำรถเข้า (ยานพาหนะอยู่อู่แล้ว) */
-  const canDirect = !appt && kind === 1;
-  const [mode, setMode] = useState<"appt" | "direct">("appt");
+  /** ยังไม่ส่งนัด: เลือกได้ว่าจะนัดหมาย หรือไม่มีการนัดหมาย — ขั้น 1 และขั้น 5 (เจ้าของงาน 16 พ.ย. 2569: ขั้น 5 เหมือนขั้น 1 · ไม่ใช่การข้ามขั้น แต่เป็นอีกวิธี — แทน D-N1) */
+  const canDirect = !appt;
+  /* ภาพเจ้าของงาน 16 พ.ย. 2569: เปิดหน้ามายังไม่เลือก — ปุ่ม "ยืนยัน" ปิดจนกว่าจะเลือก */
+  const [mode, setMode] = useState<"" | "appt" | "direct">(canDirect ? "" : "appt");
   const direct = canDirect && mode === "direct";
-  const [dx, setDx] = useState({ date: "", mileage: "", coordinatorId: "" });
+  const [dx, setDx] = useState({ date: "", receiverId: "" });
+  /** เปลี่ยนรูปแบบ = ล้างค่าเก่าทั้งหมด (วันที่ · ผู้ประสานงาน · error) — เจ้าของงาน 16 พ.ย. 2569 */
+  const pickMode = (m: "appt" | "direct") => {
+    if (m === mode) return;
+    setMode(m);
+    setF({ from: "", to: "", coordinatorId: "", note: "" });
+    setDx({ date: "", receiverId: "" });
+    setErr({});
+  };
   usePrototypeFill((preset) => {
     const coordinatorId = staff.find((s) => s.unit === "กบค.")?.id || "";
     setErr({});
     if (direct) {
-      setDx({ date: mockDate(), mileage: preset === "missing" ? "" : preset === "error" ? "invalid" : "120000", coordinatorId });
+      setDx({ date: preset === "error" ? "99/99/2569" : mockDate(), receiverId: preset === "missing" ? "" : staff.find((s) => s.unit === "หน่วยงาน")?.id || "" });
+      setF((x) => ({ ...x, coordinatorId: preset === "missing" ? "" : coordinatorId }));
     } else {
       setF({ from: mockDate(), to: mockDate(), coordinatorId: preset === "missing" ? "" : coordinatorId, note: preset === "error" ? "error — ทดสอบบันทึกไม่สำเร็จ" : "ข้อมูลนัดหมายจำลอง" });
     }
   }, editing && !saving);
-  function checkDirect(k: "date" | "mileage" | "coord", x = dx): string {
-    if (k === "date") {
-      if (!x.date) return "กรุณาเลือกวันที่นำรถเข้า";
-      const d = parseThaiDate(x.date);
-      if (!d) return "กรุณาระบุวันที่ให้ถูกต้อง (วว/ดด/ปปปป)";
-      return d > new Date() ? "วันที่นำรถเข้าต้องไม่หลังวันนี้" : "";
-    }
-    if (k === "mileage") {
-      if (!x.mileage.trim()) return "กรุณาระบุเลขไมล์ปัจจุบัน";
-      return /^\d{1,7}$/.test(x.mileage.replace(/,/g, "")) ? "" : "กรุณาระบุเลขไมล์เป็นตัวเลข";
-    }
-    return x.coordinatorId ? "" : "กรุณาเลือกผู้ประสานงาน";
+  const dayWord = kind === 1 ? "วันที่นำรถเข้า" : "วันที่ส่งมอบรถคืน";
+  function checkDirect(x = dx): string {
+    if (!x.date) return `กรุณาเลือก${dayWord}`;
+    const d = parseThaiDate(x.date);
+    if (!d) return "กรุณาระบุวันที่ให้ถูกต้อง (วว/ดด/ปปปป)";
+    return d > new Date() ? `${dayWord}ต้องไม่หลังวันนี้` : "";
   }
   function submitDirect() {
-    const e = { dDate: checkDirect("date"), dMileage: checkDirect("mileage"), dCoord: checkDirect("coord") };
+    /* "ไม่มีการนัดหมาย" (ภาพ 16 พ.ย. 2569): วันที่นำรถเข้า 1 วัน + ผู้ประสานงาน · ไม่มีช่องเลขไมล์ · ไม่มี Modal ยืนยัน → ไปขั้นตรวจรับรถทันที */
+    const e = { range: checkDirect(), coord: check("coord"), receiver: kind === 5 && !dx.receiverId ? "กรุณาเลือกผู้รับรถ (หน่วยงาน)" : "" };
     setErr((x) => ({ ...x, ...e }));
-    // เจ้าของงานสั่ง 16 พ.ย. 2569: ไม่มี Modal ยืนยัน — ผ่านการตรวจแล้วไปขั้นตรวจรับรถทันที
-    if (!Object.values(e).some(Boolean)) onSkip({ date: dx.date, mileageKm: Number(dx.mileage.replace(/,/g, "")), coordinatorId: dx.coordinatorId });
+    if (!Object.values(e).some(Boolean)) onSkip({ date: dx.date, coordinatorId: f.coordinatorId, ...(kind === 5 ? { receiverId: dx.receiverId } : {}) });
   }
   const dirty = editing && (JSON.stringify(f) !== JSON.stringify(init) || mode === "direct");
 
@@ -207,41 +211,60 @@ export function StepAppointment({
     );
   }
 
+  /* ขั้น 1 ตามภาพเจ้าของงาน 16 พ.ย. 2569 (3 สถานะ: ยังไม่เลือก · นัดหมาย · ไม่มีการนัดหมาย):
+     Section header "รูปแบบการนำรถเข้าอู่" + Radio text card 2 ใบ · Section header "รายละเอียดการนำรถเข้า" + กล่องเทาข้อมูลอู่ ·
+     แถว 3 ช่อง: ช่วงเวลาที่นำรถเข้า (นัดหมาย = ช่วงวัน · ไม่มีการนัดหมาย = วันเดียว) · ผู้ประสานงาน (Input dropdown) · เบอร์โทรศัพท์ผู้รับมอบรถ (ระบบเติมให้)
+     ขั้น 5 / แก้นัดที่ส่งแล้ว ใช้คำเดิม ("รายละเอียดการนัดหมาย" · ผู้ประสานงาน (กบค.)) */
+  const L = kind === 1
+    ? { mode: "รูปแบบการนำรถเข้าอู่", apptDesc: "หน่วยงานนัดหมายกับเจ้าของรถก่อนนำรถเข้า", directDesc: "กรณีที่รถถึงอู่ก่อนมีการนัดหมาย", detail: "รายละเอียดการนำรถเข้า", range: "ช่วงเวลาที่นำรถเข้า", day: "ช่วงเวลาที่นำรถเข้า", coord: "ผู้ประสานงาน", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" }
+    : { mode: "รูปแบบการรับรถคืน", apptDesc: "นัดหน่วยงานมารับรถที่อู่", directDesc: "หน่วยงานรับรถคืนแล้ว หรือส่งคืนโดยไม่ต้องนัด", detail: "รายละเอียดการรับรถคืน", range: "ช่วงเวลาที่นัดรับรถ", day: "วันที่ส่งมอบรถคืน", coord: "ผู้ประสานงาน", phone: "เบอร์โทรศัพท์ผู้ประสานงาน" };
+  const receiver = staff.find((s) => s.id === dx.receiverId);
   return (
     <>
+      {canDirect && (
+        <section className="flex flex-col gap-6">
+          <SectionHeader title={L.mode} />
+          {/* Radio text card (ไฟล์ Component · สูง 81 p16 r8) — ความกว้างตามภาพเจ้าของงาน 16 พ.ย. 2569: การ์ดละ 370px เว้น 20px (วัดเทียบเนื้อหา 1296) · จอแคบเรียงลงเต็มกว้าง */}
+          <div role="radiogroup" aria-label={L.mode} className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(2,minmax(0,370px))]">
+            <RadioCard name="intake-mode" checked={mode === "appt"} onChange={() => pickMode("appt")} title="นัดหมาย" description={L.apptDesc} />
+            <RadioCard name="intake-mode" checked={mode === "direct"} onChange={() => pickMode("direct")} title="ไม่มีการนัดหมาย" description={L.directDesc} />
+          </div>
+        </section>
+      )}
       <section className="flex flex-col gap-6">
-        <SectionHeader title="รายละเอียดการนัดหมาย" />
+        <SectionHeader title={L.detail} />
         {rejected && (
           <Alert tone="warning" title="หน่วยงานปฏิเสธนัดหมาย">
             หมายเหตุ: {appt?.reply?.reason || "—"}
           </Alert>
         )}
-        {/* UAT: ข้อมูลอู่ (จาก Purchase Order) เป็นกล่องเทาด้านบน แทน Text input Readonly 3 ช่อง */}
         <dl className="rounded-lg bg-gray-50 p-6">
           <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
         </dl>
-        {/* Radio text card (ไฟล์ Component) · ภาพอ้างอิงเจ้าของงาน 16 พ.ย. 2569: สองการ์ดเท่ากัน รวมครึ่งหน้าบน desktop */}
-        {canDirect && (
-          <div role="radiogroup" aria-label="วิธีนำรถเข้าอู่" className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:w-1/2">
-            <RadioCard name="intake-mode" checked={mode === "appt"} onChange={() => setMode("appt")} title="นัดหมาย" description="ส่งช่วงวันให้หน่วยงานนำรถเข้าอู่" />
-            <RadioCard name="intake-mode" checked={mode === "direct"} onChange={() => setMode("direct")} title="นำรถเข้า" description="ยานพาหนะอยู่ที่อู่แล้ว ไปขั้นตรวจรับรถ" />
-          </div>
-        )}
-        {/* ภาพ UAT 16 พ.ย. 2569: ช่วงวันช่องเดียว (ไม่มี "ถึงวันที่") · ผู้ประสานงาน · เบอร์ เรียงแถวเดียว 3 ช่อง · เลือก "นำรถเข้า" = ไม่แสดง */}
-        {!direct && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <DateRangeField
-            label={w.range}
-            min={new Date()} /* D-H2 วันเริ่มต้องไม่ก่อนวันนี้ — ปิดวันในอดีตในปฏิทิน */
-            from={f.from}
-            to={f.to}
-            onChange={(from, to) => setF((x) => ({ ...x, from, to }))}
-            onBlur={() => setErr((e) => ({ ...e, range: check("from") || check("to") }))}
-            error={err.range || undefined}
-          />
+          {direct ? (
+            <DateField
+              label={L.day}
+              max={new Date()} /* เกิดขึ้นแล้ว — ห้ามเป็นวันในอนาคต */
+              value={dx.date}
+              onChange={(v) => { setDx((x) => ({ ...x, date: v })); setErr((e) => ({ ...e, range: "" })); }}
+              onBlur={() => setErr((e) => ({ ...e, range: checkDirect() }))}
+              error={err.range || undefined}
+            />
+          ) : (
+            <DateRangeField
+              label={L.range}
+              min={new Date()} /* D-H2 วันเริ่มต้องไม่ก่อนวันนี้ — ปิดวันในอดีตในปฏิทิน */
+              from={f.from}
+              to={f.to}
+              onChange={(from, to) => setF((x) => ({ ...x, from, to }))}
+              onBlur={() => setErr((e) => ({ ...e, range: check("from") || check("to") }))}
+              error={err.range || undefined}
+            />
+          )}
           <Combobox
             minChars={3}
-            label="ผู้ประสานงาน (กบค.)"
+            label={L.coord}
             placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
             emptyText="ไม่พบผู้ประสานงาน"
             value={f.coordinatorId}
@@ -252,55 +275,32 @@ export function StepAppointment({
             options={staff.filter((s) => s.unit === "กบค.").map((s) => ({ value: s.id, label: s.name, sub: `${s.role} · ${s.phone}`, keywords: s.id }))}
             error={err.coord || undefined}
           />
-          <TextField label="เบอร์โทรผู้ประสานงาน (กบค.)" readOnly placeholder="แสดงเมื่อเลือกผู้ประสานงาน" value={coord?.phone ?? ""} />
+          <TextField label={L.phone} autoFilled placeholder="แสดงเมื่อเลือกผู้ประสานงาน" value={coord?.phone ?? ""} />
         </div>
-        )}
-        {/* เลือก "นำรถเข้า" (16 พ.ย. 2569): วันที่ · เลขไมล์ปัจจุบัน · ผู้ประสานงาน (กบค.) (เดิม "ชื่อผู้รับ" — เจ้าของงานเปลี่ยน 16 พ.ย. 2569) — บังคับทั้ง 3 ช่อง · ส่งต่อเป็นค่าตั้งต้นขั้น 2 */}
-        {direct && (
+        {/* ขั้น 5 "ไม่มีการนัดหมาย": ต้องรู้ว่าใครรับรถไป (เจ้าของงาน 16 พ.ย. 2569 — บังคับ) */}
+        {kind === 5 && direct && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <DateField
-              label="วันที่นำรถเข้า"
-              max={new Date()}
-              value={dx.date}
-              onChange={(v) => { setDx({ ...dx, date: v }); setErr((e) => ({ ...e, dDate: "" })); }}
-              onBlur={() => setErr((e) => ({ ...e, dDate: checkDirect("date") }))}
-              error={err.dDate || undefined}
-            />
-            <TextField
-              label="เลขไมล์ปัจจุบัน (กม.)"
-              inputMode="numeric"
-              placeholder="ระบุเลขไมล์"
-              value={dx.mileage}
-              onChange={(e) => setDx({ ...dx, mileage: e.target.value })}
-              onBlur={() => setErr((e) => ({ ...e, dMileage: checkDirect("mileage") }))}
-              error={err.dMileage || undefined}
-            />
-            {/* Input dropdown พิมพ์ค้น — ตัวเดียวกับช่องผู้ประสานงานของฟอร์มนัดหมาย */}
             <Combobox
               minChars={3}
-              label="ผู้ประสานงาน (กบค.)"
+              label="ผู้รับรถ (หน่วยงาน)"
               placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
-              emptyText="ไม่พบผู้ประสานงาน"
-              value={dx.coordinatorId}
-              onChange={(v) => {
-                setDx({ ...dx, coordinatorId: v });
-                setErr((e) => ({ ...e, dCoord: "" }));
-              }}
-              options={staff.filter((s) => s.unit === "กบค.").map((s) => ({ value: s.id, label: s.name, sub: `${s.role} · ${s.phone}`, keywords: s.id }))}
-              error={err.dCoord || undefined}
+              emptyText="ไม่พบรายชื่อ"
+              value={dx.receiverId}
+              onChange={(v) => { setDx((x) => ({ ...x, receiverId: v })); setErr((e) => ({ ...e, receiver: "" })); }}
+              options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }))}
+              error={err.receiver || undefined}
             />
+            <TextField label="เบอร์โทรศัพท์ผู้รับรถ" autoFilled placeholder="แสดงเมื่อเลือกผู้รับรถ" value={receiver?.phone ?? ""} />
           </div>
         )}
-        {/* เจ้าของงาน 16 พ.ย. 2569: ไม่มีช่องหมายเหตุ (ตามภาพ UAT) */}
       </section>
       <div className="flex items-center justify-between gap-6" /* H.1 ไม่มีเส้นคั่นเหนือปุ่ม */>
         {/* แก้นัดที่ส่งแล้ว: ย้อนกลับ = กลับหน้ารอตอบกลับ (ไม่บันทึก) */}
         <Button variant="secondary" size="lg" onClick={() => (editMode ? setEditMode(false) : requestLeave())}>
           ย้อนกลับ
         </Button>
-        {/* ปุ่ม "ข้ามขั้นตอน" เดิมย้ายไปเป็นตัวเลือก "นำรถเข้า" (16 พ.ย. 2569) · ขั้น 5 ไม่มีทางลัดนี้ (FigJam Section 15 · D-N1) */}
-        {/* เจ้าของงานสั่ง 16 พ.ย. 2569: ปุ่มเดียวชื่อ "ยืนยัน" (เดิม ยืนยันนัดหมาย / ยืนยันนำรถเข้า) — นัดหมาย = ส่งนัด · นำรถเข้า = ไปขั้นตรวจรับรถทันที */}
-        <Button size="lg" onClick={direct ? submitDirect : submit} loading={saving}>
+        {/* ปุ่มเดียว "ยืนยัน" — นัดหมาย = ส่งนัด · ไม่มีการนัดหมาย = ไปขั้นตรวจรับรถทันที · ยังไม่เลือกรูปแบบ = ปิด */}
+        <Button size="lg" disabled={!mode} onClick={direct ? submitDirect : submit} loading={saving}>
           ยืนยัน
         </Button>
       </div>

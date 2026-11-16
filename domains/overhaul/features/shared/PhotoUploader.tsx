@@ -99,7 +99,7 @@ export function PhotoUploader({
           e.target.value = "";
         }}
       />
-      {uploading && <span role="status" className="text-sm text-gray-600">กำลังเพิ่มรูปภาพ</span>}
+      {uploading && <span className="text-sm text-gray-600">กำลังเพิ่มรูปภาพ</span>}
       {error && <span role="alert" className="text-sm text-error-600">{error}</span>}
       {readOnly && photos.length === 0 && <span className="text-md text-gray-600">ไม่มีรูปภาพ</span>}
       {photos.length > 0 && (

@@ -497,6 +497,9 @@ export default function OverhaulPrototype() {
     if (left !== null && left >= 0 && left <= 30 && w)
       out.push({ id: `w-${j.poId}-${j.plate}-${left <= 15 ? 15 : 30}`, status: left <= 15 ? "error" : "warning", time: "วันนี้ 09:00", text: `แจ้งวันสิ้นสุดประกัน วันที่ ${warrantyEnd(w.start, w.days)} ของยานพาหนะ ${j.plate} (${j.poId}) เหลือ ${left} วัน โปรดตรวจสอบความสมบูรณ์ของยานพาหนะก่อนหมดประกัน`, go: { view: "summary", po: j.poId, plate: j.plate } });
     const unit = plans.flatMap((p) => p.vehicles).find((v) => v.plate === j.plate)?.affiliation ?? "";
+    /* เจ้าของงาน 16 พ.ย. 2569: ขั้น 5 "ไม่มีการนัดหมาย" ต้องแจ้งเตือนหน่วยงานว่าส่งมอบรถคืนแล้ว (แทนแจ้งเตือนนัดรับรถ) */
+    if (j.direct5)
+      out.push({ id: `r-${j.poId}-${j.plate}`, status: "info", time: j.direct5.date, text: `ส่งมอบยานพาหนะ ${j.plate} (${j.poId}) คืนหน่วยงาน ${unit} แล้ว วันที่ ${j.direct5.date} · ผู้รับรถ ${staff.find((s) => s.id === j.direct5!.receiverId)?.name ?? "—"}`, go: { view: "agencyJob", po: j.poId, plate: j.plate } });
     if (j.code === "V4.1" && j.appt1?.reply?.accepted)
       out.push({ id: `a-${j.poId}-${j.plate}-${j.code}`, status: "success", time: j.appt1.reply.at ?? "", text: `หน่วยงาน ${unit} ของ ${j.poId} ยืนยันนัดหมายแล้ว (${j.plate})`, go: { view: "job", po: j.poId, plate: j.plate } });
     return out;

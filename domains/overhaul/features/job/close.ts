@@ -30,6 +30,14 @@ export const costRows = (c: Pick<CloseOut, "body" | "tools" | "labor" | "other">
 };
 
 export const returnQty = (s: StockReturn) => Math.max(0, s.withdrawn - s.used);
+/** จำนวนที่คืนของแถวอะไหล่ (SMI = เบิก − ใช้ · กรอกเอง = 0) */
+export const partReturned = (p: PartUsed) => (p.withdrawn != null ? Math.max(0, p.withdrawn - p.qty) : 0);
+/** อะไหล่ที่เบิกจากคลัง (SMI) เป็นค่าตั้งต้นของตารางอะไหล่ — ราคาจำลอง · รหัสแยกจากชื่อหลัง "#" */
+export const seedSmiParts = (): PartUsed[] =>
+  seedStock().map((s, i) => {
+    const [name, code] = s.name.split(" # ");
+    return { id: `smi-${i}`, name, code, qty: s.withdrawn, unit: s.unit, price: [3_200, 6_850, 45][i] ?? 0, withdrawn: s.withdrawn, oldQty: 0, remark: "" };
+  });
 export function returnStatus(s: StockReturn): { label: string; tone: "gray" | "warning" } {
   if (returnQty(s) === 0) return { label: "ไม่มีคืน", tone: "gray" };
   return s.sent ? { label: "รอคลังรับคืน", tone: "warning" } : { label: "ยังไม่ส่งคืน", tone: "gray" };

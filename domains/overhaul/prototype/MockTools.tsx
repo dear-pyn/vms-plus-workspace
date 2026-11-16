@@ -34,7 +34,7 @@ export function MockTools() {
         <Button variant="secondary" onClick={() => fill("ready")}>เติมข้อมูลให้ครบ</Button>
         <Button variant="secondary" onClick={() => fill("missing")}>จำลองข้อมูลไม่ครบ</Button>
         <Button variant="secondary" onClick={() => fill("error")}>จำลองบันทึกไม่สำเร็จ</Button>
-        <p role="status" className="text-xs text-gray-600">{message}</p>
+        <p className="text-xs text-gray-600">{message}</p>
       </div>}
       <Button aria-expanded={open} aria-controls="prototype-mock-panel" iconLeft="science" onClick={() => { setOpen(!open); setMessage(""); }}>Mock · Prototype</Button>
     </aside>

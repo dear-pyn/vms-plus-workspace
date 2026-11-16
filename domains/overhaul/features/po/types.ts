@@ -126,9 +126,12 @@ export interface CheckItem {
 export interface DirectIntake {
   /** dd/mm/yyyy (พ.ศ.) */
   date: string;
-  mileageKm: number;
+  /** เลขไมล์ตอนนำรถเข้า — จอ 16 พ.ย. 2569 "ไม่มีการนัดหมาย" ไม่มีช่องนี้แล้ว (ข้อมูลเก่ายังมีได้) */
+  mileageKm?: number;
   /** ผู้ประสานงาน (กบค.) ที่รับรถเข้าอู่ — รหัสพนักงาน (เจ้าของงาน 16 พ.ย. 2569: เดิมช่อง "ชื่อผู้รับ" พิมพ์เอง) */
   coordinatorId: string;
+  /** ขั้น 5 "ไม่มีการนัดหมาย": ผู้รับรถฝั่งหน่วยงาน (บังคับ — เจ้าของงาน 16 พ.ย. 2569) */
+  receiverId?: string;
 }
 
 export interface Intake {
@@ -168,9 +171,19 @@ export interface Inspection {
 export interface PartUsed {
   id: string;
   name: string;
+  /** จำนวนที่ใช้ */
   qty: number;
   unit: string;
+  /** ราคาต่อหน่วย (บาท) */
   price: number;
+  /** รหัสอะไหล่ (Serial number) — แสดงเป็นข้อความรองใต้ชื่ออะไหล่ (Scope 16 พ.ย. 2569) */
+  code?: string;
+  /** อะไหล่ที่เบิกจากคลัง (SMI): จำนวนที่เบิก — จำนวนที่คืน = เบิก − ใช้ · ไม่มี = กรอกเอง (Input) */
+  withdrawn?: number;
+  /** จำนวนอะไหล่เก่า (old_part_quantity) */
+  oldQty?: number;
+  /** หมายเหตุ (SMI กรอกในแถว · Input กรอกใน modal) */
+  remark?: string;
 }
 
 /** ขั้น 6 อะไหล่ที่เบิกจากคลัง (ตาราง O.5: เบิก · ใช้ · คืน = เบิก − ใช้ · สถานะการคืน) */
@@ -226,6 +239,8 @@ export interface VehicleJob {
   /** ขั้น 5 */
   appt5?: Appointment;
   skipped5?: boolean;
+  /** ขั้น 5 เลือก "ไม่มีการนัดหมาย" (16 พ.ย. 2569): วันที่ส่งมอบรถคืน · ผู้ประสานงาน · ผู้รับรถ (หน่วยงาน) — ค่าตั้งต้นขั้น 6 */
+  direct5?: DirectIntake;
   /** ขั้น 6–7 */
   close?: CloseOut;
 }

@@ -4,6 +4,7 @@
  *  ขั้น: 1/5 StepAppointment · 2 StepIntake · 3 StepProgress · 4 StepInspection · 6 StepClose · 7 StepSendApproval · viewOnly = มุมหน่วยงานเจ้าของ (S17) */
 import { useState, type ReactNode } from "react";
 import { OutlineBadge } from "@ui/Badge";
+import { truncateProgress } from "@rules/progress.mjs";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { EmptyState } from "@ui/EmptyState";
 import { ProgressSteps } from "@ui/ProgressSteps";
@@ -17,7 +18,7 @@ import { StepInspection } from "./StepInspection";
 import type { Inspection } from "../po/types";
 import { StepClose, type CloseDraft } from "./StepClose";
 import { StepSendApproval } from "./StepSendApproval";
-import { seedStock, warrantyEnd } from "./close";
+import { seedSmiParts, warrantyEnd } from "./close";
 import { todayThai } from "../shared/time";
 import { nowStamp } from "../shared/time";
 
@@ -102,7 +103,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     }
     const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
     const at = nowStamp();
-    const intake = { date, mileageKm: job.direct1?.mileageKm ?? null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
+    const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
     set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
     return true;
   }
@@ -144,11 +145,11 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
 
   // ขั้น 6–7 (S14 · S15 · S20)
   const closeDefaults: CloseDraft = {
-    returnedAt: job.appt5?.reply?.date ?? "",
-    receiver: job.appt5?.reply?.deliverer ?? "",
-    body: [],
+    returnedAt: job.direct5?.date ?? job.appt5?.reply?.date ?? "",
+    receiver: (job.direct5?.receiverId ? staff.find((s) => s.id === job.direct5!.receiverId)?.name : undefined) ?? job.appt5?.reply?.deliverer ?? "",
+    body: seedSmiParts() /* บอร์ด 0.2: อะไหล่ที่เบิกจากคลัง (SMI) อยู่ในตารางตัวรถ แทนตาราง "คืนอะไหล่" แยก */,
     tools: [],
-    stock: seedStock(),
+    stock: [],
     labor: null,
     other: null,
     warranty: { on: true, start: todayThai(), days: null },
@@ -187,7 +188,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
             {job.direct1 ? (
               /* นำรถเข้า (16 พ.ย. 2569): แสดงข้อมูลที่บันทึกตอนเลือก "นำรถเข้า" */
               <dl className="rounded-lg bg-gray-50 p-6">
-                <Row cols={3} items={[["วันที่นำรถเข้า", job.direct1.date], ["เลขไมล์ปัจจุบัน (กม.)", job.direct1.mileageKm.toLocaleString()], ["ผู้ประสานงาน (กบค.)", staff.find((x) => x.id === job.direct1!.coordinatorId)?.name]]} />
+                <Row cols={3} items={[["วันที่นำรถเข้า", job.direct1.date], ["ผู้ประสานงาน", staff.find((x) => x.id === job.direct1!.coordinatorId)?.name], ["เบอร์โทรศัพท์ผู้รับมอบรถ", staff.find((x) => x.id === job.direct1!.coordinatorId)?.phone]]} />
               </dl>
             ) : (
               <p className="text-md text-gray-600">ข้ามขั้นตอนนัดหมาย (ยานพาหนะอยู่ที่อู่แล้ว)</p>
@@ -230,6 +231,19 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
       return <StepInspection key={`s-${job.code}`} inspection={job.inspection} readOnly={ro} onBack={onGoPO} onConfirm={confirmInspection} />;
     }
     if (view === 5) {
+      if (job.direct5) {
+        const who = (id?: string) => staff.find((x) => x.id === id);
+        return (
+          /* ขั้น 5 "ไม่มีการนัดหมาย" (16 พ.ย. 2569): ข้อมูลที่บันทึกไว้ */
+          <section className="flex flex-col gap-6">
+            <SectionHeader title="รายละเอียดการรับรถคืน" />
+            <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
+              <Row cols={3} items={[["รูปแบบการรับรถคืน", "ไม่มีการนัดหมาย"], ["วันที่ส่งมอบรถคืน", job.direct5.date], ["ผู้ประสานงาน", who(job.direct5.coordinatorId)?.name]]} />
+              <Row cols={3} items={[["ผู้รับรถ (หน่วยงาน)", who(job.direct5.receiverId)?.name], ["เบอร์โทรศัพท์ผู้รับรถ", who(job.direct5.receiverId)?.phone]]} />
+            </dl>
+          </section>
+        );
+      }
       return (
         <StepAppointment
           key={`a5-${job.code}`}
@@ -242,7 +256,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           past={view < current}
           onBack={onGoPO}
           onSubmit={(a) => sendAppt(5, a)}
-          onSkip={() => set("V10", { skipped5: true, detail: ["ข้ามนัดรับรถ", "รอปิดงาน"] }, { msg: "ข้ามขั้นตอนนัดหมายแล้ว", tone: "info" })}
+          onSkip={(d) => set("V10.1" /* ไม่มีนัด = ไม่ใช่ "หน่วยงานตอบรับรถแล้ว" (V10) */, { skipped5: true, direct5: d, detail: [`ส่งมอบรถคืน ${d.date}`, "รอปิดงาน"] }, { msg: "บันทึกการส่งมอบรถคืนสำเร็จ" }) /* แจ้งเตือนหน่วยงานสร้างจาก direct5 ที่ page.tsx */}
           onSimulateReply={(ok) => reply(5, ok)}
         />
       );
@@ -278,6 +292,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         crumbs={crumbs ?? [{ label: "จัดการงาน Overhaul", onClick: onGoPlans }, { label: `แผน ${plan.id}`, onClick: onGoPlan }, { label: po.id, onClick: onGoPO }, { label: job.plate }]}
         title={job.plate}
         badge={<OutlineBadge tone={BADGE[st.tone]}>{st.label}</OutlineBadge>}
+        subtitle={`ความคืบหน้า ${truncateProgress(job.progress ?? 0)}%` /* ภาพเจ้าของงาน 16 พ.ย. 2569 · ตัดทศนิยมไม่ปัด (กติกาเดียวกับตาราง) */}
         actions={actions}
       />
       {top}
@@ -286,8 +301,9 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
       <section className="flex flex-col gap-4">
         <SectionHeader title="ข้อมูลยานพาหนะ" />
         <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
-          <Row items={[["ทะเบียน", job.plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["ประเภท", vehicle?.type], ["อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : ""]]} />
-          <Row items={[["เลขไมล์สะสม", vehicle?.mileageKm !== undefined ? `${vehicle.mileageKm.toLocaleString()} กม.` : ""], ["ชั่วโมงสะสม", vehicle?.engineHours !== undefined ? `${vehicle.engineHours.toLocaleString()} ชม.` : ""]]} />
+          {/* ภาพเจ้าของงาน 16 พ.ย. 2569: 3 คอลัมน์ (ทะเบียน ยี่ห้อ/รุ่น ประเภท / อายุ เลขไมล์ ชั่วโมง) */}
+          <Row cols={3} items={[["ทะเบียน", job.plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["ประเภท", vehicle?.type]]} />
+          <Row cols={3} items={[["อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : ""], ["เลขไมล์สะสม", vehicle?.mileageKm !== undefined ? `${vehicle.mileageKm.toLocaleString()} กม.` : ""], ["ชั่วโมงสะสม", vehicle?.engineHours !== undefined ? `${vehicle.engineHours.toLocaleString()} ชม.` : ""]]} />
         </dl>
       </section>
       )}

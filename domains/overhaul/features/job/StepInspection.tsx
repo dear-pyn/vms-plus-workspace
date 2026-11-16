@@ -49,11 +49,15 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
     );
     return (
       <>
+        {/* เจ้าของงาน 16 พ.ย. 2569: รูปสภาพยานพาหนะ (หลัง Overhaul) อยู่บนสุด */}
+        <section className="flex flex-col gap-4">
+          <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" description={inspection?.confirmedAt ? `ยืนยันการตรวจสภาพแล้ว ${inspection.confirmedAt}` : undefined} />
+          <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" photos={init.photos} readOnly />
+        </section>
         <section className="flex flex-col gap-6">
-          <SectionHeader title="เอกสารแนบ" description={inspection?.confirmedAt ? `ยืนยันการตรวจสภาพแล้ว ${inspection.confirmedAt}` : undefined} />
+          <SectionHeader title="เอกสารแนบ" />
           {list("เอกสาร Safety Inspection", init.safety)}
           {list("เอกสารอื่น ๆ", init.other)}
-          <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" photos={init.photos} readOnly />
         </section>
         <div className="flex justify-start">
           <Button variant="secondary" size="lg" onClick={onBack}>
@@ -66,14 +70,15 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
 
   return (
     <>
+      {/* เจ้าของงาน 16 พ.ย. 2569: รูปสภาพยานพาหนะ (หลัง Overhaul) อยู่บนสุด แล้วจึงเอกสารแนบ */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" />
+        <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" optional photos={d.photos} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setD((prev) => ({ ...prev, photos }))} />
+      </section>
       <section className="flex flex-col gap-6">
         <SectionHeader title="เอกสารแนบ" />
         <Uploader label="เอกสาร Safety Inspection" optional files={d.safety} error={err.safety || undefined} onAdd={(l) => add("safety", l)} onRemove={(n) => remove("safety", n)} />
         <Uploader label="เอกสารอื่น ๆ" optional files={d.other} error={err.other || undefined} onAdd={(l) => add("other", l)} onRemove={(n) => remove("other", n)} />
-        </section>
-      <section className="flex flex-col gap-4">
-        <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" />
-        <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" optional photos={d.photos} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setD((prev) => ({ ...prev, photos }))} />
       </section>
       <div className="flex items-center justify-between gap-3">
         <Button variant="secondary" size="lg" onClick={() => requestLeave()}>
