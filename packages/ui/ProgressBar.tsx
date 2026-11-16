@@ -6,16 +6,18 @@
  *    tone="info"  (ในตาราง) = icon-info #444CE7 (Color/icon/info) — `Table cell` Style=Lead Progress Bar ในไลบรารี (2-14.json) ใช้ค่านี้
  *  decimals = จำนวนทศนิยมของตัวเลข (FigJam refinement: "percent แบบทศนิยม 1 ตำแหน่ง" สำหรับความคืบหน้ารายคัน)
  *  ใช้ในตาราง: pad 8/16 · ช่อง 160 → แถบ 80 + ตัวเลข 40 · อ้างอิงหน้าจอ refinement sprint 09 (OH2 / C.1 · S2) */
+import { truncateProgress } from "@rules/progress.mjs";
 import { cx } from "./cx";
 
 export function ProgressBar({ value, tone = "brand", decimals = 0, className, label }: { value: number; tone?: "brand" | "info"; decimals?: number; className?: string; label?: string }) {
   const v = Math.max(0, Math.min(100, value));
+  const displayed = truncateProgress(v, decimals);
   return (
     <div className={cx("flex items-center gap-2", className)}>
-      <div role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label ?? "ความคืบหน้า"} className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-300">
+      <div role="progressbar" aria-valuenow={v} aria-valuetext={`${displayed.toFixed(decimals)}%`} aria-valuemin={0} aria-valuemax={100} aria-label={label ?? "ความคืบหน้า"} className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-300">
         <div className={cx("h-full rounded-full", tone === "info" ? "bg-icon-info" : "bg-brand-900")} style={{ width: `${v}%` }} />
       </div>
-      <span className="min-w-10 shrink-0 text-right text-sm tracking-[-0.2px] text-gray-600 tabular-nums">{v.toFixed(decimals)}%</span>
+      <span className="min-w-10 shrink-0 text-right text-sm tracking-[-0.2px] text-gray-600 tabular-nums">{displayed.toFixed(decimals)}%</span>
     </div>
   );
 }

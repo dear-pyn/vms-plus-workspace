@@ -58,11 +58,13 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, onOpenSummary, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
   const st = JOB_STATUS[job.code];
   const current = job.code === "V11" ? 8 : st.step; // ปิดงานแล้ว = ครบทุกขั้น
-  const [viewing, setViewing] = useState<number>(Math.min(current, 7));
-  const view = Math.min(viewing, current);
+  // Track explicit navigation separately from progression. A remote reply advances the active step.
+  const [selection, setSelection] = useState({ code: job.code, step: Math.min(current, 7) });
+  const view = selection.code === job.code ? Math.min(selection.step, current) : Math.min(current, 7);
+  const setViewing = (step: number) => setSelection({ code: job.code, step });
   const set = (code: JobCode, patch: Partial<VehicleJob>, toast?: { msg: string; tone?: "success" | "error" | "info" }) => {
     onUpdate({ ...job, ...patch, code }, toast);
-    setViewing(JOB_STATUS[code].step);
+    setSelection({ code, step: JOB_STATUS[code].step });
   };
 
   async function sendAppt(kind: 1 | 5, a: Appointment): Promise<boolean> {
@@ -100,7 +102,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     }
     const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
     const at = nowStamp();
-    const intake = { date, mileageKm: job.direct1?.mileageKm ?? null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: [], approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
+    const intake = { date, mileageKm: job.direct1?.mileageKm ?? null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
     set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
     return true;
   }

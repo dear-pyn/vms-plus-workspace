@@ -6,7 +6,10 @@
  *  FigJam Section 13 (refinement 12 พ.ย. 2569): เพิ่มช่อง percent · ฟอร์มไม่มีวันที่/เวลา (ระบบใส่ตอนเพิ่ม) · แก้ไข = พรีฟิลค่าเดิม บันทึกแล้วไม่อัปเดตวันเวลา ·
  *    แก้ได้ตลอดจนกว่าจะกดซ่อมสำเร็จ
  *  เจ้าของงาน 16 พ.ย. 2569: ไม่มีกรอบการ์ดรอบ "รายละเอียดการติดตาม" · ไม่มีข้อความช่วยข้างปุ่ม · ซ่อมสำเร็จได้เมื่อมีรายการใดรายการหนึ่งถึง 100% (D-J1 เดิม) */
+import { usePrototypeFill } from "../../prototype/MockTools";
 import { useState } from "react";
+import { sortProgress } from "./progress-sort.mjs";
+import { Icon } from "@ui/Icon";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
 import { ConfirmDialog, Modal } from "@ui/Modal";
@@ -38,10 +41,27 @@ export function StepProgress({
   const [err, setErr] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
   const [del, setDel] = useState<ProgressEntry | null>(null);
-  const [askFinish, setAskFinish] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
-  const shown = log.slice((page - 1) * size, page * size);
+  usePrototypeFill((mode) => {
+    setForm({ ...(form?.id ? { id: form.id } : {}), percent: "100", detail: mode === "missing" ? "" : mode === "error" ? "error" : "ดำเนินงาน Overhaul เสร็จแล้ว (ข้อมูลจำลอง)", note: "" });
+    setErr({});
+  }, !readOnly && !busy && !del);
+  const [sort, setSort] = useState<{ key: "at" | "percent"; dir: 1 | -1 }>({ key: "at", dir: -1 });
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(log.length / size)));
+  const sorted = sortProgress(log, sort.key, sort.dir) as ProgressEntry[];
+  const shown = sorted.slice((currentPage - 1) * size, currentPage * size);
+  function toggleSort(key: "at" | "percent") {
+    setSort((prev) => ({ key, dir: prev.key === key && prev.dir === -1 ? 1 : -1 }));
+    setPage(1);
+  }
+  function sortHeader(key: "at" | "percent", text: string) {
+    return <Th aria-sort={sort.key === key ? (sort.dir === 1 ? "ascending" : "descending") : "none"} className={key === "percent" ? "w-48" : undefined}>
+      <button type="button" className="flex items-center gap-2 font-semibold" onClick={() => toggleSort(key)}>
+        {text}<Icon name={sort.key === key ? (sort.dir === 1 ? "arrow_upward" : "arrow_downward") : "swap_vert"} size={20} className="text-gray-500" />
+      </button>
+    </Th>;
+  }
   const ok = canFinish(log);
 
   function check(k: string, x = form): string {
@@ -49,7 +69,7 @@ export function StepProgress({
     if (k === "percent") {
       if (!x.percent.trim()) return "กรุณาระบุความคืบหน้า";
       const n = Number(x.percent);
-      if (!/^\d+(\.\d)?$/.test(x.percent.trim()) || n < 0 || n > 100) return "กรุณาระบุตัวเลข 0-100 (ทศนิยมได้ 1 ตำแหน่ง)";
+      if (!/^\d+$/.test(x.percent) || !Number.isInteger(n) || n < 0 || n > 100) return "กรุณาระบุจำนวนเต็มตั้งแต่ 0 ถึง 100";
     }
     if (k === "detail" && !x.detail.trim()) return "กรุณาระบุรายละเอียด";
     return "";
@@ -64,7 +84,10 @@ export function StepProgress({
     setBusy("");
     if (done) {
       setForm(null);
-      if (!form.id) setPage(Math.ceil((log.length + 1) / size));
+      if (!form.id) {
+        setSort({ key: "at", dir: -1 });
+        setPage(1);
+      }
     }
   }
 
@@ -95,9 +118,9 @@ export function StepProgress({
             <DataTable label="รายละเอียดการติดตาม" striped>
               <thead>
                 <tr>
-                  <Th>วันที่</Th>
+                  {sortHeader("at", "วันที่")}
                   <Th>รายละเอียด</Th>
-                  <Th className="w-48">ความคืบหน้า</Th>
+                  {sortHeader("percent", "ความคืบหน้า")}
                   <Th>หมายเหตุ</Th>
                   {!readOnly && <Th className="w-28"><span className="sr-only">จัดการ</span></Th>}
                 </tr>
@@ -133,7 +156,7 @@ export function StepProgress({
               </tbody>
             </DataTable>
             <Pagination
-              page={page}
+              page={currentPage}
               pageSize={size}
               total={log.length}
               onPageChange={setPage}
@@ -150,7 +173,11 @@ export function StepProgress({
           ย้อนกลับ
         </Button>
         {!readOnly && (
-          <Button size="lg" disabled={!ok} onClick={() => setAskFinish(true)}>
+          <Button size="lg" disabled={!ok || !!busy} loading={busy === "finish"} onClick={async () => {
+            if (!ok || busy) return;
+            setBusy("finish");
+            try { await onFinish(); } finally { setBusy(""); }
+          }}>
             ซ่อมสำเร็จ
           </Button>
         )}
@@ -169,9 +196,16 @@ export function StepProgress({
             <TextField
               label="ความคืบหน้า (%)"
               placeholder="ระบุตัวเลข 0-100"
-              inputMode="decimal"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={form.percent}
-              onChange={(e) => setForm({ ...form, percent: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "" || (/^\d+$/.test(value) && Number(value) <= 100)) {
+                  setForm({ ...form, percent: value });
+                  setErr((x) => ({ ...x, percent: "" }));
+                }
+              }}
               onBlur={() => setErr((x) => ({ ...x, percent: check("percent") }))}
               error={err.percent || undefined}
             />
@@ -206,20 +240,7 @@ export function StepProgress({
           }
         }}
       />
-      <ConfirmDialog
-        open={askFinish}
-        icon="build_circle"
-        title="ยืนยันซ่อมสำเร็จ"
-        description="เมื่อยืนยันแล้วจะแก้ไขหรือลบความคืบหน้าไม่ได้ ระบบจะไปขั้นตรวจสภาพ"
-        loading={busy === "finish"}
-        onClose={() => setAskFinish(false)}
-        onConfirm={async () => {
-          setBusy("finish");
-          const done = await onFinish();
-          setBusy("");
-          if (done) setAskFinish(false);
-        }}
-      />
+
     </>
   );
 }

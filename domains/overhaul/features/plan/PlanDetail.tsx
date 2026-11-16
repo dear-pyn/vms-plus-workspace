@@ -4,7 +4,7 @@
  *  เอกสารเรียงซ้อนในกล่องเทา · ซ่อน "ยานพาหนะในแผน" เมื่อมี PO แล้ว · ปุ่มเพิ่ม PO ใต้ตาราง · อะไหล่ในกล่องเทา
  *  คงตาม Figma ที่เคาะแล้ว: ความคืบหน้า % + แถบ · วันเริ่ม/สิ้นสุดสัญญาแยกคอลัมน์ · คำว่า "Purchase Order" (มติ FigJam Section 10) · "ยานพาหนะ" แทน "รถ"
  *  component: Page header · Badge outline (Gray) · Pill outline · Section header · Secondary danger button · Secondary button · File upload item (แสดงอย่างเดียว) */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
 import { OutlineBadge } from "@ui/Badge";
@@ -13,6 +13,8 @@ import { ContentItem as Item, PageHeader, SectionLabel } from "@ui/PageHeader";
 import { RowMenu } from "@ui/RowMenu";
 import { currency } from "@rules/currency.mjs";
 import { VehicleTable } from "../vehicle/VehicleTable";
+import type { PlanVehicle } from "../vehicle/types";
+import { PriceModal } from "./VehicleModals";
 import type { Plan, PlanFile } from "./types";
 import { POList } from "../po/POList";
 import type { Garage, PurchaseOrder, VehicleJob } from "../po/types";
@@ -24,6 +26,8 @@ export interface PlanDetailProps {
   onDelete: () => void;
   onNotInScope: (what: string) => void;
   onOpenVehicle: (plate: string, tab: "info" | "repair") => void;
+  /** ระบุ/แก้ไขราคารายคันจากหน้ารายละเอียด (เจ้าของงานสั่ง 16 พ.ย. 2569) — Modal เดียวกับฟอร์มแผน (B.12) */
+  onSavePrice: (plate: string, p: { referencePrice: number; overhaulEstimate: number }) => void;
   /** S4–S6 */
   pos: PurchaseOrder[];
   jobs: VehicleJob[];
@@ -65,7 +69,8 @@ const DOC_GROUPS = [
  *  รอเลข Purchase Order = Gray · G.1 Brand "รอดำเนินการ" · เสร็จสิ้น = Success */
 const BADGE_TONE = { "รอเลข Purchase Order": "gray", รอดำเนินการ: "brand", เสร็จสิ้น: "success" } as const;
 
-export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpenVehicle, pos, jobs, garages, onAddPO, onOpenPO, onEditPO, onDeletePO }: PlanDetailProps) {
+export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpenVehicle, onSavePrice, pos, jobs, garages, onAddPO, onOpenPO, onEditPO, onDeletePO }: PlanDetailProps) {
+  const [priceFor, setPriceFor] = useState<PlanVehicle | null>(null);
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
@@ -138,6 +143,7 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
                   items={[
                     { label: "ดูข้อมูลยานพาหนะ", icon: "quick_reference_all", onSelect: () => onOpenVehicle(v.plate, "info") },
                     { label: "ดูข้อมูลการซ่อม", icon: "build", onSelect: () => onOpenVehicle(v.plate, "repair") },
+                    { label: "ระบุราคา", icon: "payments", onSelect: () => setPriceFor(v) },
                   ]}
                 />
               )}
@@ -188,6 +194,14 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
           />
         </div>
       </section>
+      <PriceModal
+        vehicle={priceFor}
+        onClose={() => setPriceFor(null)}
+        onSave={(pr) => {
+          if (priceFor) onSavePrice(priceFor.plate, pr);
+          setPriceFor(null);
+        }}
+      />
     </div>
   );
 }

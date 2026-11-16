@@ -5,6 +5,7 @@
  *    ช่อง: ราคากลาง (บาท) · ราคาประเมิน Overhaul (บาท) · หมายเหตุ (ถ้ามี) · validation "กรุณาระบุจำนวนเงินตั้งแต่ 0.00 ขึ้นไป" (B.11)
  *    EC-22 ประเมิน Overhaul มากกว่าราคากลาง → เตือน ไม่บล็อก · EC-23 รับจุลภาค/ช่องว่าง ปัด 2 ตำแหน่ง (MONEY-001)
  *  VehicleInfoModal = B.9 ดูรายละเอียดรถจากแผน: ข้อมูลยานพาหนะ + ราคาในแผน (อ่านอย่างเดียว) */
+import { usePrototypeFill } from "../../prototype/MockTools";
 import { useState, type ReactNode } from "react";
 import { Modal } from "@ui/Modal";
 import { TextField } from "@ui/TextField";
@@ -52,6 +53,12 @@ export function PriceModal({ vehicle, onClose, onSave }: { vehicle: PlanVehicle 
   const [est, setEst] = useState("");
   const [err, setErr] = useState<{ ref?: string; est?: string }>({});
   const [forPlate, setForPlate] = useState<string | null>(null);
+  usePrototypeFill((mode) => {
+    setRef(mode === "missing" ? "" : "500,000.00");
+    setEst(mode === "error" ? "-1" : "100,000.00");
+    setErr({});
+  }, !!vehicle);
+
   if (vehicle && vehicle.plate !== forPlate) {
     setForPlate(vehicle.plate);
     setRef(vehicle.referencePrice === null ? "" : currency(vehicle.referencePrice));

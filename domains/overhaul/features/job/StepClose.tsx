@@ -4,6 +4,8 @@
  *    Input dropdown (หน่วย · ระยะรับประกัน) · Empty state/Data empty · Table Alternating fills (อะไหล่ 2 หมวด · คืนอะไหล่ที่เบิกจากคลัง + Pill outline · สรุปค่าใช้จ่าย) ·
  *    Toggle with description (มีการรับประกันงานซ่อม) · Text input Readonly (วันหมดอายุประกัน) · Alert Info/Success/Warning · Secondary lg ย้อนกลับ · Primary lg ปิดงาน
  *  AC-S14 + toast แถว 23 24 25 26 · เงินทุกช่องผ่าน currency() */
+import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockDate } from "../../prototype/fixtures";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { currency } from "@rules/currency.mjs";
 import { Alert } from "@ui/Alert";
@@ -149,6 +151,10 @@ export function StepClose({
   const [ask, setAsk] = useState(false);
   const [busy, setBusy] = useState(false);
   const files = useRef<Record<string, HTMLInputElement | null>>({});
+  usePrototypeFill((mode) => {
+    setD({ ...d, returnedAt: mockDate(), receiver: mode === "missing" ? "" : mode === "error" ? "error" : "ผู้รับยานพาหนะจำลอง", warranty: { on: true, start: mockDate(), days: 90 }, stock: d.stock.map((s) => ({ ...s, used: s.withdrawn })) });
+    setLabor("10000"); setOther("0"); setErr({});
+  }, !readOnly && !busy && !ask);
   const draft: CloseDraft = { ...d, labor: okNum(labor) ? num(labor) : null, other: okNum(other) ? num(other) : null };
   const dirty = !readOnly && (JSON.stringify(draft) !== JSON.stringify(init) || Object.values(add).some((a) => a.name || a.price));
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);

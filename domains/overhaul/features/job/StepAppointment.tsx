@@ -5,7 +5,9 @@
  *    Secondary button lg "ย้อนกลับ" · Primary button lg "ยืนยัน" (16 พ.ย. 2569: ตัดปุ่ม "ข้ามขั้นตอน" · เดิม "ยืนยันนัดหมาย")
  *  FigJam Section 11/15: ขั้น 1 ข้ามได้ (ยานพาหนะอยู่อู่แล้ว) · ขั้น 5 เพิ่มหมายเหตุ · ข้อความ toast จาก 16-overhaul-toast-notification.md ข้อ 13–16
  *  เจ้าของงานสั่ง 16 พ.ย. 2569: ขั้น 1 (ยังไม่ส่งนัด) มี Radio text card ให้เลือก "นัดหมาย" / "นำรถเข้า" ใต้ "รายละเอียดการนัดหมาย" แทนปุ่ม "ข้ามขั้นตอน"
- *    นัดหมาย (ค่าตั้งต้น) = ฟอร์มนัดเดิม · นำรถเข้า = ซ่อนช่องนัด · ปุ่มหลัก "ยืนยัน" → Modal ยืนยัน → ไปขั้นตรวจรับรถ (onSkip เดิม) */
+ *    นัดหมาย (ค่าตั้งต้น) = ฟอร์มนัดเดิม · นำรถเข้า = ซ่อนช่องนัด · ปุ่มหลัก "ยืนยัน" → ไปขั้นตรวจรับรถทันที (ไม่มี Modal ยืนยัน) (onSkip เดิม) */
+import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockDate } from "../../prototype/fixtures";
 import { useMemo, useState, type ReactNode } from "react";
 import { Alert } from "@ui/Alert";
 import { Button } from "@ui/Button";
@@ -13,7 +15,6 @@ import { Combobox } from "@ui/Combobox";
 import { DateField, DateRangeField, formatThaiDate, parseThaiDate } from "@ui/DateField";
 import { EmptyState } from "@ui/EmptyState";
 import { RadioCard } from "@ui/RadioCard";
-import { ConfirmDialog } from "@ui/Modal";
 import { SectionHeader, ContentItem } from "@ui/PageHeader";
 import { TextField } from "@ui/TextField";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
@@ -68,12 +69,20 @@ export function StepAppointment({
   const [f, setF] = useState(init);
   const [err, setErr] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [askSkip, setAskSkip] = useState(false);
   /** ขั้น 1 ยังไม่ส่งนัด: เลือกได้ว่าจะนัดหมาย หรือนำรถเข้า (ยานพาหนะอยู่อู่แล้ว) */
   const canDirect = !appt && kind === 1;
   const [mode, setMode] = useState<"appt" | "direct">("appt");
   const direct = canDirect && mode === "direct";
   const [dx, setDx] = useState({ date: "", mileage: "", coordinatorId: "" });
+  usePrototypeFill((preset) => {
+    const coordinatorId = staff.find((s) => s.unit === "กบค.")?.id || "";
+    setErr({});
+    if (direct) {
+      setDx({ date: mockDate(), mileage: preset === "missing" ? "" : preset === "error" ? "invalid" : "120000", coordinatorId });
+    } else {
+      setF({ from: mockDate(), to: mockDate(), coordinatorId: preset === "missing" ? "" : coordinatorId, note: preset === "error" ? "error — ทดสอบบันทึกไม่สำเร็จ" : "ข้อมูลนัดหมายจำลอง" });
+    }
+  }, editing && !saving);
   function checkDirect(k: "date" | "mileage" | "coord", x = dx): string {
     if (k === "date") {
       if (!x.date) return "กรุณาเลือกวันที่นำรถเข้า";
@@ -90,7 +99,8 @@ export function StepAppointment({
   function submitDirect() {
     const e = { dDate: checkDirect("date"), dMileage: checkDirect("mileage"), dCoord: checkDirect("coord") };
     setErr((x) => ({ ...x, ...e }));
-    if (!Object.values(e).some(Boolean)) setAskSkip(true);
+    // เจ้าของงานสั่ง 16 พ.ย. 2569: ไม่มี Modal ยืนยัน — ผ่านการตรวจแล้วไปขั้นตรวจรับรถทันที
+    if (!Object.values(e).some(Boolean)) onSkip({ date: dx.date, mileageKm: Number(dx.mileage.replace(/,/g, "")), coordinatorId: dx.coordinatorId });
   }
   const dirty = editing && (JSON.stringify(f) !== JSON.stringify(init) || mode === "direct");
 
@@ -210,9 +220,9 @@ export function StepAppointment({
         <dl className="rounded-lg bg-gray-50 p-6">
           <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
         </dl>
-        {/* Radio text card (ไฟล์ Component) — เจ้าของงาน 16 พ.ย. 2569: อยู่ใต้กล่องข้อมูล · กว้างเต็ม แบ่ง 2 คอลัมน์ */}
+        {/* Radio text card (ไฟล์ Component) · ภาพอ้างอิงเจ้าของงาน 16 พ.ย. 2569: สองการ์ดเท่ากัน รวมครึ่งหน้าบน desktop */}
         {canDirect && (
-          <div role="radiogroup" aria-label="วิธีนำรถเข้าอู่" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div role="radiogroup" aria-label="วิธีนำรถเข้าอู่" className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:w-1/2">
             <RadioCard name="intake-mode" checked={mode === "appt"} onChange={() => setMode("appt")} title="นัดหมาย" description="ส่งช่วงวันให้หน่วยงานนำรถเข้าอู่" />
             <RadioCard name="intake-mode" checked={mode === "direct"} onChange={() => setMode("direct")} title="นำรถเข้า" description="ยานพาหนะอยู่ที่อู่แล้ว ไปขั้นตรวจรับรถ" />
           </div>
@@ -289,23 +299,11 @@ export function StepAppointment({
           ย้อนกลับ
         </Button>
         {/* ปุ่ม "ข้ามขั้นตอน" เดิมย้ายไปเป็นตัวเลือก "นำรถเข้า" (16 พ.ย. 2569) · ขั้น 5 ไม่มีทางลัดนี้ (FigJam Section 15 · D-N1) */}
-        {/* เจ้าของงานสั่ง 16 พ.ย. 2569: ปุ่มเดียวชื่อ "ยืนยัน" (เดิม ยืนยันนัดหมาย / ยืนยันนำรถเข้า) — นัดหมาย = ส่งนัด · นำรถเข้า = Modal ยืนยันก่อน */}
+        {/* เจ้าของงานสั่ง 16 พ.ย. 2569: ปุ่มเดียวชื่อ "ยืนยัน" (เดิม ยืนยันนัดหมาย / ยืนยันนำรถเข้า) — นัดหมาย = ส่งนัด · นำรถเข้า = ไปขั้นตรวจรับรถทันที */}
         <Button size="lg" onClick={direct ? submitDirect : submit} loading={saving}>
           ยืนยัน
         </Button>
       </div>
-      <ConfirmDialog
-        open={askSkip}
-        icon="skip_next"
-        title="ยืนยันนำรถเข้า"
-        description="ยานพาหนะอยู่ที่อู่แล้ว ไม่ต้องนัดหมายกับหน่วยงาน ระบบจะไปขั้นตรวจรับรถ"
-        confirmLabel="ยืนยัน"
-        onClose={() => setAskSkip(false)}
-        onConfirm={() => {
-          setAskSkip(false);
-          onSkip({ date: dx.date, mileageKm: Number(dx.mileage.replace(/,/g, "")), coordinatorId: dx.coordinatorId });
-        }}
-      />
       {dialog}
     </>
   );

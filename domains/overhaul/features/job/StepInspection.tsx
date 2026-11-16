@@ -3,6 +3,8 @@
  *  component: Section header "เอกสารแนบ" · File upload Type=Default (เอกสาร Safety Inspection (ถ้ามี) · เอกสารอื่น ๆ (ถ้ามี)) ·
  *    File upload Type=Gallery (รูปสภาพรถ — FigJam) · Secondary lg "ย้อนกลับ" · Primary lg "ยืนยันการตรวจสภาพ"
  *  FigJam Section 14 (refinement 12 พ.ย. 2569): เพิ่ม upload "เอกสารอื่น ๆ" และ "รูปสภาพรถ" รูปภาพเหมือนขั้น 2 (ไม่จำกัดจำนวน 10 MB/ไฟล์ "จำนวน n ไฟล์") */
+import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockFile } from "../../prototype/fixtures";
 import { useMemo, useState } from "react";
 import { Button } from "@ui/Button";
 import { SectionHeader } from "@ui/PageHeader";
@@ -21,6 +23,11 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
   const [d, setD] = useState<Docs>(init);
   const [err, setErr] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  usePrototypeFill((mode) => {
+    setD({ safety: mode === "missing" ? [] : [mockFile(mode === "error" ? "error" : "safety")], other: [], photos: d.photos });
+    setErr({});
+  }, !readOnly && !busy);
   const dirty = !readOnly && JSON.stringify(d) !== JSON.stringify(init);
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);
 
@@ -63,7 +70,10 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
         <SectionHeader title="เอกสารแนบ" />
         <Uploader label="เอกสาร Safety Inspection" optional files={d.safety} error={err.safety || undefined} onAdd={(l) => add("safety", l)} onRemove={(n) => remove("safety", n)} />
         <Uploader label="เอกสารอื่น ๆ" optional files={d.other} error={err.other || undefined} onAdd={(l) => add("other", l)} onRemove={(n) => remove("other", n)} />
-        <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" optional photos={d.photos} onChange={(p) => setD({ ...d, photos: p })} />
+        </section>
+      <section className="flex flex-col gap-4">
+        <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" />
+        <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" optional photos={d.photos} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setD((prev) => ({ ...prev, photos }))} />
       </section>
       <div className="flex items-center justify-between gap-3">
         <Button variant="secondary" size="lg" onClick={() => requestLeave()}>
@@ -72,6 +82,7 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
         <Button
           size="lg"
           loading={busy}
+          disabled={uploading}
           onClick={async () => {
             setBusy(true);
             await runSave(() => onConfirm(d), () => false);

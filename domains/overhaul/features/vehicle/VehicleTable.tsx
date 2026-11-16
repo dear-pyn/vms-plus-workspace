@@ -53,7 +53,9 @@ export function VehicleTable<T extends VehicleRow>({
   rowKey = (v) => v.plate,
   select,
   status,
+  statusLabel = "สถานะ",
   rowClassName,
+  onRowClick,
   scrollY,
   hideProgress,
 }: {
@@ -67,7 +69,9 @@ export function VehicleTable<T extends VehicleRow>({
   select?: { head: ReactNode; cell: (v: T) => ReactNode };
   /** คอลัมน์ "สถานะ" ท้ายตาราง (Modal เพิ่มยานพาหนะ: เลือกไม่ได้เพราะอะไร) */
   status?: (v: T) => ReactNode;
+  statusLabel?: string;
   rowClassName?: (v: T) => string | undefined;
+  onRowClick?: (v: T) => void;
   /** เลื่อนเฉพาะตาราง หัวตารางอยู่กับที่ (ใน Modal) */
   scrollY?: boolean;
   /** ไม่มีคอลัมน์ "ความคืบหน้า" — ตารางยานพาหนะในแผนและ Purchase Order (เจ้าของงานสั่ง 16 พ.ย. 2569) · แท็บยานพาหนะที่ Overhaul ยังมี */
@@ -93,13 +97,13 @@ export function VehicleTable<T extends VehicleRow>({
           <Th>ประเมิน Overhaul (บาท)</Th>
           {sortTh("ageYears", "อายุการใช้งาน")}
           {!hideProgress && sortTh("progress", "ความคืบหน้า")}
-          {status && <Th>สถานะ</Th>}
+          {status && <Th>{statusLabel}</Th>}
           {action && <Th aria-label="จัดการ" />}
         </tr>
       </thead>
       <tbody>
         {rows.map((v) => (
-          <tr key={rowKey(v)} className={cx(rowClassName?.(v))}>
+          <tr key={rowKey(v)} className={cx(onRowClick && "cursor-pointer hover:bg-gray-50", rowClassName?.(v))} onClick={onRowClick ? () => onRowClick(v) : undefined}>
             {select && <Td>{select.cell(v)}</Td>}
             <Td>
               <CellStack main={<span className="font-semibold">{v.plate}</span>} sub={v.affiliation} />
@@ -110,7 +114,7 @@ export function VehicleTable<T extends VehicleRow>({
             <Td className="tabular-nums">{currency(v.value)}</Td>
             <Td className="tabular-nums">{price(v.referencePrice)}</Td>
             <Td className="tabular-nums">{price(v.overhaulEstimate)}</Td>
-            <Td>{v.ageYears} ปี</Td>
+            <Td>{Number.isFinite(v.ageYears) ? `${v.ageYears} ปี` : "—"}</Td>
             {!hideProgress && <Td className="w-40">{v.progress === null ? "—" : <ProgressBar tone="info" decimals={1} value={v.progress} label={`ความคืบหน้า ${v.plate}`} />}</Td>}
             {status && <Td>{status(v)}</Td>}
             {action && <Td className="w-14 text-right">{action(v)}</Td>}

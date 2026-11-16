@@ -7,13 +7,14 @@ import { cx } from "./cx";
 
 export function Radio({ name, checked, onChange, disabled, label }: { name: string; checked: boolean; onChange: () => void; disabled?: boolean; label?: string }) {
   return (
-    <label className={cx("relative inline-flex", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+    <label className={cx("relative inline-flex align-middle", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
       <input type="radio" name={name} aria-label={label} checked={checked} disabled={disabled} onChange={onChange} className="peer sr-only" />
       <span
         aria-hidden
         className={cx(
-          "flex size-5 shrink-0 items-center justify-center rounded-full peer-focus-visible:shadow-ring",
-          disabled ? "border-2 border-gray-300 bg-gray-200" : checked ? "bg-brand-900" : "border-2 border-gray-300 bg-white",
+          /* ขอบ 2 ทุกสถานะ (เลือกแล้วขอบสีเดียวกับพื้น) — preflight ปิด กล่องเป็น content-box ถ้าสถานะไหนไม่มีขอบขนาดจะต่างกัน 4px ทำให้วงขยับ (เจ้าของงานแจ้ง 16 พ.ย. 2569) */
+          "box-border flex size-5 shrink-0 items-center justify-center rounded-full border-2 peer-focus-visible:shadow-ring",
+          disabled ? "border-gray-300 bg-gray-200" : checked ? "border-brand-900 bg-brand-900" : "border-gray-300 bg-white",
         )}
       >
         {checked && <span className={cx("size-2 rounded-full", disabled ? "bg-gray-300" : "bg-white")} />}

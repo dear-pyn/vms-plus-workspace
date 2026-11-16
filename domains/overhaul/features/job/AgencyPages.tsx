@@ -119,7 +119,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
   const [date, setDate] = useState("");
   const [personId, setPersonId] = useState("");
   const [dateErr, setDateErr] = useState("");
-  const [ask, setAsk] = useState<"" | "accept" | "reject">("");
+  const [ask, setAsk] = useState<"" | "reject">("");
   const [reason, setReason] = useState("");
   const [convenient, setConvenient] = useState({ from: "", to: "" });
   const [busy, setBusy] = useState(false);
@@ -134,10 +134,12 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
   }
 
   async function send(a: AgencyAnswer) {
+    if (busy) return;
     setBusy(true);
-    const ok = await onSubmit(a);
-    setBusy(false);
-    if (ok) setAsk("");
+    try {
+      const ok = await onSubmit(a);
+      if (ok) setAsk("");
+    } finally { setBusy(false); }
   }
 
   const awaiting = awaitingReply(job);
@@ -164,16 +166,17 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
           awaiting && (
             <>
               {/* ปฏิเสธ: ไม่ตรวจช่องในหน้า เปิด Modal ใส่เหตุผลเลย · ปุ่ม ghost (Tertiary danger button) ตามที่เจ้าของงานกำหนด 16 พ.ย. 2569 */}
-              <Button variant="tertiaryDanger" size="lg" onClick={() => { setReason(""); setConvenient({ from: "", to: "" }); setAsk("reject"); }}>
+              <Button variant="tertiaryDanger" size="lg" disabled={busy} onClick={() => { setReason(""); setConvenient({ from: "", to: "" }); setAsk("reject"); }}>
                 ปฏิเสธนัดหมาย
               </Button>
-              {/* ตอบรับ: วันที่บังคับ — ผ่านแล้วเปิด Modal ยืนยัน */}
+              {/* เจ้าของงาน 16 พ.ย. 2569: ตรวจวันที่แล้วส่งตอบรับทันที ไม่มี modal ยืนยัน */}
               <Button
                 size="lg"
+                loading={busy}
                 onClick={() => {
                   const e = checkDate();
                   setDateErr(e);
-                  if (!e) setAsk("accept");
+                  if (!e) void send({ accepted: true, date, personId });
                 }}
               >
                 ตอบรับนัดหมาย
@@ -222,18 +225,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
           )
         }
       />
-      <Modal
-        open={ask === "accept"}
-        variant="centered"
-        icon="event_available"
-        title="ยืนยันการตอบรับนัดหมาย"
-        description={`${W.day} ${date} · ยานพาหนะ ${job.plate}`}
-        cancelLabel="ไม่ใช่ตอนนี้"
-        confirmLabel="ตอบรับนัดหมาย"
-        confirmLoading={busy}
-        onClose={() => setAsk("")}
-        onConfirm={() => send({ accepted: true, date, personId })}
-      />
+
       <Modal
         open={ask === "reject"}
         title="ปฏิเสธนัดหมาย"

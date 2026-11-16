@@ -6,6 +6,8 @@
  *  พฤติกรรม: AC-S1 (15-overhaul-AC.md) + เคสในทะเบียน domains/overhaul/edge-cases.md (EC-03 EC-04 EC-21 EC-22 EC-23 EC-24 EC-26 EC-27)
  *  ข้อความ validation ตรงตัวจอ B.2 · B.19 · ยืนยันออก B.4 · เมนูแถวตาม D3
  *  S2 แก้ไข: ยืนยันการแก้ไข (C.4) ทำที่หน้า page — ฟอร์มส่งค่ากลับผ่าน onSave */
+import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockPlan } from "../../prototype/fixtures";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@ui/Button";
 import { Alert } from "@ui/Alert";
@@ -66,6 +68,14 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
   const [priceFor, setPriceFor] = useState<PlanVehicle | null>(null);
   const [removeFor, setRemoveFor] = useState<PlanVehicle | null>(null);
   const [saving, setSaving] = useState(false);
+  usePrototypeFill((mode) => {
+    const next = mockPlan(d, fleet, ownCostCenter);
+    if (mode === "missing") { next.name = ""; next.docs.principle = []; }
+    if (mode === "error") next.name = "error — แผนทดสอบ";
+    setD(next);
+    setBudgetText(currency(next.budget));
+    setErrors({}); setFileError({});
+  }, !saving && !picker && !priceFor && !removeFor);
   const dirty = JSON.stringify(d) !== JSON.stringify(initial);
   const set = <K extends keyof PlanDraft>(k: K, v: PlanDraft[K]) => setD((x) => ({ ...x, [k]: v }));
 
@@ -209,17 +219,11 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
               label="ยานพาหนะในแผน"
               hideProgress /* เจ้าของงาน 16 พ.ย. 2569: ตารางรถในแผนไม่มีความคืบหน้า */
               toolbarActions={
-                /* T1: ปุ่มเพิ่มอยู่ขวามือของปุ่มตัวกรอง · B.18 ปุ่ม "รายงาน" (มติ FigJam Scenario Export แผน: ดาวน์โหลด Excel ทันที) */
+                /* รายงานอยู่หน้าจัดการ Overhaul เท่านั้น (เจ้าของงาน 16 พ.ย. 2569) */
                 <>
                   <Button variant="secondary" iconLeft="add" onClick={() => setPicker(true)}>
                     เพิ่มยานพาหนะ
                   </Button>
-                  {/* เจ้าของงานสั่ง 16 พ.ย. 2569: หน้าสร้างแผนไม่มีปุ่มรายงาน (มีเฉพาะแก้ไขแผน) */}
-                  {!isNew && (
-                    <Button variant="secondary" onClick={() => downloadPlanExcel(d.vehicles)}>
-                      รายงาน
-                    </Button>
-                  )}
                 </>
               }
               action={(v) => (

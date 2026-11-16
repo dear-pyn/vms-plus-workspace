@@ -21,7 +21,7 @@ export interface CheckboxProps {
 export function Checkbox({ checked, onChange, indeterminate, disabled, label }: CheckboxProps) {
   const on = checked || indeterminate;
   return (
-    <label className={cx("relative inline-flex", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+    <label className={cx("relative inline-flex align-middle", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
       <input
         type="checkbox"
         aria-label={label}

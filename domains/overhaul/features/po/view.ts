@@ -2,11 +2,11 @@
 import { parseThaiDate } from "@ui/DateField";
 import type { PurchaseOrder, VehicleJob } from "./types";
 
-/** ความคืบหน้า Purchase Order = เฉลี่ยความคืบหน้ารายคัน (จอ G.1: 62% · 40% · 100%) ทศนิยม 1 ตำแหน่ง */
+/** ความคืบหน้า Purchase Order = เฉลี่ยความคืบหน้ารายคัน (จอ G.1: 62% · 40% · 100%) เก็บค่าจริง; ตัดทศนิยมเฉพาะตอนแสดง */
 export function poProgress(po: PurchaseOrder, jobs: VehicleJob[]): number {
   const js = jobs.filter((j) => j.poId === po.id);
   if (!js.length) return 0;
-  return Math.round((js.reduce((n, j) => n + j.progress, 0) / js.length) * 10) / 10;
+  return js.reduce((n, j) => n + j.progress, 0) / js.length;
 }
 
 /** ข้อความรองสีแดงใต้วันสิ้นสุดสัญญา (จอ G.1 "ใกล้ครบสัญญา (เหลือ 7 วัน)") — เกณฑ์ 30 วัน (ตัดสินใจแทนไปก่อน รอเคาะ) */

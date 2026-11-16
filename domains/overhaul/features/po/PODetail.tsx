@@ -2,12 +2,12 @@
 /** หน้ารายละเอียด Purchase Order — จอ OH2 / E.9 · F.1.2 · F.4.2 (ตาราง F.4.2 ตรง AC-S4 มากกว่า E.9 → ยึด F.4.2)
  *  component: Page header (breadcrumb 3 ชั้น) · Secondary danger button "ลบ Purchase Order" · Secondary button "แก้ไข" ·
  *    Section label · Content item row · File upload (แสดงอย่างเดียว) · Table (Alternating fills) · Pill outline (สถานะงาน — ในตาราง)
- *  คอลัมน์ F.4.2: ทะเบียน · ยี่ห้อ/รุ่น · ประเภท · หน่วยงานเจ้าของ · เลขไมล์ (กม.) · อายุการใช้งาน · สถานะงาน · รายละเอียดตามสถานะ · ไปหน้างานรายคัน */
-import type { ReactNode } from "react";
+ *  เจ้าของงานยืนยัน 16 พ.ย. 2569: ตารางชุด A.5 + ความคืบหน้าจากงานรายคัน + สถานะงาน + ไปหน้างาน (แทนตาราง F.4.2 เดิม) */
+import { useState } from "react";
 import { Button } from "@ui/Button";
 import { Pill } from "@ui/Badge";
 import { ContentItem as Item, PageHeader, SectionLabel } from "@ui/PageHeader";
-import { DataTable, Td, Th } from "@ui/Table";
+import { VehicleTable, nextSort, sortRows, type VehicleSortKey } from "../vehicle/VehicleTable";
 import { FileRow } from "../plan/PlanDetail";
 import type { Plan } from "../plan/types";
 import {
@@ -41,10 +41,19 @@ export function PODetail({
   onDelete: () => void;
   onOpenJob: (plate: string) => void;
 }) {
-  const rows = po.plates.map((p) => ({
-    v: plan.vehicles.find((x) => x.plate === p),
-    j: jobs.find((x) => x.poId === po.id && x.plate === p),
-  }));
+  const [sort, setSort] = useState<{ key: VehicleSortKey; dir: 1 | -1 } | null>(null);
+  const rows = po.plates.map((plate) => {
+    const vehicle = plan.vehicles.find((v) => v.plate === plate);
+    const job = jobs.find((j) => j.poId === po.id && j.plate === plate);
+    return {
+      plate, affiliation: "—", make: "—", model: "", type: "—", value: NaN, ageYears: NaN,
+      referencePrice: null, overhaulEstimate: null,
+      ...vehicle,
+      // The plan's vehicle snapshot may predate job updates; use the matching PO job.
+      progress: job?.progress ?? null,
+      job,
+    };
+  });
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
@@ -121,88 +130,23 @@ export function PODetail({
         <SectionLabel
           /* Section label (หน้าดูรายละเอียด) */ title={`รายการยานพาหนะ (${po.plates.length})`}
         />
-        <DataTable label="รายการยานพาหนะใน Purchase Order" striped>
-          <thead>
-            <tr>
-              <Th>ทะเบียน</Th>
-              <Th>ยี่ห้อ/รุ่น · ประเภท</Th>
-              <Th>หน่วยงานเจ้าของยานพาหนะ</Th>
-              <Th>เลขไมล์ (กม.)</Th>
-              <Th>อายุการใช้งาน</Th>
-              <Th>สถานะงาน</Th>
-              <Th>รายละเอียดตามสถานะ</Th>
-              <Th className="w-14">
-                <span className="sr-only">ไปหน้างาน</span>
-              </Th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ v, j }, i) => (
-              <tr
-                key={po.plates[i]}
-                className="cursor-pointer hover:bg-gray-50"
-                onClick={() => onOpenJob(po.plates[i])}
-              >
-                <Td className="font-semibold">{po.plates[i]}</Td>
-                <Td>{v ? `${v.make} ${v.model} · ${v.type}` : "-"}</Td>
-                <Td>{v?.affiliation ?? "-"}</Td>
-                <Td className="tabular-nums">
-                  {v?.mileageKm !== undefined
-                    ? v.mileageKm.toLocaleString()
-                    : "-"}
-                </Td>
-                <Td>{v ? `${v.ageYears} ปี` : "-"}</Td>
-                <Td>
-                  {j ? (
-                    <Pill tone={JOB_STATUS[j.code].tone}>
-                      {JOB_STATUS[j.code].label}
-                    </Pill>
-                  ) : (
-                    "-"
-                  )}
-                </Td>
-                <Td>
-                  {j ? (
-                    <div className="flex flex-col">
-                      <span>{j.detail[0]}</span>
-                      {j.detail[1] && (
-                        <span className="text-xs text-gray-600">
-                          {j.detail[1]}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    "-"
-                  )}
-                </Td>
-                <Td>
-                  <div className="flex items-center justify-end gap-1">
-                    {j?.code === "V11" && onOpenSummary && (
-                      <Button
-                        variant="tertiary"
-                        iconOnly="quick_reference_all"
-                        aria-label={`ดูสรุปรายคัน ${po.plates[i]}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenSummary(po.plates[i]);
-                        }}
-                      />
-                    )}
-                    <Button
-                      variant="tertiary"
-                      iconOnly="keyboard_arrow_right"
-                      aria-label={`ไปหน้างาน ${po.plates[i]}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenJob(po.plates[i]);
-                      }}
-                    />
-                  </div>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
+        <VehicleTable
+          rows={sortRows(rows, sort)}
+          label="รายการยานพาหนะใน Purchase Order"
+          sort={sort}
+          onSort={(key) => setSort((prev) => nextSort(prev, key))}
+          statusLabel="สถานะงาน"
+          status={(v) => v.job ? <Pill tone={JOB_STATUS[v.job.code].tone}>{JOB_STATUS[v.job.code].label}</Pill> : "—"}
+          onRowClick={(v) => onOpenJob(v.plate)}
+          action={(v) => (
+            <div className="flex items-center justify-end gap-1">
+              {v.job?.code === "V11" && onOpenSummary && (
+                <Button variant="tertiary" iconOnly="quick_reference_all" aria-label={`ดูสรุปรายคัน ${v.plate}`} onClick={(e) => { e.stopPropagation(); onOpenSummary(v.plate); }} />
+              )}
+              <Button variant="tertiary" iconOnly="keyboard_arrow_right" aria-label={`ไปหน้างาน ${v.plate}`} onClick={(e) => { e.stopPropagation(); onOpenJob(v.plate); }} />
+            </div>
+          )}
+        />
       </section>
     </div>
   );

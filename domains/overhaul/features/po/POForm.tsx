@@ -6,6 +6,8 @@
  *    ยานพาหนะมาจากที่เลือกไว้ตอนสร้างแผนเท่านั้น (ราคากลาง/ประเมิน Overhaul ได้มาจากแผน) · ตาราง + แบ่งหน้า 10 แถว ·
  *    ไม่มีคอลัมน์ความคืบหน้า · ปุ่มท้ายแถว = ลบออกจาก Purchase Order อย่างเดียว (ตาม F.2 ไอคอน delete) ·
  *    บันทึกไม่ได้เมื่อยานพาหนะถูกนำออกจากแผน → modal แจ้ง */
+import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockDate, mockFile } from "../../prototype/fixtures";
 import { useMemo, useState } from "react";
 import { Alert } from "@ui/Alert";
 import { OutlineBadge } from "@ui/Badge";
@@ -13,7 +15,6 @@ import { Button } from "@ui/Button";
 import { Combobox } from "@ui/Combobox";
 import { DateField, parseThaiDate } from "@ui/DateField";
 import { EmptyState } from "@ui/EmptyState";
-import { ConfirmDialog } from "@ui/Modal";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { Pagination } from "@ui/Pagination";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
@@ -52,10 +53,13 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
   const [d, setD] = useState<PODraft>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [picker, setPicker] = useState(false);
-  const [removed, setRemoved] = useState<string[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
+  usePrototypeFill((mode) => {
+    setD({ ...d, name: mode === "missing" ? "" : mode === "error" ? "error — Purchase Order ทดสอบ" : /error/i.test(d.name) ? "Purchase Order ทดสอบ" : d.name || "Purchase Order ทดสอบ", garageId: d.garageId || garages[0]?.id || "", contractStart: mockDate(), contractEnd: mockDate(), plates: d.plates.length ? d.plates : plan.vehicles.filter((v) => !takenBy[v.plate]).slice(0, 2).map((v) => v.plate), docs: { ...d.docs, order: mode === "missing" ? [] : d.docs.order.length ? d.docs.order : [mockFile("order")] } });
+    setErrors({});
+  }, !saving && !picker);
   const dirty = JSON.stringify(d) !== JSON.stringify(initial);
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onCancel);
   const set = <K extends keyof PODraft>(k: K, v: PODraft[K]) => setD((x) => ({ ...x, [k]: v }));
@@ -93,7 +97,11 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
     const r = await runSave(() => onSave(d));
     setSaving(false);
     if (typeof r === "string") onNotify(r, "error"); // E.7 General Error
-    else if (r !== true) setRemoved(r.removed);
+    else if (r !== true) {
+      // EC-31 เจ้าของงานสั่ง 16 พ.ย. 2569: error toast (ข้อความตรงตัว) + นำคันที่ไม่อยู่ในแผนออกจากตารางทันที (แทน modal ของ FigJam Section 10)
+      setD((x) => ({ ...x, plates: x.plates.filter((pl) => !r.removed.includes(pl)) }));
+      onNotify(`บันทึกข้อมูลไม่สำเร็จ รถบางคันไม่อยู่ในแผน ${plan.id}`, "error");
+    }
   }
 
   function addFiles(k: keyof PODocs, list: File[]) {
@@ -256,20 +264,6 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
           if (errors.vehicles !== undefined) touch("vehicles", x);
           setPicker(false);
           onNotify(`เพิ่มยานพาหนะ ${picked.length} คันสำเร็จ`);
-        }}
-      />
-      {/* FigJam Section 10: ยานพาหนะถูกลบออกจากแผนระหว่างทำ Purchase Order → บันทึกไม่ได้ */}
-      <ConfirmDialog
-        open={!!removed}
-        hideCancel
-        icon="error"
-        title="บันทึก Purchase Order ไม่ได้"
-        description={removed ? `${removed.join(", ")} ถูกนำออกจากแผน ${plan.id} แล้ว ระบบนำออกจาก Purchase Order นี้ให้ กรุณาตรวจสอบแล้วบันทึกอีกครั้ง` : undefined}
-        confirmLabel="ตกลง"
-        onClose={() => setRemoved(null)}
-        onConfirm={() => {
-          set("plates", d.plates.filter((p) => !removed?.includes(p)));
-          setRemoved(null);
         }}
       />
       {dialog}

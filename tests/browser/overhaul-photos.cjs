@@ -1,0 +1,20 @@
+const {chromium}=require('playwright-core');const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});try{
+ const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const base=(process.env.VMS_TEST_URL||'http://127.0.0.1:3021')+'/prototypes/overhaul/';const route='#/job/PO-690101/'+encodeURIComponent('81-5521 นครปฐม');
+ const before='รูปสภาพยานพาหนะ (ก่อน Overhaul)',after='รูปสภาพยานพาหนะ (หลัง Overhaul)';
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWZkAAAAASUVORK5CYII=','base64');
+ const image=async(name)=>{await page.getByRole('img',{name,exact:true}).waitFor();await page.waitForFunction(name=>[...document.images].some(i=>i.alt===name&&i.complete&&i.naturalWidth>0),name);};
+ await page.goto(base+route);await page.waitForLoadState('networkidle');
+ await page.getByLabel(before,{exact:true}).setInputFiles({name:'bad.pdf',mimeType:'application/pdf',buffer:Buffer.from('bad')});await page.getByRole('alert').filter({hasText:'bad.pdf'}).waitFor();
+ await page.getByLabel(before,{exact:true}).setInputFiles({name:'before.png',mimeType:'image/png',buffer:png});await image('before.png');assert.equal(await page.getByRole('alert').filter({hasText:'bad.pdf'}).count(),0);
+ await page.getByRole('button',{name:'Mock · Prototype',exact:true}).click();await page.getByRole('button',{name:'เติมข้อมูลให้ครบ',exact:true}).click();
+ await page.getByRole('button',{name:'บันทึกและถัดไป',exact:true}).click();await page.getByRole('heading',{name:'รายละเอียดการติดตาม',exact:true}).waitFor();
+ await page.getByRole('button',{name:'เติมข้อมูลให้ครบ',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'บันทึก',exact:true}).click();await page.getByRole('button',{name:'ซ่อมสำเร็จ',exact:true}).click();
+ await page.getByLabel(after,{exact:true}).setInputFiles({name:'after.png',mimeType:'image/png',buffer:png});await image('after.png');
+ await page.getByRole('button',{name:'ยืนยันการตรวจสภาพ',exact:true}).click();await page.locator('ol[aria-label="ขั้นตอนงาน"] button[aria-current="step"]').filter({hasText:'นัดรับรถ'}).waitFor();await page.getByRole('list',{name:'ขั้นตอนงาน'}).getByRole('button',{name:/ตรวจสภาพ/}).click();await image('after.png');
+ await page.getByRole('list',{name:'ขั้นตอนงาน'}).getByRole('button',{name:/ตรวจรับรถ/}).click();await image('before.png');assert.equal(await page.getByRole('button',{name:'ลบรูป before.png',exact:true}).count(),0);assert.equal(await page.getByRole('img',{name:'after.png',exact:true}).count(),0);
+ await page.reload();await page.getByRole('list',{name:'ขั้นตอนงาน'}).getByRole('button',{name:/ตรวจรับรถ/}).click();await image('before.png');
+ const other=await context.newPage();other.setDefaultTimeout(10000);await other.goto(base+route);await other.waitForLoadState('networkidle');await other.getByRole('list',{name:'ขั้นตอนงาน'}).getByRole('button',{name:/ตรวจสภาพ/}).click();await other.getByRole('img',{name:'after.png',exact:true}).waitFor();await other.waitForFunction(()=>[...document.images].some(i=>i.alt==='after.png'&&i.naturalWidth>0));
+ assert.deepEqual(errors,[]);console.log('PASS: before/after photos save separately, invalid file rejected, valid clears error, readonly galleries, real image survives reload and second tab');
+ }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1});

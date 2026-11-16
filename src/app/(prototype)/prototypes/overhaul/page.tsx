@@ -4,7 +4,10 @@
  *  เส้นทาง (hash): #/ รายการ · #/empty ยังไม่มีแผน (A.4) · #/vehicles แท็บยานพาหนะ · #/new สร้างแผน · #/plan/<id> รายละเอียด · #/plan/<id>/edit แก้ไข ·
  *    #/vehicle/<ทะเบียน>/<info|repair|…> หน้ารายละเอียดยานพาหนะ (หน้าเดิมของระบบ)
  *  จำลอง B.5 บันทึกไม่สำเร็จ: ตั้งชื่อแผนให้มีคำว่า "error"
- *  ข้อมูลอยู่ในหน่วยความจำ — รีเฟรชแล้วกลับเป็นค่าเริ่มต้น */
+ *  ข้อมูล mock ใช้ snapshot เดียวใน localStorage เพื่อ sync ข้ามแท็บและรีเฟรช */
+import { downloadPlanExcel } from "@overhaul/features/plan/PlanForm";
+import { usePrototypeData } from "@overhaul/prototype/usePrototypeData";
+import { MockTools } from "@overhaul/prototype/MockTools";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppShell } from "@ui/AppShell";
 import { ConfirmDialog } from "@ui/Modal";
@@ -19,6 +22,7 @@ import { OverhaulHome } from "@overhaul/features/OverhaulHome";
 import { VehicleList } from "@overhaul/features/vehicle/VehicleList";
 import { VehicleDetailPage, type RepairRecord, type VehicleTab } from "@overhaul/features/vehicle/VehicleDetailPage";
 import type { Plan, PlanDraft } from "@overhaul/features/plan/types";
+import { missingPrice } from "@overhaul/features/vehicle/types";
 import { seedFleet } from "@overhaul/mock/fleet";
 import { seedPlans } from "@overhaul/mock/plans";
 import { seedGarages } from "@overhaul/mock/garages";
@@ -123,9 +127,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
-  const [plans, setPlans] = useState<Plan[]>(seed.plans);
-  const [pos, setPos] = useState<PurchaseOrder[]>(seed.pos);
-  const [jobs, setJobs] = useState<VehicleJob[]>(seed.jobs);
+  const { plans, pos, jobs, setPlans, setPos, setJobs } = usePrototypeData(seed);
   const [garages] = useState(seedGarages);
   const [staff] = useState(seedStaff);
   const [poDelete, setPoDelete] = useState<string | null>(null);
@@ -162,7 +164,7 @@ export default function OverhaulPrototype() {
   const closeToast = useCallback(() => setToast(null), []);
   const plan = route.view === "detail" || route.view === "edit" || route.view === "poNew" || route.view === "po" || route.view === "poEdit" ? plans.find((p) => p.id === route.id) : undefined;
   const home = (tab: "plans" | "vehicles", body: React.ReactNode) => (
-    <OverhaulHome tab={tab} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
+    <OverhaulHome tab={tab} onReport={() => downloadPlanExcel(plans.flatMap((p) => p.vehicles))} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
       {body}
     </OverhaulHome>
   );
@@ -255,7 +257,7 @@ export default function OverhaulPrototype() {
       kind === 1
         ? { ...j, code: a.accepted ? "V4.1" : "V3", appt1: { ...appt, reply }, detail: a.accepted ? [`นัดเข้าอู่ ${a.date}`, "รอตรวจรับรถ"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }
         : { ...j, code: a.accepted ? "V10" : "V9", appt5: { ...appt, reply }, detail: a.accepted ? [`นัดรับรถ ${a.date}`, "รอปิดงาน"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] };
-    setJobs((js) => js.map((x) => (x === j ? next : x)));
+    setJobs((js) => js.map((x) => (x.poId === j.poId && x.plate === j.plate ? { ...x, code: next.code, appt1: next.appt1, appt5: next.appt5, detail: next.detail } : x)));
     go({ view: "agency" });
     notify("ตอบกลับสำเร็จ", "success", a.accepted ? `ส่งตอบรับนัดหมายยานพาหนะ ${j.plate} ให้ กบค. เรียบร้อยแล้ว` : "ส่งเหตุผลการปฏิเสธนัดหมายให้ กบค. เรียบร้อยแล้ว"); // R.1.6 / R.2.5 ตรงจอ (รถ → ยานพาหนะ)
     return true;
@@ -308,6 +310,11 @@ export default function OverhaulPrototype() {
         onDelete={() => setToDelete(plan.id)}
         onNotInScope={notInScope}
         onOpenVehicle={openVehicle(`plan:${plan.id}`)}
+        onSavePrice={(plate, pr) => {
+          const before = plan.vehicles.find((v) => v.plate === plate);
+          setPlans((ps) => ps.map((x) => (x.id === plan.id ? { ...x, vehicles: x.vehicles.map((v) => (v.plate === plate ? { ...v, ...pr } : v)) } : x)));
+          notify(before && !missingPrice(before) ? "แก้ไขราคารายคันสำเร็จ" : "ระบุราคาสำเร็จ"); // ข้อความเดียวกับฟอร์มแผน (B.12)
+        }}
         pos={planPOs(plan.id)}
         jobs={jobs}
         garages={garages}
@@ -383,7 +390,7 @@ export default function OverhaulPrototype() {
         onGoPO={() => go({ view: "po", id: jp.id, po: po.id })}
         onUpdate={(next, t) => {
           const nextJobs = jobs.map((j) => (j.poId === next.poId && j.plate === next.plate ? next : j));
-          setJobs(nextJobs);
+          setJobs((js) => js.map((j) => (j.poId === next.poId && j.plate === next.plate ? next : j)));
           // AC-S14: ยานพาหนะทุกคันในทุก PO ของแผนปิดงาน (V11) → แผนเสร็จสิ้น (เดิมทำตอน ผบช. อนุมัติ — ตัดผู้อนุมัติแล้วจึงทำตอนส่งขั้น 7)
           const planPOIds = pos.filter((x) => x.planId === jp.id).map((x) => x.id);
           if (next.code === "V11" && nextJobs.filter((x) => planPOIds.includes(x.poId)).every((x) => x.code === "V11")) setPlans((ps) => ps.map((x) => (x.id === jp.id ? { ...x, status: "เสร็จสิ้น", progress: 100 } : x)));
@@ -514,6 +521,7 @@ export default function OverhaulPrototype() {
     >
       {/* D-R1 เดิม: แถบ "ต้นแบบ: มุมมอง" — เอาออก 16 พ.ย. 2569 · มุมหน่วยงานเข้าจากเมนู "ตอบรับนัดหมาย" ใต้ Overhaul แทน */}
       {body}
+      <MockTools />
       <ConfirmDialog
         open={askEdit}
         icon="edit"

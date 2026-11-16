@@ -3,9 +3,11 @@
  *  ลำดับ: Section header "รายการเอกสารรับรถ" · Table Alternating fills
  *    (รายการ · มี/ไม่มี = Radio button · ชำรุด/ผิดรุ่น = Checkbox (เลือกได้เมื่อ "มี") · หมายเหตุ = Text input · ข้อแบตเตอรี่มีช่องยี่ห้อ + จำนวน ลูก)
  *  → Section header "ลงนามการรับมอบรถ" · Input dropdown พิมพ์ค้น 2 ช่อง (ผู้ส่งมอบรถ · ผู้รับมอบ (กบค.))
+ *  → File upload Type=Gallery "รูปสภาพยานพาหนะ (ก่อน Overhaul)" (ตาม I.1 + FigJam Section 12)
  *  → Secondary button lg "ย้อนกลับ" · Primary button lg "บันทึกและถัดไป" (disable จนตอบ มี/ไม่มี ครบทุกข้อ + เลือกผู้ลงนามครบ)
  *  ย้อนดู (ขั้นที่ผ่านแล้ว) = ตารางปิดแก้ไข · ผู้ลงนามเป็น Text input Readonly (ภาพ UAT ชุดแรก)
  *  component: Radio button · Checkbox · Text input · Input dropdown (Combobox) · Table — ไฟล์ Component VMS Plus */
+import { usePrototypeFill } from "../../prototype/MockTools";
 import { useMemo, useState } from "react";
 import { Button } from "@ui/Button";
 import { Checkbox } from "@ui/Checkbox";
@@ -15,10 +17,12 @@ import { Radio } from "@ui/Radio";
 import { DataTable, Td, Th } from "@ui/Table";
 import { TextField } from "@ui/TextField";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
-import type { CheckItem, Intake, Staff } from "../po/types";
+import { PhotoUploader } from "../shared/PhotoUploader";
+import type { CheckItem, Intake, Staff, Photo } from "../po/types";
 import { BATTERY, emptyChecks, intakeComplete } from "./intake";
 
 export interface IntakeDraft {
+  photos: Photo[];
   checks: CheckItem[];
   delivererId: string;
   receiverId: string;
@@ -35,11 +39,15 @@ export function StepIntake({
   onSave: (d: IntakeDraft) => Promise<boolean>;
 }) {
   const init = useMemo<IntakeDraft>(
-    () => ({ checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
+    () => ({ photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
     [intake],
   );
   const [f, setF] = useState(init);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  usePrototypeFill((mode) => {
+    setF({ photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
+  }, !readOnly && !busy);
   const locked = !!readOnly;
   const dirty = !locked && JSON.stringify(f) !== JSON.stringify(init);
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);
@@ -141,12 +149,18 @@ export function StepIntake({
         </div>
       </section>
 
+      {/* OH2 I.1: รูปก่อน Overhaul หลังส่วนรับมอบ · File upload Type=Gallery ตาม FigJam Section 12 */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader title="รูปสภาพยานพาหนะ (ก่อน Overhaul)" />
+        <PhotoUploader label="รูปสภาพยานพาหนะ (ก่อน Overhaul)" optional photos={f.photos} readOnly={locked} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setF((prev) => ({ ...prev, photos }))} />
+      </section>
+
       <div className="flex flex-wrap items-center justify-between gap-3" /* ภาพ UAT ไม่มีเส้นคั่น */>
         <Button variant="secondary" size="lg" onClick={() => requestLeave()}>
           ย้อนกลับ
         </Button>
         {!locked && (
-          <Button size="lg" disabled={!ready} loading={busy} onClick={save}>
+          <Button size="lg" disabled={!ready || uploading} loading={busy} onClick={save}>
             บันทึกและถัดไป
           </Button>
         )}

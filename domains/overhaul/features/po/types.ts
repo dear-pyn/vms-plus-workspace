@@ -84,6 +84,8 @@ export interface Photo {
   name: string;
   sizeKb: number;
   url?: string;
+  /** รูปจำลองที่เก็บใน IndexedDB เพื่อเปิดข้ามแท็บ/หลังรีเฟรช */
+  assetId?: string;
 }
 
 /** ผู้ยืนยันการรับมอบ (FigJam Section 12: เลิกเซ็น → เลือกคน แล้วคนนั้น login เข้ามากด อนุมัติ/ปฏิเสธ · เก็บ audit log) */
