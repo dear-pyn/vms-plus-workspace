@@ -4,7 +4,9 @@
  *    T4 ตัวกรองกางลงมาในตัว modal · T5 ไม่มี "แสดงเฉพาะที่เลือก" · T6 title "เพิ่มยานพาหนะ" (common) subtitle จาก senior-ux-writing ·
  *    T8 สถานะดูแค่ ระหว่างซ่อม / รอจำหน่าย · T9 แถบเลือกทั้งหมดไม่มีพื้นชมพู · T16 เลื่อนเฉพาะตาราง (หัว/เครื่องมือ/ท้ายอยู่กับที่)
  *  การเลือกจำนวนมาก: ติ๊กหัวตาราง = หน้านี้ + ลิงก์เลือกทั้งหมดตามคำค้นและตัวกรอง · ที่เลือกค้างข้ามหน้า/คำค้น/ตัวกรอง (M3 M4)
- *  M8 เพดานต่อครั้ง = prop maxSelect (ยังไม่กำหนด) */
+ *  M8 เพดานต่อครั้ง = prop maxSelect (ยังไม่กำหนด)
+ *  เจ้าของงานสั่ง 16 พ.ย. 2569: เรียงคอลัมน์ได้แบบแท็บยานพาหนะที่ Overhaul (SortTh/sortRows ตัวเดียวกัน) — มูลค่า · อายุการใช้งาน
+ *    (+ ราคากลาง · ประเมิน Overhaul เมื่อ showPrices) · ไม่มีข้อมูลอยู่ท้าย · เปลี่ยนการเรียงแล้วกลับหน้า 1 · ที่เลือกไว้ค้างอยู่ */
 import { useMemo, useState } from "react";
 import { Button } from "@ui/Button";
 import { CountPill, OutlineBadge } from "@ui/Badge";
@@ -18,11 +20,13 @@ import { CellStack, DataTable, Td, Th } from "@ui/Table";
 import { cx } from "@ui/cx";
 import { currency } from "@rules/currency.mjs";
 import type { VehicleInfo } from "./types";
+import { nextSort, SortTh, sortRows, type VehicleSort } from "./VehicleTable";
 
 /** แถวที่เลือกได้ — fleet (เพิ่มเข้าแผน B.15) หรือยานพาหนะในแผน (เพิ่มเข้า Purchase Order E.5) */
 export type PickRow = VehicleInfo & { unavailableReason?: string; referencePrice?: number | null; overhaulEstimate?: number | null };
 
 type Key = "type" | "make" | "affiliation";
+type PickSortKey = "value" | "referencePrice" | "overhaulEstimate" | "ageYears";
 type Filter = Record<Key, string>;
 const EMPTY: Filter = { type: "", make: "", affiliation: "" };
 const LABEL: Record<Key, string> = { type: "ประเภทยานพาหนะ", make: "ยี่ห้อ", affiliation: "สังกัด" };
@@ -54,15 +58,21 @@ export function VehiclePickerModal<T extends PickRow>({
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
+  const [sort, setSort] = useState<VehicleSort<PickSortKey>>(null);
+  const onSort = (k: PickSortKey) => {
+    setSort((s) => nextSort(s, k));
+    setPage(1);
+  };
 
   const pool = useMemo(() => fleet.filter((v) => !excludePlates.includes(v.plate)), [fleet, excludePlates]);
   const opts = (k: Key) => [...new Set(pool.map((v) => String(v[k])))].sort((a, b) => a.localeCompare(b, "th"));
   const rows = useMemo(() => {
     const k = q.trim().toLowerCase();
-    return pool.filter(
+    const out = pool.filter(
       (v) => (!k || [v.plate, `${v.make} ${v.model}`, v.type, v.affiliation].some((s) => s.toLowerCase().includes(k))) && (Object.keys(filter) as Key[]).every((f) => !filter[f] || v[f] === filter[f]),
     );
-  }, [pool, q, filter]);
+    return sortRows(out, sort);
+  }, [pool, q, filter, sort]);
   const pages = Math.max(1, Math.ceil(rows.length / size));
   const cur = Math.min(page, pages);
   const shown = rows.slice((cur - 1) * size, cur * size);
@@ -85,6 +95,7 @@ export function VehiclePickerModal<T extends PickRow>({
     setShowFilter(false);
     setPicked(new Set());
     setPage(1);
+    setSort(null);
   };
   const close = () => {
     reset();
@@ -199,10 +210,10 @@ export function VehiclePickerModal<T extends PickRow>({
                 </Th>
                 <Th>ทะเบียน</Th>
                 <Th>ประเภทยานพาหนะ</Th>
-                <Th>{showPrices ? "ราคาที่ได้มา (บาท)" : "มูลค่ายานพาหนะ (บาท)"}</Th>
-                {showPrices && <Th>ราคากลาง (บาท)</Th>}
-                {showPrices && <Th>ประเมิน Overhaul (บาท)</Th>}
-                <Th>อายุการใช้งาน</Th>
+                <SortTh k="value" sort={sort} onSort={onSort}>{showPrices ? "ราคาที่ได้มา (บาท)" : "มูลค่ายานพาหนะ (บาท)"}</SortTh>
+                {showPrices && <SortTh k="referencePrice" sort={sort} onSort={onSort}>ราคากลาง (บาท)</SortTh>}
+                {showPrices && <SortTh k="overhaulEstimate" sort={sort} onSort={onSort}>ประเมิน Overhaul (บาท)</SortTh>}
+                <SortTh k="ageYears" sort={sort} onSort={onSort}>อายุการใช้งาน</SortTh>
                 {anyUnavailable && <Th>สถานะ</Th>}
               </tr>
             </thead>

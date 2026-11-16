@@ -10,7 +10,7 @@ import { Pagination } from "@ui/Pagination";
 import { SearchInput } from "@ui/SearchInput";
 import { SelectField } from "@ui/SelectField";
 import { SidePanel } from "@ui/SidePanel";
-import { VehicleTable, type VehicleRow, type VehicleSortKey } from "./VehicleTable";
+import { nextSort, sortRows, VehicleTable, type VehicleRow, type VehicleSortKey } from "./VehicleTable";
 
 type Key = "type" | "make" | "model";
 type Filter = Record<Key, string>;
@@ -59,14 +59,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
         (!year || String(v.fiscalYear) === year) &&
         (Object.keys(filter) as Key[]).every((f) => !filter[f] || v[f] === filter[f]),
     );
-    if (!sort) return out;
-    // ไม่มีข้อมูล (null) อยู่ท้ายเสมอ
-    return [...out].sort((a, b) => {
-      const x = a[sort.key], y = b[sort.key];
-      if (x === null) return 1;
-      if (y === null) return -1;
-      return (x - y) * sort.dir;
-    });
+    return sortRows(out, sort); // ไม่มีข้อมูล (null) อยู่ท้ายเสมอ
   }, [all, q, year, filter, sort]);
 
   const pages = Math.max(1, Math.ceil(rows.length / size));
@@ -137,7 +130,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
             rowKey={rowKey}
             sort={sort}
             onSort={(k) => {
-              setSort((s) => (s?.key === k ? { key: k, dir: s.dir === 1 ? -1 : 1 } : { key: k, dir: 1 }));
+              setSort((s) => nextSort(s, k));
               setPage(1);
             }}
             action={action}

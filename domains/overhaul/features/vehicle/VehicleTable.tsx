@@ -12,6 +12,33 @@ import type { VehicleInfo } from "./types";
 
 export type VehicleRow = VehicleInfo & { referencePrice: number | null; overhaulEstimate: number | null; progress: number | null };
 export type VehicleSortKey = "value" | "ageYears" | "progress";
+export type VehicleSort<K extends string = VehicleSortKey> = { key: K; dir: 1 | -1 } | null;
+
+/** กดหัวคอลัมน์ซ้ำ = สลับ น้อยไปมาก/มากไปน้อย · คอลัมน์ใหม่เริ่มน้อยไปมาก (ใช้ร่วม: แท็บยานพาหนะที่ Overhaul + Modal เพิ่มยานพาหนะ) */
+export const nextSort = <K extends string>(s: VehicleSort<K>, k: K): VehicleSort<K> => (s?.key === k ? { key: k, dir: s.dir === 1 ? -1 : 1 } : { key: k, dir: 1 });
+
+/** เรียงตามตัวเลข — ไม่มีข้อมูล (null/undefined) อยู่ท้ายเสมอ */
+export function sortRows<T, K extends keyof T & string>(rows: T[], sort: VehicleSort<K>): T[] {
+  if (!sort) return rows;
+  return [...rows].sort((a, b) => {
+    const x = a[sort.key] as unknown as number | null | undefined, y = b[sort.key] as unknown as number | null | undefined;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (x - y) * sort.dir;
+  });
+}
+
+/** หัวคอลัมน์ที่เรียงได้ — ไอคอน swap_vert / arrow_upward / arrow_downward แบบหัวตารางแท็บยานพาหนะที่ Overhaul (A.5) */
+export function SortTh<K extends string>({ k, sort, onSort, children }: { k: K; sort: VehicleSort<K>; onSort: (k: K) => void; children: ReactNode }) {
+  return (
+    <Th aria-sort={sort?.key === k ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
+      <button type="button" onClick={() => onSort(k)} className="flex items-center gap-2 font-semibold">
+        {children}
+        <Icon name={sort?.key === k ? (sort.dir === 1 ? "arrow_upward" : "arrow_downward") : "swap_vert"} size={20} className="text-gray-500" />
+      </button>
+    </Th>
+  );
+}
 
 /** T10: ยังไม่ระบุ = `Badge outline with indicator` (สี่เหลี่ยม r4) จุดแดง (Color=Error) */
 const price = (v: number | null) => (v === null ? <StatusBadge tone="error">ยังไม่ระบุ</StatusBadge> : currency(v));
@@ -33,12 +60,9 @@ export function VehicleTable<T extends VehicleRow>({
 }) {
   const sortTh = (k: VehicleSortKey, text: string) =>
     onSort ? (
-      <Th aria-sort={sort?.key === k ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
-        <button type="button" onClick={() => onSort(k)} className="flex items-center gap-2 font-semibold">
-          {text}
-          <Icon name={sort?.key === k ? (sort.dir === 1 ? "arrow_upward" : "arrow_downward") : "swap_vert"} size={20} className="text-gray-500" />
-        </button>
-      </Th>
+      <SortTh k={k} sort={sort ?? null} onSort={onSort}>
+        {text}
+      </SortTh>
     ) : (
       <Th>{text}</Th>
     );
