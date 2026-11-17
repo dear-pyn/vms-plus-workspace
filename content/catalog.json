@@ -150,6 +150,25 @@
       "screenSpec": null,
       "reviewNote": "เคสประหลาดอยู่ในทะเบียน domains/overhaul/edge-cases.md · M7/M8 รอเลือก",
       "domainRuleVersion": "1.0.0"
+    },
+    {
+      "id": "overhaul-dashboard-vms",
+      "domain": "overhaul",
+      "joIds": [],
+      "title": "Dashboard Overhaul · CI VMS Plus",
+      "summary": "Dashboard ระดับแผนและยานพาหนะ ใช้ข้อมูลและวิธีเลือกจากต้นแบบ Downloads แล้วปรับ CI VMS Plus · เมนูใต้จัดการยานพาหนะขนาดใหญ่",
+      "status": "draft",
+      "revision": "r3",
+      "kind": "prototype",
+      "updatedAt": "2026-11-17",
+      "ruleVersion": "1.0.0",
+      "prototype": "/prototypes/overhaul-dashboard/",
+      "requirements": "/content/overhaul-dashboard-vms/requirements.md",
+      "flow": null,
+      "ac": null,
+      "screenSpec": null,
+      "reviewNote": "r3: ข้อมูลจำลองของต้นแบบ Downloads (6 แผน 22 คัน) ไม่เชื่อมงานใน prototype; multi-select แผนประกอบจากของในไลบรารี รอทีมออกแบบ; เกณฑ์ความคุ้มค่า 50%/JO ยังรอยืนยัน",
+      "domainRuleVersion": "1.0.0"
     }
   ]
 }

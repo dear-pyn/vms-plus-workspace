@@ -28,10 +28,11 @@ export function formatMoneyTyping(t: string): string {
   return intFmt + dec;
 }
 
-export function MoneyField({ label, value, onChange, error, placeholder, onBlurCheck }: { label: string; value: string; onChange: (v: string) => void; error?: string; placeholder?: string; onBlurCheck?: () => void }) {
+export function MoneyField({ label, value, onChange, error, placeholder, onBlurCheck, optional }: { label: string; value: string; onChange: (v: string) => void; error?: string; placeholder?: string; onBlurCheck?: () => void; optional?: boolean }) {
   return (
     <TextField
       label={label}
+      optional={optional}
       inputMode="decimal"
       placeholder={placeholder}
       value={value}

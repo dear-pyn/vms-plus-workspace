@@ -2,7 +2,7 @@
 /** ขั้น 3 ติดตามงานซ่อม (S9 เพิ่ม · S10 แก้ไข · S11 ลบ · จอ OH2 / J.1–J.3 · K.1–K.3 · L.1–L.3)
  *  component: Section header + ปุ่ม Secondary "ความคืบหน้า" · Empty state/Data empty (J.1) · Table Alternating fills (วันที่ · รายละเอียด · ความคืบหน้า Progress bar Label=Right ·
  *    หมายเหตุ · Tertiary button แก้ไข stylus / ลบ) · Pagination · Modal Form (Text input "ความคืบหน้า (%)" · Card form row รายละเอียด / หมายเหตุ (ถ้ามี)) ·
- *    Modal Destructive centered (L.2 ยืนยันการลบ) · Secondary lg "ย้อนกลับ" · Primary lg "ซ่อมสำเร็จ"
+ *    ลบทันทีตามคำสั่ง submit ล่าสุด 17 พ.ย. 2569 · Secondary lg "ย้อนกลับ" · Primary lg "ซ่อมสำเร็จ"
  *  FigJam Section 13 (refinement 12 พ.ย. 2569): เพิ่มช่อง percent · ฟอร์มไม่มีวันที่/เวลา (ระบบใส่ตอนเพิ่ม) · แก้ไข = พรีฟิลค่าเดิม บันทึกแล้วไม่อัปเดตวันเวลา ·
  *    แก้ได้ตลอดจนกว่าจะกดซ่อมสำเร็จ
  *  เจ้าของงาน 16 พ.ย. 2569: ไม่มีกรอบการ์ดรอบ "รายละเอียดการติดตาม" · ไม่มีข้อความช่วยข้างปุ่ม · ซ่อมสำเร็จได้เมื่อมีรายการใดรายการหนึ่งถึง 100% (D-J1 เดิม) */
@@ -12,7 +12,7 @@ import { sortProgress } from "./progress-sort.mjs";
 import { Icon } from "@ui/Icon";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
-import { ConfirmDialog, Modal } from "@ui/Modal";
+import { Modal } from "@ui/Modal";
 import { SectionHeader } from "@ui/PageHeader";
 import { Pagination } from "@ui/Pagination";
 import { ProgressBar } from "@ui/ProgressBar";
@@ -40,13 +40,12 @@ export function StepProgress({
   const [form, setForm] = useState<{ id?: string; percent: string; detail: string; note: string } | null>(null);
   const [err, setErr] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
-  const [del, setDel] = useState<ProgressEntry | null>(null);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   usePrototypeFill((mode) => {
     setForm({ ...(form?.id ? { id: form.id } : {}), percent: "100", detail: mode === "missing" ? "" : mode === "error" ? "error" : "ดำเนินงาน Overhaul เสร็จแล้ว (ข้อมูลจำลอง)", note: "" });
     setErr({});
-  }, !readOnly && !busy && !del);
+  }, !readOnly && !busy);
   const [sort, setSort] = useState<{ key: "at" | "percent"; dir: 1 | -1 }>({ key: "at", dir: -1 });
   const currentPage = Math.min(page, Math.max(1, Math.ceil(log.length / size)));
   const sorted = sortProgress(log, sort.key, sort.dir) as ProgressEntry[];
@@ -147,7 +146,13 @@ export function StepProgress({
                             }}
                           />
                           {/* L.1/L.3: ลบได้เมื่อมี 2 รายการขึ้นไป */}
-                          {log.length > 1 && <Button variant="tertiary" iconOnly="delete" aria-label={`ลบความคืบหน้า ${e.at}`} onClick={() => setDel(e)} />}
+                          {log.length > 1 && <Button variant="tertiary" iconOnly="delete" aria-label={`ลบความคืบหน้า ${e.at}`} disabled={!!busy} onClick={async () => {
+                            if (busy) return;
+                            setBusy("del");
+                            try {
+                              if (await onDelete(e.id)) setPage((p) => Math.min(p, Math.max(1, Math.ceil((log.length - 1) / size))));
+                            } finally { setBusy(""); }
+                          }} />}
                         </div>
                       </Td>
                     )}
@@ -221,25 +226,7 @@ export function StepProgress({
           </div>
         )}
       </Modal>
-      <ConfirmDialog
-        open={!!del}
-        danger
-        icon="delete"
-        title="ยืนยันการลบ"
-        description="เมื่อลบแล้วจะไม่สามารถกู้คืนข้อมูลได้ ต้องการลบใช่หรือไม่" /* L.2 ตรงจอ */
-        loading={busy === "del"}
-        onClose={() => setDel(null)}
-        onConfirm={async () => {
-          if (!del) return;
-          setBusy("del");
-          const done = await onDelete(del.id);
-          setBusy("");
-          if (done) {
-            setDel(null);
-            setPage((p) => Math.min(p, Math.max(1, Math.ceil((log.length - 1) / size))));
-          }
-        }}
-      />
+
 
     </>
   );

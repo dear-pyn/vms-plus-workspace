@@ -2,7 +2,8 @@
 import { formatThaiDate, parseThaiDate } from "@ui/DateField";
 import type { CloseOut, PartUsed, StockReturn, WarrantyDays } from "../po/types";
 
-export const WARRANTY_DAYS: WarrantyDays[] = [90, 180, 360, 720];
+/** ระยะรับประกันสูงสุดที่รับ (วัน) — กันพิมพ์ผิดหลักมาก (ยังไม่เคาะเพดานจริง) */
+export const WARRANTY_MAX_DAYS = 3650;
 export const UNITS = ["ชิ้น", "ชุด", "ลิตร", "เส้น", "ลูก", "ตัว", "เมตร", "คู่", "กล่อง"];
 
 /** วันหมดอายุประกัน = วันเริ่ม + ระยะ (AC-S14: 09/11/2569 + 360 วัน = 04/11/2570) */

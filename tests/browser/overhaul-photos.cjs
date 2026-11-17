@@ -2,7 +2,7 @@ const {chromium}=require('playwright-core');const assert=require('node:assert/st
 (async()=>{const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});try{
  const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const base=(process.env.VMS_TEST_URL||'http://127.0.0.1:3021')+'/prototypes/overhaul/';const route='#/job/PO-690101/'+encodeURIComponent('81-5521 นครปฐม');
- const before='รูปสภาพยานพาหนะ (ก่อน Overhaul)',after='รูปสภาพยานพาหนะ (หลัง Overhaul)';
+ const before='รูปสภาพยานพาหนะก่อน Overhaul',after='รูปสภาพยานพาหนะหลัง Overhaul';
  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWZkAAAAASUVORK5CYII=','base64');
  const image=async(name)=>{await page.getByRole('img',{name,exact:true}).waitFor();await page.waitForFunction(name=>[...document.images].some(i=>i.alt===name&&i.complete&&i.naturalWidth>0),name);};
  await page.goto(base+route);await page.waitForLoadState('networkidle');

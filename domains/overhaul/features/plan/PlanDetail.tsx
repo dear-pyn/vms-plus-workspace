@@ -1,7 +1,7 @@
 "use client";
 /** หน้ารายละเอียดแผน — ตาม refinement sprint 09: OH2 / C.5 · S2 (หลังบันทึกแก้ไข) · D.1.2 · S3 (ปุ่ม "ลบแผน") · D.2.2 (ยืนยันลบในหน้า Detail)
  *  เจ้าของงานสั่ง 16 พ.ย. 2569 "ปรับตามหน้าจอ" UAT (maintain-d/overhaul-utility-vehicle/<id>): breadcrumb "หมายเลขแผน …" · ปุ่ม lg "แก้ไขแผน" ·
- *  เอกสารเรียงซ้อนในกล่องเทา · ซ่อน "ยานพาหนะในแผน" เมื่อมี PO แล้ว · ปุ่มเพิ่ม PO ใต้ตาราง · อะไหล่ในกล่องเทา
+ *  เอกสารเรียงซ้อนในกล่องเทา · "ยานพาหนะในแผน" แสดงเสมอ (แก้ 16 พ.ย. 2569) · ปุ่มเพิ่ม PO ใต้ตาราง · อะไหล่ในกล่องเทา
  *  คงตาม Figma ที่เคาะแล้ว: ความคืบหน้า % + แถบ · วันเริ่ม/สิ้นสุดสัญญาแยกคอลัมน์ · คำว่า "Purchase Order" (มติ FigJam Section 10) · "ยานพาหนะ" แทน "รถ"
  *  component: Page header · Badge outline (Gray) · Pill outline · Section header · Secondary danger button · Secondary button · File upload item (แสดงอย่างเดียว) */
 import { useState, type ReactNode } from "react";
@@ -128,8 +128,8 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
         </div>
       </section>
 
-      {/* UAT + G.1: มี Purchase Order แล้วไม่แสดงส่วนนี้ (B.7 ยังไม่มี PO = แสดง) */}
-      {pos.length === 0 && (
+      {/* เจ้าของงาน 16 พ.ย. 2569: กดเข้ามาดูแผนต้องเห็นยานพาหนะในแผนเสมอ (เดิมซ่อนเมื่อมี PO ตาม UAT/G.1) */}
+      {(
         <section className="flex flex-col gap-5">
           <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title={`ยานพาหนะในแผน (${plan.vehicles.length} คัน)`} />
           {/* EC-46 แผนมียานพาหนะเสมอ (เจ้าของงานเคาะ 16 พ.ย. 2569) — ไม่มี Empty state "ยังไม่มียานพาหนะในแผน" แล้ว */}

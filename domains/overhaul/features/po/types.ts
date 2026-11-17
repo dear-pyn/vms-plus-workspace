@@ -59,7 +59,7 @@ export interface Appointment {
   reply?: { accepted: boolean; date?: string; deliverer?: string; reason?: string; at: string };
 }
 
-export type JobCode = "V1" | "V2" | "V3" | "V4" | "V4.1" | "V5" | "V6" | "V7" | "V8" | "V9" | "V10" | "V10.1" | "V10.2" | "V11";
+export type JobCode = "V1" | "V2" | "V3" | "V4" | "V4.1" | "V5" | "V6" | "V7" | "V8" | "V9" | "V10" | "V10.1" | "V10.2" | "V10.3" | "V11";
 
 export const JOB_STATUS: Record<JobCode, { label: string; step: number; tone: PillTone }> = {
   V1: { label: "รอนัดหมายนำรถเข้าอู่", step: 1, tone: "gray" },
@@ -76,6 +76,8 @@ export const JOB_STATUS: Record<JobCode, { label: string; step: number; tone: Pi
   "V10.1": { label: "อยู่ระหว่างปิดงาน", step: 6, tone: "info" },
   /** D-O1 ปิดงานแล้ว รอกดส่งอนุมัติขั้น 7 (จอ P.1 เขียน "รอ ผบช. อนุมัติปิดงาน" — ตัดผู้อนุมัติตาม Refinement 9/11/2026 จึงไม่มีสถานะรอ ผบช.) */
   "V10.2": { label: "รอส่งอนุมัติปิดงาน", step: 7, tone: "warning" },
+  /** เจ้าของงาน 17 พ.ย. 2569: กลับมามีผู้อนุมัติ — ส่งอนุมัติแล้วรอผู้อนุมัติ (เมนู "อนุมัติปิดงาน") · อนุมัติ = V11 · ส่งกลับแก้ไข = กลับ V10.2 */
+  "V10.3": { label: "รออนุมัติปิดงาน", step: 7, tone: "warning" },
   V11: { label: "ปิดงานแล้ว", step: 7, tone: "success" },
 };
 
@@ -138,6 +140,8 @@ export interface Intake {
   /** วันที่รับรถเข้าอู่ dd/mm/yyyy — ระบบใส่จากขั้น 1 (วันที่หน่วยงานเลือก / วันที่นำรถเข้า) หรือวันที่บันทึก */
   date: string;
   mileageKm: number | null;
+  /** ชั่วโมงการทำงาน (ชม.) ตอนรับรถ — ไม่บังคับ (เจ้าของงาน 17 พ.ย. 2569) */
+  engineHours?: number | null;
   checks: CheckItem[];
   /** ลงนามการรับมอบรถ (ภาพ UAT 16 พ.ย. 2569): ผู้ส่งมอบรถ (หน่วยงาน) · ผู้รับมอบ (กบค.) — รหัสพนักงาน */
   delivererId?: string;
@@ -196,7 +200,8 @@ export interface StockReturn {
   sent?: boolean;
 }
 
-export type WarrantyDays = 90 | 180 | 360 | 720;
+/** ระยะรับประกัน (วัน) — เจ้าของงาน 16 พ.ย. 2569: กรอกตัวเลขเองได้ (เดิมเลือก 90/180/360/720) */
+export type WarrantyDays = number;
 
 /** ขั้น 6–7 ปิดงาน + ส่งอนุมัติ (S14 · S15 · S20 · scene O P U) */
 export interface CloseOut {

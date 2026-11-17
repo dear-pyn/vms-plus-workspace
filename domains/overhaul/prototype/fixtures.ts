@@ -23,8 +23,8 @@ export const mockParts = () => ({
 /** ค่าใน modal "เพิ่มอะไหล่ที่ใช้จริง" */
 export const mockPartForm = (mode: "ready" | "missing" | "error") =>
   mode === "ready"
-    ? { name: "ซีลยางกันน้ำมัน", code: "SL-2045-01", qty: "2", unit: "ชิ้น", price: "450.00", remark: "เปลี่ยนตามอาการรั่วซึม" }
+    ? { name: "ซีลยางกันน้ำมัน", code: "SL-2045-01", qty: "2", unit: "ชิ้น", price: "450.00", oldQty: "2", remark: "เปลี่ยนตามอาการรั่วซึม" }
     : mode === "missing"
-      ? { name: "ซีลยางกันน้ำมัน", code: "", qty: "", unit: "", price: "", remark: "" }
-      : { name: "ซีลยางกันน้ำมัน", code: "SL-2045-01", qty: "0", unit: "ชิ้น", price: "abc", remark: "" };
+      ? { name: "ซีลยางกันน้ำมัน", code: "", qty: "", unit: "", price: "", oldQty: "", remark: "" }
+      : { name: "ซีลยางกันน้ำมัน", code: "SL-2045-01", qty: "0", unit: "ชิ้น", price: "abc", oldQty: "", remark: "" };
 

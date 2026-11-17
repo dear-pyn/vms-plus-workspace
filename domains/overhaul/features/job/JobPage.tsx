@@ -18,7 +18,7 @@ import { StepInspection } from "./StepInspection";
 import type { Inspection } from "../po/types";
 import { StepClose, type CloseDraft } from "./StepClose";
 import { StepSendApproval } from "./StepSendApproval";
-import { seedSmiParts, warrantyEnd } from "./close";
+import { seedSmiParts } from "./close";
 import { todayThai } from "../shared/time";
 import { nowStamp } from "../shared/time";
 
@@ -39,7 +39,6 @@ export interface JobPageProps {
   onNotify: (msg: string, tone?: "success" | "error" | "info") => void;
   /** ต้นแบบ: เปิดหน้าผู้ยืนยันการรับมอบ (ขั้น 2) */
   onOpenApproval: (staffId: string) => void;
-  onOpenSummary: () => void;
   /** S17 หน่วยงานเจ้าของยานพาหนะ / กรย. — ดูอย่างเดียวทุกขั้น */
   viewOnly?: boolean;
   /** ปุ่มขวาบนของหัวหน้า (มุมหน่วยงาน: ปฏิเสธนัดหมาย / ตอบรับนัดหมาย) */
@@ -56,7 +55,7 @@ export interface JobPageProps {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, onOpenSummary, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
+export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
   const st = JOB_STATUS[job.code];
   const current = job.code === "V11" ? 8 : st.step; // ปิดงานแล้ว = ครบทุกขั้น
   // Track explicit navigation separately from progression. A remote reply advances the active step.
@@ -103,7 +102,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     }
     const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
     const at = nowStamp();
-    const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
+    const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), engineHours: d.hours ? Number(d.hours.replace(/,/g, "")) : null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
     set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
     return true;
   }
@@ -164,13 +163,14 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     set("V10.2", { close, progress: 100, detail: [`ส่งมอบรถ ${d.returnedAt}`, "รอส่งอนุมัติปิดงาน"] }, { msg: "ปิดงานสำเร็จ" }); // O.3 toast ตรงจอ
     return true;
   }
-  /** ขั้น 7 — มติ Refinement 9/11/2026: "ตัดเรื่องของผู้อนุมัติไปก่อน submit step 7 แล้วส่ง noti ปิดงานเลยไม่ต้องรอผู้อนุมัติอนุมัติคำขอ"
-   *  → กดส่งอนุมัติแล้วปิดงานทันที (V11) · ข้อความตาม wording noti "ปิดงาน {ข้อมูลสำคัญ เช่นเลขแผนหรือ PO} เรียบร้อยแล้ว" */
-  async function sendApproval(): Promise<boolean> {
+  /** ขั้น 7 — เจ้าของงาน 17 พ.ย. 2569 (แทนมติ Refinement 9/11/2026 ที่ปิดงานทันที): ส่งอนุมัติต้องเลือกผู้อนุมัติ (ตามจอ UAT "ส่งอนุมัติเพื่อปิดงาน Overhaul")
+   *  → V10.3 รออนุมัติปิดงาน · แก้ไขผู้อนุมัติได้จนกว่าจะอนุมัติ · ผู้อนุมัติตัดสินในเมนู "อนุมัติปิดงาน" (ApprovalPages) */
+  async function sendApproval(approverId: string): Promise<boolean> {
     await wait(600);
     if (!job.close) return false;
-    const w = job.close.warranty;
-    set("V11", { progress: 100, close: { ...job.close, returned: undefined }, detail: [`ปิดงาน ${todayThai()}`, w.on ? `ประกันถึง ${warrantyEnd(w.start, w.days)}` : "ไม่มีการรับประกัน"] }, { msg: `ปิดงาน ${po.id} เรียบร้อยแล้ว` });
+    const resend = job.code === "V10.3";
+    const approver = staff.find((s) => s.id === approverId);
+    set("V10.3", { progress: 100, close: { ...job.close, returned: undefined, approval: { sentAt: resend && job.close.approval ? job.close.approval.sentAt : nowStamp(), sentBy: "กบค. (ผู้ใช้งานปัจจุบัน)", approverId } }, detail: [`ส่งอนุมัติ ${todayThai()}`, `รอ ${approver?.name ?? "ผู้อนุมัติ"} อนุมัติ`] }, { msg: resend ? "แก้ไขผู้อนุมัติสำเร็จ" : "ส่งอนุมัติสำเร็จ" });
     return true;
   }
 
@@ -273,7 +273,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           vehicle={vehicle}
           onBack={onGoPO}
           onSend={sendApproval}
-          onOpenSummary={onOpenSummary}
+          staff={staff}
           viewOnly={viewOnly}
         />
       );
@@ -292,7 +292,9 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         crumbs={crumbs ?? [{ label: "จัดการงาน Overhaul", onClick: onGoPlans }, { label: `แผน ${plan.id}`, onClick: onGoPlan }, { label: po.id, onClick: onGoPO }, { label: job.plate }]}
         title={job.plate}
         badge={<OutlineBadge tone={BADGE[st.tone]}>{st.label}</OutlineBadge>}
-        subtitle={`ความคืบหน้า ${truncateProgress(job.progress ?? 0)}%` /* ภาพเจ้าของงาน 16 พ.ย. 2569 · ตัดทศนิยมไม่ปัด (กติกาเดียวกับตาราง) */}
+        /* ภาพเจ้าของงาน 16 พ.ย. 2569 · ตัดทศนิยมไม่ปัด (กติกาเดียวกับตาราง) · ไม่แสดงในหน้าขั้น 6 ปิดงาน (เจ้าของงาน 16 พ.ย. 2569) */
+        /* เจ้าของงาน 16 พ.ย. 2569: ไม่แสดงในขั้น 6–7 และเมื่อครบ 100% แล้ว (ซ่อมสำเร็จ) */
+        subtitle={view >= 6 || (job.progress ?? 0) >= 100 ? undefined : `ความคืบหน้า ${truncateProgress(job.progress ?? 0)}%`}
         actions={actions}
       />
       {top}

@@ -4,6 +4,7 @@
  *    วางมุมขวาบน (กรอบ 520 pad บน/ขวา 24) · การ์ดกว้าง 400 · pad 16 · gap 16 · r12 · พื้นขาว ขอบ gray-300 · เงา shadow-lg
  *    ไอคอน 24 ทึบ: Success check_circle success-600 · Warning error warning-600 · Error cancel error-500 · Information info info-600
  *    หัวข้อ 16/600 ดำ · ข้อความรอง 14/400 gray-600 (ถ้ามี) · ปุ่มปิด Tertiary button 40 ไอคอน close 20
+ *  มือถือ: ชิดบนเต็มกว้าง เว้นขอบ 16 (17 พ.ย. 2569 · เดิมกล่อง 400 ดันซ้ายไม่สมดุล)
  *  เวลาปิดเอง ไม่มีในไลบรารี — 5 วินาที (รอยืนยัน)
  *  ชื่อ export คง Toast ไว้ให้โค้ดเดิมใช้ต่อ */
 import { useEffect } from "react";
@@ -31,7 +32,7 @@ export function Toast({ message, description, tone = "success", onClose, duratio
       <div
         role={tone === "error" ? "alert" : "status"}
         aria-live="polite"
-        className="fixed top-6 right-6 z-70 flex w-100 max-w-[calc(100%-32px)] animate-fade-in items-start gap-4 rounded-lg border border-gray-300 bg-white p-4 [box-shadow:var(--shadow-lg)]"
+        className="fixed top-6 right-6 z-70 flex w-100 max-w-[calc(100%-32px)] max-md:top-4 max-md:right-4 max-md:left-4 max-md:w-auto max-md:max-w-none animate-fade-in items-start gap-4 rounded-lg border border-gray-300 bg-white p-4 [box-shadow:var(--shadow-lg)]"
       >
         <div className="flex min-w-0 flex-1 items-start gap-2">
           <Icon name={icon} size={24} filled className={color} />

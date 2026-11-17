@@ -2,6 +2,7 @@
 /** Prototype-only controls. Handlers change form state; normal validation/save still applies. */
 import { useEffect, useState } from "react";
 import { Button } from "@ui/Button";
+import { resetPrototypeData } from "./usePrototypeData";
 export type MockMode = "ready" | "missing" | "error";
 const EVENT = "overhaul:mock-fill";
 type Request = { mode: MockMode; handled: boolean };
@@ -35,8 +36,14 @@ export function MockTools() {
         <Button variant="secondary" onClick={() => fill("missing")}>จำลองข้อมูลไม่ครบ</Button>
         <Button variant="secondary" onClick={() => fill("error")}>จำลองบันทึกไม่สำเร็จ</Button>
         <p className="text-xs text-gray-600">{message}</p>
+        {/* 17 พ.ย. 2569: ทางเข้าสารบัญเคส + รีเซ็ตข้อมูล */}
+        <div className="flex flex-col gap-2 border-t border-gray-200 pt-3">
+          <Button variant="tertiaryBrand" iconLeft="list_alt" onClick={() => { window.location.hash = "/cases"; setOpen(false); }}>สารบัญเคส</Button>
+          <Button variant="tertiary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>รีเซ็ตข้อมูลต้นแบบ</Button>
+        </div>
       </div>}
-      <Button aria-expanded={open} aria-controls="prototype-mock-panel" iconLeft="science" onClick={() => { setOpen(!open); setMessage(""); }}>Mock · Prototype</Button>
+      {/* 17 พ.ย. 2569 เจ้าของงาน: ปุ่มลอยบังหน้าจอ → ปุ่มวงกลมไอคอนอย่างเดียว (ชื่อปุ่มยังเป็น "Mock · Prototype" สำหรับโปรแกรมอ่านหน้าจอ/สคริปต์แคป) */}
+      <Button size="lg" iconOnly={open ? "close" : "science"} aria-label="Mock · Prototype" title="Mock · Prototype" aria-expanded={open} aria-controls="prototype-mock-panel" className="rounded-full shadow-field" onClick={() => { setOpen(!open); setMessage(""); }} />
     </aside>
   );
 }

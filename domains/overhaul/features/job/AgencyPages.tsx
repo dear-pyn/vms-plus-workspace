@@ -23,6 +23,7 @@ import { JOB_STATUS, type Garage, type PurchaseOrder, type Staff, type VehicleJo
 import type { Plan } from "../plan/types";
 import type { PlanVehicle } from "../vehicle/types";
 import { JobPage } from "./JobPage";
+import { usePrototypeFill } from "../../prototype/MockTools";
 import { Row } from "./StepAppointment";
 
 export interface AgencyItem {
@@ -108,7 +109,7 @@ export function AgencyList({ items, units, unit, onUnit, onOpen }: { items: Agen
 }
 
 /** หน้ายานพาหนะรายคัน (มุมหน่วยงาน) + ตอบรับนัดหมาย */
-export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSummary }: { item: AgencyItem; staff: Staff[]; onBack: () => void; onSubmit: (a: AgencyAnswer) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info") => void; onOpenSummary: () => void }) {
+export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item: AgencyItem; staff: Staff[]; onBack: () => void; onSubmit: (a: AgencyAnswer) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info") => void }) {
   const { job, po, plan, vehicle, garage } = item;
   const kind = kindOf(job);
   const W = WORD[kind];
@@ -118,6 +119,12 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
   const coord = staff.find((s) => s.id === appt?.coordinatorId);
   const [date, setDate] = useState("");
   const [personId, setPersonId] = useState("");
+  /* ปุ่ม Mock (17 พ.ย. 2569): ครบ = วันแรกของช่วงที่เสนอ + ผู้นำส่ง/ผู้รับรถ · ไม่ครบ = ไม่มีวันที่ · บันทึกไม่สำเร็จ = วันนอกช่วง */
+  usePrototypeFill((mode) => {
+    setDateErr("");
+    setDate(mode === "missing" ? "" : mode === "error" ? "01/01/2500" : appt?.from ?? "");
+    setPersonId(mode === "missing" ? "" : staff.find((s) => s.unit === "หน่วยงาน")?.id ?? "");
+  }, awaitingReply(job));
   const [dateErr, setDateErr] = useState("");
   const [ask, setAsk] = useState<"" | "reject">("");
   const [reason, setReason] = useState("");
@@ -161,7 +168,6 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify, onOpenSum
         onUpdate={() => undefined}
         onNotify={onNotify}
         onOpenApproval={() => undefined}
-        onOpenSummary={onOpenSummary}
         actions={
           awaiting && (
             <>

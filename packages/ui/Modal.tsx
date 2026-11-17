@@ -151,7 +151,9 @@ export function Modal(props: ModalProps) {
   if (!open) return null;
 
   const cancelBtn = !hideCancel && (
-    <Button variant={variant === "form" ? "tertiary" : "secondary"} onClick={onCancel ?? onClose}>
+    /* `Modal footer` ของไลบรารี (2-16.json · ทั้ง Horizontal right/fill · Modal Type=Form): ปุ่มยกเลิก = Secondary button (มีกรอบ)
+       เดิมฟอร์มใช้ Tertiary — แก้ 17 พ.ย. 2569 ตามเจ้าของงาน "ยังไม่ถูกใช้ design" (modal ส่งอนุมัติเพื่อปิดงาน) */
+    <Button variant="secondary" onClick={onCancel ?? onClose}>
       {cancelLabel}
     </Button>
   );
@@ -227,7 +229,8 @@ export function Modal(props: ModalProps) {
             </div>
           ) : (
             /* `Modal header` Alignment=Left (dump 2-16.json): Content pad 24/24/0/24 · gap 8 · ข้อความหัวข้อกับรอง gap 4 ·
-               Divider = เว้น 20 + เส้น 1px (14 พ.ย. 2569 แก้ "header แคบแปลกๆ" — เดิมไม่มี padding บน) */
+               Divider = เว้น 20 + เส้น 1px (14 พ.ย. 2569 แก้ "header แคบแปลกๆ" — เดิมไม่มี padding บน) ·
+               Modal Type=Form: ใต้เส้น Padding bottom 16 → body pt-4 · Form gap 12 pad ข้าง 24 · Modal footer Padding top 24 → body pb-6 แล้วเส้น + 20 (17 พ.ย. 2569) */
             <div className="shrink-0 border-b border-gray-200 px-6 pt-6 pb-5">
               <div className="flex items-start gap-2">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -239,7 +242,7 @@ export function Modal(props: ModalProps) {
             </div>
           )}
           {children != null && (
-            <div className={cx("flex min-h-0 flex-1 flex-col gap-3 px-6", fill ? "overflow-hidden" : "overflow-y-auto [&>*]:shrink-0", variant === "centered" ? "pt-4" : "py-5")}>{children}</div>
+            <div className={cx("flex min-h-0 flex-1 flex-col gap-3 px-6", fill ? "overflow-hidden" : "overflow-y-auto [&>*]:shrink-0", variant === "centered" ? "pt-4" : "pt-4 pb-6")}>{children}</div>
           )}
           {/* `Modal footer` Alignment=Horizontal right: ปุ่มกว้างพอดีข้อความ (hug) ชิดขวา gap 12 · ฟอร์มมีเส้นคั่น · pad 20/24/24 —
               เจ้าของงาน 14 พ.ย. 2569: ไม่ใช้ปุ่มกว้าง 50% (Horizontal fill) */}

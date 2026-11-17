@@ -122,9 +122,9 @@ export function AppShell({ nav, activeId, children, user = "ผู้ใช้",
                       {inner}
                     </button>
                   ) : (
-                    <Link href={g.href || "#"} aria-label={g.label} title={g.label} className={rowCls}>
+                    <ChildLink href={g.href || "#"} aria-label={g.label} title={g.label} className={rowCls}>
                       {inner}
-                    </Link>
+                    </ChildLink>
                   )}
                   {g.children && isOpen && (
                     <ul className={cx("hidden flex-col gap-1", OPEN_FLEX)}>

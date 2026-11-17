@@ -6,6 +6,7 @@
  *    แก้ section อะไหล่ที่ใช้งาน (รายการในกล่องเทา "ชื่อ xจำนวน — ราคา" + รวมทั้งหมด) · เพิ่ม section ค่าใช้จ่ายในการดำเนินการ Overhaul */
 import { useState, type ReactNode } from "react";
 import { Pagination } from "@ui/Pagination";
+import { Icon } from "@ui/Icon";
 import { currency } from "@rules/currency.mjs";
 import { ContentItem, SectionLabel as SectionHeader } from "@ui/PageHeader";
 import { ProgressBar } from "@ui/ProgressBar";
@@ -13,26 +14,85 @@ import { DataTable, Td, Th } from "@ui/Table";
 import type { Garage, PurchaseOrder, VehicleJob } from "../po/types";
 import type { PlanVehicle } from "../vehicle/types";
 import { FileRow } from "../plan/PlanDetail";
+import { PhotoStrip } from "../shared/PhotoUploader";
 import type { PartUsed } from "../po/types";
 import { costRows, sumParts, warrantyEnd } from "./close";
 
-/** P.1 อะไหล่ที่ใช้งาน: กล่องเทา แถวละ "ชื่อ xจำนวน" — ราคารวม · ท้ายกลุ่ม "รวมทั้งหมด" */
+const baht = (n: number) => `${currency(n)} บาท`;
+
+/** ภาพหน้าปิดงานที่เจ้าของงานส่ง 16 พ.ย. 2569 — อะไหล่ที่ใช้งาน: กล่องเทา แถวละ "รหัส - ชื่อ xจำนวน" ซ้าย · "ราคา บาท" ชิดขวา ·
+ *  เส้นคั่น แล้ว "รวมทั้งหมด" ตัวหนา (คงหัวย่อย ตัวรถ / เครื่องมือกล เพราะข้อมูลแยก 2 หมวด) */
 function PartList({ title, parts }: { title: string; parts: PartUsed[] }) {
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-md font-semibold text-black">{title}</h3>
       <dl className="flex flex-col gap-4 rounded-lg bg-gray-50 p-6">
         {parts.map((p) => (
-          <div key={p.id} className="grid grid-cols-2 gap-6">
-            <dt className="text-md text-black">{`${p.name} x${p.qty.toLocaleString()}`}</dt>
-            <dd className="text-md text-black tabular-nums">{currency(p.qty * p.price)}</dd>
+          <div key={p.id} className="flex items-start justify-between gap-6">
+            <dt className="text-md text-black">{`${p.code ? `${p.code} - ` : ""}${p.name} x${p.qty.toLocaleString()}`}</dt>
+            <dd className="shrink-0 text-md text-black tabular-nums">{baht(p.qty * p.price)}</dd>
           </div>
         ))}
-        <div className="grid grid-cols-2 gap-6">
-          <dt className="text-md font-semibold text-black">รวมทั้งหมด</dt>
-          <dd className="text-md font-semibold text-black tabular-nums">{currency(sumParts(parts))}</dd>
+        <div className="flex items-center justify-between gap-6 border-t border-gray-300 pt-4">
+          <dt className="text-lg font-semibold text-black">รวมทั้งหมด</dt>
+          <dd className="shrink-0 text-lg font-semibold text-black tabular-nums">{baht(sumParts(parts))}</dd>
         </div>
       </dl>
+    </div>
+  );
+}
+
+/** ค่าใช้จ่ายในการดำเนินการ Overhaul — รูปแบบเดียวกับ PartList (แถวสุดท้ายของ costRows = รวมค่าใช้จ่ายทั้งสิ้น) */
+function CostList({ rows }: { rows: Array<[string, number]> }) {
+  const items = rows.slice(0, -1);
+  const [totalLabel, total] = rows[rows.length - 1];
+  return (
+    <dl className="flex flex-col gap-4 rounded-lg bg-gray-50 p-6">
+      {items.map(([k, v]) => (
+        <div key={k} className="flex items-start justify-between gap-6">
+          <dt className="text-md text-black">{k}</dt>
+          <dd className="shrink-0 text-md text-black tabular-nums">{baht(v)}</dd>
+        </div>
+      ))}
+      <div className="flex items-center justify-between gap-6 border-t border-gray-300 pt-4">
+        <dt className="text-lg font-semibold text-black">{totalLabel}</dt>
+        <dd className="shrink-0 text-lg font-semibold text-black tabular-nums">{baht(total)}</dd>
+      </div>
+    </dl>
+  );
+}
+
+/** การ์ดยานพาหนะ — ไฟล์ UI Release#2 `Fleet card` (r16 พื้นขาว ขอบ gray-200 p16 gap16: รูป + เนื้อหา) + `Card item row` (ไอคอน brand · ป้าย · ค่าชิดขวา ในกล่องเทา)
+ *  ตามภาพหน้าปิดงาน 16 พ.ย. 2569 · ต้นแบบยังไม่มีรูปยานพาหนะ → กรอบพื้นเทา + ไอคอน */
+function VehicleCard({ plate, vehicle, lastMileage }: { plate: string; vehicle?: PlanVehicle; lastMileage?: number | null }) {
+  const rows: Array<[string, string, string]> = [
+    ["event", "อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : "—"],
+    ["schedule", "ชั่วโมงสะสม", vehicle?.engineHours != null ? `${vehicle.engineHours.toLocaleString()} ชม.` : "—"],
+    ["speed", "เลขไมล์ล่าสุด", lastMileage != null ? `${lastMileage.toLocaleString()} กม.` : "—"],
+    ["speed", "เลขไมล์สะสม", vehicle?.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} กม.` : "—"],
+  ];
+  return (
+    <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 sm:flex-row">
+      {/* ภาพตัวอย่าง: รูปจัตุรัส สูงเท่ากับเนื้อหาทางขวา (กว้าง = สูง จาก aspect-square ตอนยืดเต็มความสูงแถว) · จอแคบเต็มกว้าง */}
+      <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-400 sm:h-auto sm:w-auto sm:self-stretch" aria-label="ยังไม่มีรูปยานพาหนะ">
+        <Icon name="local_shipping" size={32} />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-md font-semibold text-black">{plate}</span>
+          <span className="text-sm font-semibold text-gray-600">{[vehicle ? `${vehicle.make} ${vehicle.model}` : "", vehicle?.type].filter(Boolean).join(" | ")}</span>
+          {vehicle?.affiliation && <span className="text-sm text-gray-600">{vehicle.affiliation}</span>}
+        </div>
+        <dl className="flex flex-col gap-3 rounded-md bg-gray-50 p-3">
+          {rows.map(([icon, k, v]) => (
+            <div key={k} className="flex items-center gap-2 text-sm">
+              <Icon name={icon} size={20} className="text-brand-900" />
+              <dt className="flex-1 text-gray-700">{k}</dt>
+              <dd className="text-gray-600 tabular-nums">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </div>
   );
 }
@@ -57,11 +117,21 @@ export function CloseSummary({ job, po, garage, vehicle, warrantyExtra }: { job:
   const [size, setSize] = useState(10);
   const rows = log.slice((page - 1) * size, page * size);
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      {/* เจ้าของงาน 17 พ.ย. 2569: ขั้น 7 แบ่ง 2 คอลัมน์เท่ากัน (ซ้าย ข้อมูลงาน · ขวา ยานพาหนะ) — เดิม 3:2 */}
       <div className="flex min-w-0 flex-col gap-8">
         <section className="flex flex-col gap-4">
           <SectionHeader title="ข้อมูลผู้ซ่อม" />
           <Box cols={2} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+        </section>
+        {/* เจ้าของงาน 17 พ.ย. 2569: แสดงรูปก่อน/หลัง Overhaul ในขั้น 7 แบบแถวรูป "รูปภาพเหตุการณ์" (เฉพาะคอลัมน์ซ้าย · ขวาคงเดิม) · เป็นส่วนที่ 2 ต่อจากข้อมูลผู้ซ่อม (เจ้าของงาน 17 พ.ย. 2569) */}
+        <section className="flex flex-col gap-4">
+          <SectionHeader title="รูปสภาพยานพาหนะก่อน Overhaul" />
+          <PhotoStrip label="รูปสภาพยานพาหนะก่อน Overhaul" photos={job.intake?.photos ?? []} />
+        </section>
+        <section className="flex flex-col gap-4">
+          <SectionHeader title="รูปสภาพยานพาหนะหลัง Overhaul" />
+          <PhotoStrip label="รูปสภาพยานพาหนะหลัง Overhaul" photos={job.inspection?.photos ?? []} />
         </section>
         <section className="flex flex-col gap-4">
           <SectionHeader title="การรับประกันงานซ่อม" />
@@ -124,14 +194,15 @@ export function CloseSummary({ job, po, garage, vehicle, warrantyExtra }: { job:
         </section>
         <section className="flex flex-col gap-4">
           <SectionHeader title="ค่าใช้จ่ายในการดำเนินการ Overhaul" />
-          <Box items={c ? costRows(c).map(([k, v]) => [`${k} (บาท)`, currency(v)]) : []} />
+          {/* เจ้าของงาน 16 พ.ย. 2569: แสดงแบบเดียวกับอะไหล่ที่ใช้งาน — รายการ … บาท ชิดขวา + เส้นคั่น + รวมค่าใช้จ่ายทั้งสิ้น ตัวหนา */}
+          {c ? <CostList rows={costRows(c)} /> : <p className="text-md text-gray-600">ไม่มีข้อมูลค่าใช้จ่าย</p>}
         </section>
       </div>
       <div className="flex min-w-0 flex-col gap-8">
         <section className="flex flex-col gap-4">
           <SectionHeader title="ยานพาหนะ" />
-          {/* P.1 คอลัมน์ขวา: ทะเบียน · ยี่ห้อ/รุ่น · ประเภท · สังกัด · อายุการใช้งาน · เลขไมล์สะสม (2 คอลัมน์) */}
-          <Box cols={2} items={[["ทะเบียน", job.plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["ประเภท", vehicle?.type], ["สังกัด", vehicle?.affiliation], ["อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : ""], ["เลขไมล์สะสม", vehicle?.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} กม.` : ""]]} />
+          {/* ภาพหน้าปิดงาน 16 พ.ย. 2569: การ์ดยานพาหนะแบบมีรูป (เลขไมล์ล่าสุด = เลขไมล์ปัจจุบันที่กรอกตอนตรวจรับรถ ขั้น 2) */}
+          <VehicleCard plate={job.plate} vehicle={vehicle} lastMileage={job.intake?.mileageKm} />
         </section>
         <section className="flex flex-col gap-4">
           <SectionHeader title="เอกสาร Safety Inspection" />

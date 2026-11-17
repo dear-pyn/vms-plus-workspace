@@ -8,6 +8,7 @@
  *  ชื่อเดือนไทย + ปี พ.ศ. ตามที่ UI Release#2 ใช้ ("มกราคม 2567") · หัววัน จ–อา เริ่มวันจันทร์ตามไลบรารี (Mo…Su)
  *  ยังไม่ทำ: `_Date picker month list` / `year list` (กดชื่อเดือนเพื่อเลือกเดือน/ปี) — เลื่อนทีละเดือนด้วยลูกศร */
 import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { Floating } from "./Floating";
 import { Button } from "./Button";
 import { cx } from "./cx";
 import { TextField } from "./TextField";
@@ -143,6 +144,7 @@ type DateFieldProps = Omit<ComponentProps<typeof TextField>, "onChange" | "value
 export function DateField({ value, onChange, onBlur, min, max, className, disabled, readOnly, autoFilled, ...rest }: DateFieldProps) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
   const canOpen = !disabled && !readOnly && !autoFilled;
   /* เรียก onBlur ตัวล่าสุดหลังฟอร์ม render ค่าใหม่แล้ว — ถ้าเรียกทันทีหลัง onChange ฟอร์มจะตรวจค่าเดิม (ว่าง) แล้วขึ้น error ค้าง */
   const blurRef = useRef(onBlur);
@@ -151,7 +153,7 @@ export function DateField({ value, onChange, onBlur, min, max, className, disabl
 
   useEffect(() => {
     if (!open) return;
-    const outside = (e: MouseEvent) => { if (!wrap.current?.contains(e.target as Node)) close(); };
+    const outside = (e: MouseEvent) => { const t = e.target as Node; if (!wrap.current?.contains(t) && !pop.current?.contains(t)) close(); };
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
     document.addEventListener("mousedown", outside);
     document.addEventListener("keydown", esc);
@@ -179,16 +181,16 @@ export function DateField({ value, onChange, onBlur, min, max, className, disabl
         onBlur={() => { if (!open) onBlur?.(); }}
         {...rest}
       />
-      {open && (
+      {/* ปฏิทินลอยนอกกล่อง (Floating) — กันถูกตัดใน Modal body (17 พ.ย. 2569) */}
+      <Floating anchor={wrap} open={open} floatingRef={pop} matchWidth={false} estHeight={440}>
         <DatePicker
-          className="absolute top-full left-0 z-50 mt-1"
           min={min}
           max={max}
           value={parseThaiDate(value)}
           onCancel={close}
           onApply={(d) => { onChange(formatThaiDate(d)); close(); }}
         />
-      )}
+      </Floating>
     </div>
   );
 }
@@ -212,6 +214,7 @@ type DateRangeFieldProps = Omit<ComponentProps<typeof TextField>, "onChange" | "
 export function DateRangeField({ from, to, onChange, onBlur, min, className, disabled, readOnly, autoFilled, ...rest }: DateRangeFieldProps) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
   const canOpen = !disabled && !readOnly && !autoFilled;
   const blurRef = useRef(onBlur);
   blurRef.current = onBlur;
@@ -219,7 +222,7 @@ export function DateRangeField({ from, to, onChange, onBlur, min, className, dis
 
   useEffect(() => {
     if (!open) return;
-    const outside = (e: MouseEvent) => { if (!wrap.current?.contains(e.target as Node)) close(); };
+    const outside = (e: MouseEvent) => { const t = e.target as Node; if (!wrap.current?.contains(t) && !pop.current?.contains(t)) close(); };
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
     document.addEventListener("mousedown", outside);
     document.addEventListener("keydown", esc);
@@ -248,17 +251,17 @@ export function DateRangeField({ from, to, onChange, onBlur, min, className, dis
         onBlur={() => { if (!open) onBlur?.(); }}
         {...rest}
       />
-      {open && (
+      {/* ปฏิทินลอยนอกกล่อง (Floating) — กันถูกตัดใน Modal body (17 พ.ย. 2569) */}
+      <Floating anchor={wrap} open={open} floatingRef={pop} matchWidth={false} estHeight={440}>
         <DatePicker
           range
           min={min}
-          className="absolute top-full left-0 z-50 mt-1"
           value={parseThaiDate(from)}
           end={parseThaiDate(to)}
           onCancel={close}
           onApply={(a, b) => { onChange(formatThaiDate(a), b ? formatThaiDate(b) : ""); close(); }}
         />
-      )}
+      </Floating>
     </div>
   );
 }

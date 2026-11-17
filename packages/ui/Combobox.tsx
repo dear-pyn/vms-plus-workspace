@@ -8,6 +8,7 @@
  *  minChars (เจ้าของงานสั่ง 16 พ.ย. 2569 "รายชื่อคนต้อง search 3 ตัวก่อนถึงจะเจอชื่อ"): พิมพ์ไม่ครบ = ไม่แสดงรายชื่อ แสดงข้อความแนะนำแทน */
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { FieldShell, fieldBoxClass, fieldControlClass } from "./Field";
+import { Floating } from "./Floating";
 import { Icon } from "./Icon";
 import { cx } from "./cx";
 
@@ -42,6 +43,8 @@ export function Combobox({
 }) {
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [hi, setHi] = useState(0);
@@ -56,7 +59,8 @@ export function Combobox({
   useEffect(() => {
     if (!open) return;
     const h = (e: MouseEvent) => {
-      if (!box.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (!box.current?.contains(t) && !panel.current?.contains(t)) setOpen(false);
     };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
@@ -71,7 +75,7 @@ export function Combobox({
   return (
     <FieldShell id={id} label={label} optional={optional} error={error} helper={helper} className={className}>
       <div ref={box} className="relative">
-        <div className={fieldBoxClass({ error: !!error, disabled })}>
+        <div ref={field} className={fieldBoxClass({ error: !!error, disabled })}>
           <Icon name={icon} size={24} className="pointer-events-none ml-0.5 text-gray-500" />
           <input
             id={id}
@@ -113,8 +117,9 @@ export function Combobox({
           />
           <Icon name={open ? "keyboard_arrow_up" : "keyboard_arrow_down"} size={20} className="pointer-events-none absolute right-3 text-gray-500" />
         </div>
-        {open && (
-          <div className="absolute top-full right-0 left-0 z-30 mt-1 rounded-md border border-gray-300 bg-white px-2 py-3 [box-shadow:var(--shadow-lg)]">
+        {/* รายการลอยนอกกล่อง (Floating) — กันถูกตัดใน Modal body/ตาราง (17 พ.ย. 2569) */}
+        <Floating anchor={field} open={open} floatingRef={panel}>
+          <div className="rounded-md border border-gray-300 bg-white px-2 py-3 [box-shadow:var(--shadow-lg)]">
             <ul id={`${id}-list`} role="listbox" className="flex max-h-72 flex-col overflow-y-auto">
               {list.length === 0 && <li className="px-2 py-2 text-md text-gray-600">{tooShort ? `พิมพ์อย่างน้อย ${minChars} ตัวอักษรเพื่อค้นหา` : emptyText}</li>}
               {list.map((o, i) => {
@@ -140,7 +145,7 @@ export function Combobox({
             </ul>
             {footer}
           </div>
-        )}
+        </Floating>
       </div>
     </FieldShell>
   );

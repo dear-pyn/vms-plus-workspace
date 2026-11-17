@@ -27,14 +27,11 @@ export function PODetail({
   onEdit,
   onDelete,
   onOpenJob,
-  onOpenSummary,
 }: {
   plan: Plan;
   po: PurchaseOrder;
   garage?: Garage;
   jobs: VehicleJob[];
-  /** T.1.1 ไอคอน quick_reference_all ท้ายแถวที่ปิดงานแล้ว → หน้าสรุปรายคัน */
-  onOpenSummary?: (plate: string) => void;
   onGoPlans: () => void;
   onGoPlan: () => void;
   onEdit: () => void;
@@ -140,9 +137,6 @@ export function PODetail({
           onRowClick={(v) => onOpenJob(v.plate)}
           action={(v) => (
             <div className="flex items-center justify-end gap-1">
-              {v.job?.code === "V11" && onOpenSummary && (
-                <Button variant="tertiary" iconOnly="quick_reference_all" aria-label={`ดูสรุปรายคัน ${v.plate}`} onClick={(e) => { e.stopPropagation(); onOpenSummary(v.plate); }} />
-              )}
               <Button variant="tertiary" iconOnly="keyboard_arrow_right" aria-label={`ไปหน้างาน ${v.plate}`} onClick={(e) => { e.stopPropagation(); onOpenJob(v.plate); }} />
             </div>
           )}

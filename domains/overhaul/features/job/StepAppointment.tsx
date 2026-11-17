@@ -90,6 +90,7 @@ export function StepAppointment({
       setDx({ date: preset === "error" ? "99/99/2569" : mockDate(), receiverId: preset === "missing" ? "" : staff.find((s) => s.unit === "หน่วยงาน")?.id || "" });
       setF((x) => ({ ...x, coordinatorId: preset === "missing" ? "" : coordinatorId }));
     } else {
+      if (!mode) setMode("appt"); // ยังไม่เลือกรูปแบบ → Mock เลือก "นัดหมาย" ให้ (17 พ.ย. 2569)
       setF({ from: mockDate(), to: mockDate(), coordinatorId: preset === "missing" ? "" : coordinatorId, note: preset === "error" ? "error — ทดสอบบันทึกไม่สำเร็จ" : "ข้อมูลนัดหมายจำลอง" });
     }
   }, editing && !saving);

@@ -3,12 +3,12 @@
  *  "เข้ามาด้วยวิธีกด Noti เห็นหัวข้อการอนุมัติว่าคือเรื่องอะไร ของรถคันไหน กดเข้าไปดูรายละเอียด ให้ CF ด้วยปุ่มยืนยันอนุมัติ/ปฏิเสธ
  *   หลังจาก action เสร็จ จะแสดงว่าอนุมัติแล้ว/ปฏิเสธแล้ว" · จอฝั่งผู้ยืนยัน "**รอ UI" → ต้นแบบประกอบจากของกลางไปก่อน (D-I2)
  *  component: Page header + Badge outline · Content item row · Table (ดูอย่างเดียว) · File upload Gallery (ดูอย่างเดียว) · Alert ·
- *    Modal Centered (ยืนยันอนุมัติ) · Modal Form + Text area (เหตุผลที่ปฏิเสธ) · Secondary danger / Primary button lg */
+ *    อนุมัติทันที (กติกา submit 17 พ.ย. 2569) · Modal Form + Text area (เหตุผลที่ปฏิเสธ) · Secondary danger / Primary button lg */
 import { useState } from "react";
 import { Alert } from "@ui/Alert";
 import { OutlineBadge, Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
-import { ConfirmDialog, Modal } from "@ui/Modal";
+import { Modal } from "@ui/Modal";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { DataTable, Td, Th } from "@ui/Table";
 import { TextArea } from "@ui/TextArea";
@@ -31,7 +31,7 @@ export function IntakeApproval({
   /** ต้นแบบ: กลับไปหน้างานรายคันของ กบค. */
   onBackToJob: () => void;
 }) {
-  const [ask, setAsk] = useState<"approve" | "reject" | null>(null);
+  const [ask, setAsk] = useState<"reject" | null>(null);
   const [reason, setReason] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,6 +44,7 @@ export function IntakeApproval({
       setErr("กรุณาระบุเหตุผลที่ปฏิเสธ");
       return;
     }
+    if (busy) return;
     setBusy(true);
     const done = await onDecide(ok, reason.trim());
     setBusy(false);
@@ -75,7 +76,7 @@ export function IntakeApproval({
             <SectionHeader title="ข้อมูลการรับรถเข้าอู่" />
             <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
               <Row items={[["ทะเบียน", plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["สังกัด", vehicle?.affiliation], ["อู่", garage?.name]]} />
-              <Row items={[["วันที่รับรถเข้าอู่", intake.date], ["เลขไมล์ ณ วันรับรถ (กม.)", intake.mileageKm?.toLocaleString()], ["ผู้ยืนยันอีกฝ่าย", `${name(other?.staffId)} (${other?.side ?? "—"})`], ["ส่งคำขอเมื่อ", mine.sentAt]]} />
+              <Row items={[["วันที่รับรถเข้าอู่", intake.date], ["เลขไมล์ ณ วันรับรถ (กม.)", intake.mileageKm?.toLocaleString()], ["ชั่วโมงการทำงาน (ชม.)", intake.engineHours != null ? intake.engineHours.toLocaleString() : "—"], ["ผู้ยืนยันอีกฝ่าย", `${name(other?.staffId)} (${other?.side ?? "—"})`], ["ส่งคำขอเมื่อ", mine.sentAt]]} />
             </dl>
           </section>
           <section className="flex flex-col gap-4">
@@ -100,7 +101,7 @@ export function IntakeApproval({
             </DataTable>
           </section>
           <section className="flex flex-col gap-4">
-            <SectionHeader title="รูปสภาพยานพาหนะ (ก่อน Overhaul)" />
+            <SectionHeader title="รูปสภาพยานพาหนะก่อน Overhaul" />
             <PhotoUploader label="รูปสภาพยานพาหนะ" photos={intake.photos} readOnly />
           </section>
         </>
@@ -111,24 +112,15 @@ export function IntakeApproval({
         </Button>
         {pending && (
           <div className="flex items-center gap-3">
-            <Button variant="secondaryDanger" size="lg" onClick={() => setAsk("reject")}>
+            <Button variant="secondaryDanger" size="lg" disabled={busy} onClick={() => setAsk("reject")}>
               ปฏิเสธ
             </Button>
-            <Button size="lg" onClick={() => setAsk("approve")}>
+            <Button size="lg" loading={busy} onClick={() => void decide(true)}>
               อนุมัติ
             </Button>
           </div>
         )}
       </div>
-      <ConfirmDialog
-        open={ask === "approve"}
-        icon="check_circle"
-        title="ยืนยันการอนุมัติ"
-        description={`อนุมัติการรับมอบยานพาหนะ ${plate} เข้า Overhaul`}
-        loading={busy}
-        onClose={() => setAsk(null)}
-        onConfirm={() => decide(true)}
-      />
       <Modal
         open={ask === "reject"}
         title="ปฏิเสธการรับมอบ"

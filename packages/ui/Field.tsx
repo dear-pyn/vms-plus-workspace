@@ -50,7 +50,8 @@ export function FieldShell({ id, label, optional, error, helper, className, chil
       {label && (
         <label htmlFor={id} className="mb-2 block text-md leading-6 font-semibold text-gray-600">
           {label}
-          {optional && <small className="text-md font-normal text-gray-400"> (ถ้ามี)</small>}
+          {/* leading-6 ซ้ำที่ (ถ้ามี) — text-md ของ theme ตั้ง line-height เอง ทำให้ป้ายที่มี "(ถ้ามี)" สูงกว่า → ช่องกรอกไม่ตรงแนวกัน (เจ้าของงาน 16 พ.ย. 2569) */}
+          {optional && <small className="text-md leading-6 font-normal text-gray-400"> (ถ้ามี)</small>}
         </label>
       )}
       {children}

@@ -51,8 +51,8 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
       <>
         {/* เจ้าของงาน 16 พ.ย. 2569: รูปสภาพยานพาหนะ (หลัง Overhaul) อยู่บนสุด */}
         <section className="flex flex-col gap-4">
-          <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" description={inspection?.confirmedAt ? `ยืนยันการตรวจสภาพแล้ว ${inspection.confirmedAt}` : undefined} />
-          <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" photos={init.photos} readOnly />
+          <SectionHeader title="รูปสภาพยานพาหนะหลัง Overhaul" description={inspection?.confirmedAt ? `ยืนยันการตรวจสภาพแล้ว ${inspection.confirmedAt}` : undefined} />
+          <PhotoUploader label="รูปสภาพยานพาหนะหลัง Overhaul" photos={init.photos} readOnly />
         </section>
         <section className="flex flex-col gap-6">
           <SectionHeader title="เอกสารแนบ" />
@@ -72,8 +72,8 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
     <>
       {/* เจ้าของงาน 16 พ.ย. 2569: รูปสภาพยานพาหนะ (หลัง Overhaul) อยู่บนสุด แล้วจึงเอกสารแนบ */}
       <section className="flex flex-col gap-4">
-        <SectionHeader title="รูปสภาพยานพาหนะ (หลัง Overhaul)" />
-        <PhotoUploader label="รูปสภาพยานพาหนะ (หลัง Overhaul)" optional photos={d.photos} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setD((prev) => ({ ...prev, photos }))} />
+        <SectionHeader title="รูปสภาพยานพาหนะหลัง Overhaul" />
+        <PhotoUploader label="รูปสภาพยานพาหนะหลัง Overhaul" optional photos={d.photos} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setD((prev) => ({ ...prev, photos }))} />
       </section>
       <section className="flex flex-col gap-6">
         <SectionHeader title="เอกสารแนบ" />

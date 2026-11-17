@@ -10,7 +10,7 @@ export type HomeTab = "plans" | "vehicles";
 export function OverhaulHome({ tab, onTab, onReport, children }: { tab: HomeTab; onTab: (t: HomeTab) => void; onReport: () => void; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
-      <PageHeader crumbs={[{ label: "จัดการงาน Overhaul" }]} title="จัดการงาน Overhaul" actions={<Button variant="secondary" iconLeft="download" onClick={onReport}>รายงาน</Button>} />
+      <PageHeader crumbs={[{ label: "จัดการงาน Overhaul" }]} title="จัดการงาน Overhaul" actions={<><Button variant="secondary" iconLeft="dashboard" onClick={() => { window.location.hash = "/dashboard"; }}>Dashboard</Button><Button variant="secondary" iconLeft="download" onClick={onReport}>รายงาน</Button></>} />
       <Tabs
         value={tab}
         onChange={(id) => onTab(id as HomeTab)}

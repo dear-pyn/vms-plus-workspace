@@ -120,6 +120,47 @@ export function PhotoUploader({
   );
 }
 
+/** แถวรูปแบบดูอย่างเดียว เลื่อนแนวนอน — ตามภาพ "รูปภาพเหตุการณ์" หน้ารายละเอียดงานซ่อม (UAT 5.5 Repair & Maintenance Job) ที่เจ้าของงานส่ง 17 พ.ย. 2569
+ *  ช่องรูป 172×154 r8 ขอบ gray-200 gap 12 · มีรูปเกินกรอบ = ปุ่มวงกลม keyboard_arrow_right/left (Secondary button sm ทรงกลม) เลื่อนทีละหน้า
+ *  ใช้ที่ขั้น 7 สรุปปิดงาน: รูปก่อน Overhaul (ขั้น 2) · รูปหลัง Overhaul (ขั้น 4) */
+export function PhotoStrip({ label, photos }: { label: string; photos: Photo[] }) {
+  const ref = useRef<HTMLUListElement>(null);
+  const [edge, setEdge] = useState({ left: false, right: false });
+  const update = () => {
+    const el = ref.current;
+    if (!el) return;
+    setEdge({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  };
+  useEffect(() => {
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [photos.length]);
+  const go = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: "smooth" });
+  if (!photos.length) return <span className="text-md text-gray-600">ไม่มีรูปภาพ</span>;
+  return (
+    <div className="relative">
+      <ul ref={ref} onScroll={update} className="flex snap-x gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={`${label} ${photos.length} ไฟล์`}>
+        {photos.map((p) => (
+          <li key={p.name} className="flex h-[154px] w-[172px] shrink-0 snap-start flex-col overflow-hidden rounded-md border border-gray-200 bg-gray-100" title={p.name}>
+            <PhotoPreview photo={p} />
+          </li>
+        ))}
+      </ul>
+      {edge.left && (
+        <span className="absolute top-1/2 left-2 -translate-y-1/2">
+          <Button variant="secondary" size="sm" iconOnly="keyboard_arrow_left" className="rounded-full! shadow-field" aria-label={`${label} รูปก่อนหน้า`} onClick={() => go(-1)} />
+        </span>
+      )}
+      {edge.right && (
+        <span className="absolute top-1/2 right-2 -translate-y-1/2">
+          <Button variant="secondary" size="sm" iconOnly="keyboard_arrow_right" className="rounded-full! shadow-field" aria-label={`${label} รูปถัดไป`} onClick={() => go(1)} />
+        </span>
+      )}
+    </div>
+  );
+}
+
 function PhotoPreview({ photo }: { photo: Photo }) {
   const [url, setUrl] = useState(photo.assetId ? undefined : photo.url);
   useEffect(() => {

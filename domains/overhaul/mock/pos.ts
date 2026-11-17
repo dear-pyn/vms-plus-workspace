@@ -5,6 +5,8 @@ import { BUDGET_TYPES, type Plan } from "../features/plan/types";
 import { JOB_STATUS, type JobCode, type PurchaseOrder, type VehicleJob } from "../features/po/types";
 import { emptyChecks } from "../features/job/intake";
 import { IMPORT_SAMPLE, seedStock } from "../features/job/close";
+import { CASES, seedCases } from "./cases";
+import { seedDashboardSet } from "./dashboard";
 import type { OverhaulVehicle, PlanVehicle } from "../features/vehicle/types";
 
 const toPlanVehicle = (v: OverhaulVehicle, mileageKm: number): PlanVehicle => ({
@@ -132,5 +134,10 @@ export function seedPOs(plans: Plan[], fleet: OverhaulVehicle[]): { plans: Plan[
     });
     return { ...p, vehicles: pick.map((v, i) => toPlanVehicle(v, 150_000 + i * 12_345)) };
   });
-  return { plans: out, pos, jobs: jobs.map(enrichJob) };
+  // เคสทดสอบต้นแบบ (17 พ.ย. 2569): แผน/PO แยก 1 ชุด ยานพาหนะ 1 คันต่อ 1 สถานะ — หน้า "สารบัญเคส" (#/cases)
+  const base = out.find((x) => x.poCount > 0) ?? out[0];
+  const cs = seedCases(base, fleet.slice(10, 10 + CASES.length).map((v, i) => toPlanVehicle(v, 140_000 + i * 4_200)), enrichJob);
+  // ชุด Dashboard (17 พ.ย. 2569): แผน/PO/งานของต้นแบบ Downloads — ปุ่มไอคอนตาใน Dashboard เปิดหน้างานรายคันจริง
+  const ds = seedDashboardSet(base, enrichJob);
+  return { plans: [...out, cs.plan, ...ds.plans], pos: [...pos, cs.po, ...ds.pos], jobs: [...jobs.map(enrichJob), ...cs.jobs, ...ds.jobs] };
 }

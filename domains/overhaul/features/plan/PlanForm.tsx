@@ -14,7 +14,6 @@ import { Alert } from "@ui/Alert";
 import { OutlineBadge } from "@ui/Badge";
 import { EmptyState } from "@ui/EmptyState";
 import { Icon } from "@ui/Icon";
-import { ConfirmDialog } from "@ui/Modal";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { RowMenu } from "@ui/RowMenu";
 import { SelectField } from "@ui/SelectField";
@@ -66,7 +65,6 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
   const [fileError, setFileError] = useState<Partial<Record<keyof PlanDocs, string>>>({});
   const [picker, setPicker] = useState(false);
   const [priceFor, setPriceFor] = useState<PlanVehicle | null>(null);
-  const [removeFor, setRemoveFor] = useState<PlanVehicle | null>(null);
   const [saving, setSaving] = useState(false);
   usePrototypeFill((mode) => {
     const next = mockPlan(d, fleet, ownCostCenter);
@@ -75,7 +73,7 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
     setD(next);
     setBudgetText(currency(next.budget));
     setErrors({}); setFileError({});
-  }, !saving && !picker && !priceFor && !removeFor);
+  }, !saving && !picker && !priceFor);
   const dirty = JSON.stringify(d) !== JSON.stringify(initial);
   const set = <K extends keyof PlanDraft>(k: K, v: PlanDraft[K]) => setD((x) => ({ ...x, [k]: v }));
 
@@ -234,7 +232,12 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
                     { label: "ดูข้อมูลยานพาหนะ", icon: "quick_reference_all", onSelect: () => onOpenVehicle(v.plate, "info") },
                     { label: "ดูข้อมูลการซ่อม", icon: "build", onSelect: () => onOpenVehicle(v.plate, "repair") },
                     { label: "ระบุราคา", icon: "payments", onSelect: () => setPriceFor(v) },
-                    { label: "ลบยานพาหนะ", icon: "delete", danger: true, onSelect: () => setRemoveFor(v) },
+                    { label: "ลบยานพาหนะ", icon: "delete", danger: true, onSelect: () => {
+                      const vehicles = d.vehicles.filter((x) => x.plate !== v.plate);
+                      set("vehicles", vehicles);
+                      blurCheck("vehicles", { ...d, vehicles });
+                      onNotify(`ลบ ${v.plate} ออกจากแผนแล้ว`);
+                    } },
                   ]}
                 />
               )}
@@ -312,21 +315,6 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
           const edited = priceFor && !missingPrice(priceFor);
           setPriceFor(null);
           onNotify(edited ? "แก้ไขราคารายคันสำเร็จ" : "ระบุราคาสำเร็จ"); // B.12 ข้อความตรงจอเมื่อแก้ราคาเดิม · ระบุครั้งแรกใช้ "ระบุราคาสำเร็จ" ตามชื่อ modal
-        }}
-      />
-      <ConfirmDialog
-        open={!!removeFor}
-        danger
-        icon="delete"
-        title="ลบยานพาหนะออกจากแผน"
-        description={removeFor ? `${removeFor.plate} จะถูกนำออกจากแผนนี้ และราคาที่ระบุไว้จะหายไป` : undefined}
-        onClose={() => setRemoveFor(null)}
-        onConfirm={() => {
-          const vehicles = d.vehicles.filter((v) => v.plate !== removeFor?.plate);
-          set("vehicles", vehicles);
-          blurCheck("vehicles", { ...d, vehicles }); // EC-46 ลบคันสุดท้าย = แสดงข้อความบังคับ · เพิ่มกลับแล้วข้อความหาย
-          onNotify(`ลบ ${removeFor?.plate} ออกจากแผนแล้ว`);
-          setRemoveFor(null);
         }}
       />
       {leaveDialog}

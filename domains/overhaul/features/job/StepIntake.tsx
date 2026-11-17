@@ -26,6 +26,8 @@ import { BATTERY, emptyChecks, intakeComplete } from "./intake";
 export interface IntakeDraft {
   /** เลขไมล์ปัจจุบัน (กม.) — ข้อความที่มีจุลภาค ("182,400") */
   mileage: string;
+  /** ชั่วโมงการทำงาน (ชม.) — ไม่บังคับ ข้อความที่มีจุลภาค */
+  hours: string;
   photos: Photo[];
   checks: CheckItem[];
   delivererId: string;
@@ -43,14 +45,14 @@ export function StepIntake({
   onSave: (d: IntakeDraft) => Promise<boolean>;
 }) {
   const init = useMemo<IntakeDraft>(
-    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
+    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", hours: intake?.engineHours != null ? intake.engineHours.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
     [intake],
   );
   const [f, setF] = useState(init);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   usePrototypeFill((mode) => {
-    setF({ mileage: mode === "missing" ? "" : mode === "error" ? "12a" : "182,400", photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
+    setF({ mileage: mode === "missing" ? "" : mode === "error" ? "12a" : "182,400", hours: mode === "ready" ? "9,180" : "", photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
   }, !readOnly && !busy);
   const locked = !!readOnly;
   const dirty = !locked && JSON.stringify(f) !== JSON.stringify(init);
@@ -75,11 +77,11 @@ export function StepIntake({
     <>
       <section className="flex flex-col gap-4">
         <SectionHeader title="ข้อมูลการรับรถเข้าอู่" />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <TextField
             label="เลขไมล์ปัจจุบัน (กม.)"
             inputMode="numeric"
-            placeholder="ระบุเลขไมล์"
+            placeholder={locked ? "—" : "ระบุเลขไมล์"}
             readOnly={locked}
             value={f.mileage}
             onChange={(e) => {
@@ -90,7 +92,27 @@ export function StepIntake({
             onBlur={() => !locked && setMileErr(checkMileage())}
             error={mileErr || undefined}
           />
+          {/* เจ้าของงาน 17 พ.ย. 2569: เพิ่ม "ชั่วโมงการทำงาน" (ถ้ามี) — ยานพาหนะที่มีมิเตอร์ชั่วโมง (เครน/กระเช้า) · ตัวเลขเต็ม ใส่จุลภาค ไม่เกิน 6 หลัก
+              component: `Text input` ของไลบรารี (TextField optional) แบบเดียวกับเลขไมล์ */}
+          <TextField
+            label="ชั่วโมงการทำงาน (ชม.)"
+            optional
+            inputMode="numeric"
+            placeholder={locked ? "—" : "ระบุชั่วโมงการทำงาน"}
+            readOnly={locked}
+            value={f.hours}
+            onChange={(e) => {
+              const n = e.target.value.replace(/[^\d]/g, "").slice(0, 6);
+              setF((x) => ({ ...x, hours: n ? Number(n).toLocaleString() : "" }));
+            }}
+          />
         </div>
+      </section>
+
+      {/* รูปก่อน Overhaul = ส่วนที่ 2 ต่อจากข้อมูลการรับรถเข้าอู่ (เจ้าของงาน 17 พ.ย. 2569 · เดิม OH2 I.1 วางหลังส่วนรับมอบ) · File upload Type=Gallery ตาม FigJam Section 12 */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader title="รูปสภาพยานพาหนะก่อน Overhaul" />
+        <PhotoUploader label="รูปสภาพยานพาหนะก่อน Overhaul" optional photos={f.photos} readOnly={locked} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setF((prev) => ({ ...prev, photos }))} />
       </section>
 
       <section className="flex flex-col gap-4">
@@ -178,11 +200,6 @@ export function StepIntake({
         </div>
       </section>
 
-      {/* OH2 I.1: รูปก่อน Overhaul หลังส่วนรับมอบ · File upload Type=Gallery ตาม FigJam Section 12 */}
-      <section className="flex flex-col gap-4">
-        <SectionHeader title="รูปสภาพยานพาหนะ (ก่อน Overhaul)" />
-        <PhotoUploader label="รูปสภาพยานพาหนะ (ก่อน Overhaul)" optional photos={f.photos} readOnly={locked} disabled={busy} onBusyChange={setUploading} onChange={(photos) => setF((prev) => ({ ...prev, photos }))} />
-      </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3" /* ภาพ UAT ไม่มีเส้นคั่น */>
         <Button variant="secondary" size="lg" onClick={() => requestLeave()}>

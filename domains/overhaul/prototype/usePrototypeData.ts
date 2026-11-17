@@ -39,3 +39,10 @@ export function usePrototypeData(seed: Data) {
   const setJobs = useCallback((action: SetStateAction<VehicleJob[]>) => update("jobs", action), [update]);
   return { ...data, setPlans, setPos, setJobs };
 }
+
+/** ล้างข้อมูลต้นแบบในเบราว์เซอร์ แล้วโหลดหน้าใหม่ = กลับเป็นข้อมูลตั้งต้น (รวมเคสทดสอบครบทุกสถานะ) — ใช้จากหน้าสารบัญเคส / ปุ่ม Mock */
+export function resetPrototypeData(hash = "#/cases") {
+  try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
+  window.location.hash = hash;
+  window.location.reload();
+}

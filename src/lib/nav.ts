@@ -22,6 +22,10 @@ export function mainNav(prototypeBase: string): NavGroup[] {
         { id: "overhaul", label: "Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/` },
         /* เจ้าของงาน 16 พ.ย. 2569: เมนูใหม่ใต้ Overhaul สำหรับหน่วยงานเจ้าของยานพาหนะ — รายการรายคันที่รอตอบรับนัดหมาย (S16) */
         { id: "overhaul-reply", label: "ตอบรับนัดหมาย", href: `${prototypeBase}/prototypes/overhaul/#/agency` },
+        /* เจ้าของงาน 17 พ.ย. 2569: เมนูใหม่ "อนุมัติปิดงาน" สำหรับผู้อนุมัติ (แบบเดียวกับตอบรับนัดหมาย) */
+        { id: "overhaul-approval", label: "อนุมัติปิดงาน", href: `${prototypeBase}/prototypes/overhaul/#/approval` },
+        /* เจ้าของงาน 17 พ.ย. 2569: เมนู Dashboard อยู่ใต้ จัดการยานพาหนะขนาดใหญ่ (ไม่ใช้เมนูภาพรวม Dashboard ระดับบน) */
+        { id: "overhaul-dashboard", label: "Dashboard Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/dashboard` },
         { id: "h2", label: "บำรุงรักษาตามวาระ" },
         { id: "h3", label: "แจ้งซ่อม" },
         { id: "h4", label: "ยืม-คืน" },
