@@ -12,6 +12,7 @@ import { MockTools } from "@overhaul/prototype/MockTools";
 import { CasesPage } from "@overhaul/prototype/CasesPage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppShell } from "@ui/AppShell";
+import { parseThaiDate } from "@ui/DateField";
 import { ConfirmDialog } from "@ui/Modal";
 import { Toast, type ToastTone } from "@ui/Toast";
 import { NotificationBell, type NotificationItem } from "@ui/NotificationPanel";
@@ -37,6 +38,7 @@ import { AgencyList, AgencyReply, awaitingReply, type AgencyAnswer, type AgencyI
 import { ApprovalList, ApprovalReview, awaitingApproval, type ApprovalDecision } from "@overhaul/features/job/ApprovalPages";
 import { approversOf } from "@overhaul/features/job/StepSendApproval";
 import { nowStamp } from "@overhaul/features/shared/time";
+import { N, T, jobKey, ohName, type ToastMsg } from "@overhaul/features/shared/messages";
 import { seedPOs } from "@overhaul/mock/pos";
 import { DASH_PLANS } from "@overhaul/mock/dashboard";
 import { POForm, type POSaveResult } from "@overhaul/features/po/POForm";
@@ -183,9 +185,20 @@ export default function OverhaulPrototype() {
     window.location.hash = href(r);
   };
   const notify = useCallback((msg: string, tone: ToastTone = "success", description?: string) => setToast({ msg, tone, description }), []);
+  /** ชีต OH-Toast (17 พ.ย. 2569): ข้อความทั้งหมดอยู่ที่ features/shared/messages.ts */
+  const say = (t: ToastMsg) => notify(t.msg, t.tone ?? "success", t.description);
   const notInScope = (what: string) => notify(`"${what}" ยังไม่อยู่ในต้นแบบรอบนี้`, "info");
   const closeToast = useCallback(() => setToast(null), []);
   const plan = route.view === "detail" || route.view === "edit" || route.view === "poNew" || route.view === "po" || route.view === "poEdit" ? plans.find((p) => p.id === route.id) : undefined;
+  /* ชีต OH-Toast แถว 6 · 12: เปิดฟอร์มแก้ไขแผน / ฟอร์ม PO ของแผนที่ถูกลบไปแล้ว → toast ไม่พบแผน แล้วกลับหน้ารายการ */
+  const missingPlanId = (route.view === "edit" || route.view === "poNew" || route.view === "poEdit") && !plan ? route.id : null;
+  useEffect(() => {
+    if (!missingPlanId || !plans.length) return;
+    const t = route.view === "edit" ? T.planNotFound(missingPlanId) : T.poPlanNotFound();
+    notify(t.msg, "error");
+    go({ view: "list" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- แจ้งครั้งเดียวต่อการเปิดเส้นทางที่ไม่พบแผน
+  }, [missingPlanId]);
   const home = (tab: "plans" | "vehicles", body: React.ReactNode) => (
     <OverhaulHome tab={tab} onReport={() => downloadPlanExcel(plans.flatMap((p) => p.vehicles))} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
       {body}
@@ -199,13 +212,13 @@ export default function OverhaulPrototype() {
     if (id) {
       setPlans((ps) => ps.map((p) => (p.id === id ? { ...p, ...draft } : p)));
       go({ view: "detail", id });
-      notify("บันทึกการแก้ไขแผนสำเร็จ"); // C.5
+      say(T.planEdited()); // ชีต OH-Toast แถว 3
     } else {
       const newId = nextId(plans, draft.fiscalYear);
       const created: Plan = { ...draft, id: newId, progress: null, status: "รอเลข Purchase Order", createdAt: today(), poCount: 0 };
       setPlans((ps) => [created, ...ps]);
       go({ view: "list" });
-      notify("สร้างแผน Overhaul สำเร็จ"); // B.6 ข้อความตรงจอ (AC-S1 ใส่เลขแผน — Figma ชนะ)
+      say(T.planCreated(newId)); // ชีต OH-Toast แถว 1
     }
     return true;
   }
@@ -226,7 +239,7 @@ export default function OverhaulPrototype() {
       setPos((ps) => ps.map((x) => (x.id === poId ? { ...x, ...draft } : x)));
       setJobs((js) => [...js.filter((j) => j.poId !== poId || draft.plates.includes(j.plate)), ...newJobs(poId, added)]); // AC-S5 คันที่เพิ่มทีหลังเริ่มขั้น 1
       go(from === "po" ? { view: "po", id: planId, po: poId } : { view: "detail", id: planId });
-      notify("บันทึกการแก้ไข Purchase Order สำเร็จ"); // F.4
+      say(T.poEdited()); // ชีต OH-Toast แถว 8
     } else {
       const prefix = `PO-${String(p.fiscalYear).slice(-2)}`;
       const max = Math.max(0, ...pos.filter((x) => x.id.startsWith(prefix)).map((x) => Number(x.id.slice(prefix.length))));
@@ -235,7 +248,7 @@ export default function OverhaulPrototype() {
       setJobs((js) => [...js, ...newJobs(id, draft.plates)]);
       setPlans((ps) => ps.map((x) => (x.id === planId ? { ...x, status: x.status === "รอเลข Purchase Order" ? "รอดำเนินการ" : x.status, poCount: x.poCount + 1 } : x))); // AC-S4 ใบแรก → รอดำเนินการ
       go({ view: "detail", id: planId });
-      notify("การเพิ่ม Purchase Order สำเร็จ"); // E.8 toast 7
+      say(T.poCreated()); // ชีต OH-Toast แถว 7
     }
     return true;
   }
@@ -255,7 +268,7 @@ export default function OverhaulPrototype() {
     setPos((ps) => ps.filter((p) => p.planId !== id));
     setJobs((js) => js.filter((j) => !gone.includes(j.poId)));
     go({ view: "list" });
-    notify("ลบแผน overhaul สำเร็จ");
+    say(T.planDeleted(id)); // ชีต OH-Toast แถว 4
   }
   function deletePO(id: string) {
     const po = pos.find((p) => p.id === id);
@@ -265,7 +278,7 @@ export default function OverhaulPrototype() {
     setJobs((js) => js.filter((j) => j.poId !== id));
     setPlans((ps) => ps.map((p) => p.id === po.planId ? { ...p, poCount: left, status: left === 0 ? "รอเลข Purchase Order" : p.status } : p));
     go({ view: "detail", id: po.planId });
-    notify("ลบ Purchase Order สำเร็จ");
+    say(T.poDeleted()); // ชีต OH-Toast แถว 9
   }
 
   /** งานรายคัน + PO + อู่ + ยานพาหนะ (ใช้ในหน้าผู้บังคับบัญชาและหน้าสรุปรายคัน) */
@@ -302,7 +315,8 @@ export default function OverhaulPrototype() {
         : { ...j, code: a.accepted ? "V10" : "V9", appt5: { ...appt, reply }, detail: a.accepted ? [`นัดรับรถ ${a.date}`, "รอปิดงาน"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] };
     setJobs((js) => js.map((x) => (x.poId === j.poId && x.plate === j.plate ? { ...x, code: next.code, appt1: next.appt1, appt5: next.appt5, detail: next.detail } : x)));
     go({ view: "agency" });
-    notify("ตอบกลับสำเร็จ", "success", a.accepted ? `ส่งตอบรับนัดหมายยานพาหนะ ${j.plate} ให้ กบค. เรียบร้อยแล้ว` : "ส่งเหตุผลการปฏิเสธนัดหมายให้ กบค. เรียบร้อยแล้ว"); // R.1.6 / R.2.5 ตรงจอ (รถ → ยานพาหนะ)
+    const unit = item.vehicle?.affiliation ?? "";
+    say(a.accepted ? T.apptAccepted() : T.apptRejected(unit, jobKey(j.poId, j.plate))); // ชีต OH-Toast แถว 15 / 16
     return true;
   }
 
@@ -326,7 +340,7 @@ export default function OverhaulPrototype() {
     const planPOIds = pos.filter((x) => x.planId === item.plan.id).map((x) => x.id);
     if (d.approved && nextJobs.filter((x) => planPOIds.includes(x.poId)).every((x) => x.code === "V11")) setPlans((ps) => ps.map((x) => (x.id === item.plan.id ? { ...x, status: "เสร็จสิ้น", progress: 100 } : x)));
     go({ view: "approval" });
-    notify(d.approved ? "อนุมัติปิดงานสำเร็จ" : "ส่งกลับแก้ไขสำเร็จ", "success", d.approved ? `ปิดงาน ${j.plate} (${j.poId}) เรียบร้อยแล้ว` : `ส่งเหตุผลให้ กบค. แก้ไขงาน ${j.plate} แล้ว`);
+    say(d.approved ? T.approved(jobKey(j.poId, j.plate)) : T.notApproved(jobKey(j.poId, j.plate))); // ชีต OH-Toast แถว 27 / 29
     return true;
   }
 
@@ -460,7 +474,7 @@ export default function OverhaulPrototype() {
           // AC-S14: ยานพาหนะทุกคันในทุก PO ของแผนปิดงาน (V11) → แผนเสร็จสิ้น (เดิมทำตอน ผบช. อนุมัติ — ตัดผู้อนุมัติแล้วจึงทำตอนส่งขั้น 7)
           const planPOIds = pos.filter((x) => x.planId === jp.id).map((x) => x.id);
           if (next.code === "V11" && nextJobs.filter((x) => planPOIds.includes(x.poId)).every((x) => x.code === "V11")) setPlans((ps) => ps.map((x) => (x.id === jp.id ? { ...x, status: "เสร็จสิ้น", progress: 100 } : x)));
-          if (t) notify(t.msg, t.tone);
+          if (t) say(t);
         }}
         onNotify={notify}
         onOpenApproval={(sid) => go({ view: "approve", po: po.id, plate: job.plate, staff: sid })}
@@ -555,18 +569,44 @@ export default function OverhaulPrototype() {
   /** Q.1–Q.5 + มติ FigJam (notification ล่วงหน้า 30 วัน และ 15 วัน นับจากวันสิ้นสุดประกัน · badge dot สีเขียว · list):
    *  ต้นแบบสร้างรายการจากข้อมูลงาน — ประกันเหลือ ≤ 30 วัน (Warning) / ≤ 15 วัน (Error) · หน่วยงานยืนยันนัดหมาย (Success) · ปิดงาน (Brand)
    *  ข้อความประกันตาม FigJam: "แจ้งวันสิ้นสุดประกัน วันที่ {วันสิ้นสุดประกัน} ของรถ {เลขทะเบียน} โปรดตรวจสอบควา…" (โน้ตถูกตัด — เติมท้ายจากข้อความ Alert ขั้น 6) */
+  /** เหตุการณ์ภายใน 3 วัน (วันที่รูปแบบ dd/mm/yyyy พ.ศ. นำหน้า) */
+  const recent = (at: string) => {
+    const d = parseThaiDate(at.slice(0, 10));
+    return !!d && Date.now() - d.getTime() < 3 * 86_400_000;
+  };
   const notiAll: Array<NotificationItem & { go: Route }> = jobs.flatMap((j) => {
     const out: Array<NotificationItem & { go: Route }> = [];
     const w = j.close?.warranty;
     const left = j.code === "V11" && w?.on ? warrantyLeft(w.start, w.days) : null;
     if (left !== null && left >= 0 && left <= 30 && w)
-      out.push({ id: `w-${j.poId}-${j.plate}-${left <= 15 ? 15 : 30}`, status: left <= 15 ? "error" : "warning", time: "วันนี้ 09:00", text: `แจ้งวันสิ้นสุดประกัน วันที่ ${warrantyEnd(w.start, w.days)} ของยานพาหนะ ${j.plate} (${j.poId}) เหลือ ${left} วัน โปรดตรวจสอบความสมบูรณ์ของยานพาหนะก่อนหมดประกัน`, go: { view: "job", po: j.poId, plate: j.plate } }); // ไม่มีหน้าสรุปรายคัน (16 พ.ย. 2569) → หน้างานรายคัน
+      out.push({ id: `w-${j.poId}-${j.plate}-${left <= 15 ? 15 : 30}`, status: left <= 15 ? "error" : "warning", time: "วันนี้ 09:00 · ถึง กบค.", text: N.warrantyEnd(warrantyEnd(w.start, w.days), jobKey(j.poId, j.plate), left), go: { view: "job", po: j.poId, plate: j.plate } }); // ไม่มีหน้าสรุปรายคัน (16 พ.ย. 2569) → หน้างานรายคัน
     const unit = plans.flatMap((p) => p.vehicles).find((v) => v.plate === j.plate)?.affiliation ?? "";
     /* เจ้าของงาน 16 พ.ย. 2569: ขั้น 5 "ไม่มีการนัดหมาย" ต้องแจ้งเตือนหน่วยงานว่าส่งมอบรถคืนแล้ว (แทนแจ้งเตือนนัดรับรถ) */
-    if (j.direct5)
-      out.push({ id: `r-${j.poId}-${j.plate}`, status: "info", time: j.direct5.date, text: `ส่งมอบยานพาหนะ ${j.plate} (${j.poId}) คืนหน่วยงาน ${unit} แล้ว วันที่ ${j.direct5.date} · ผู้รับรถ ${staff.find((s) => s.id === j.direct5!.receiverId)?.name ?? "—"}`, go: { view: "agencyJob", po: j.poId, plate: j.plate } });
-    if (j.code === "V4.1" && j.appt1?.reply?.accepted)
-      out.push({ id: `a-${j.poId}-${j.plate}-${j.code}`, status: "success", time: j.appt1.reply.at ?? "", text: `หน่วยงาน ${unit} ของ ${j.poId} ยืนยันนัดหมายแล้ว (${j.plate})`, go: { view: "job", po: j.poId, plate: j.plate } });
+    if (j.direct5) {
+      const d5 = j.direct5;
+      const rcv = staff.find((s) => s.id === d5.coordinatorId)?.name;
+      out.push({ id: `r-${j.poId}-${j.plate}`, status: "info", time: `${j.direct5.date} · ถึง ${rcv ? `${rcv} (หน่วยงาน ${unit})` : `หน่วยงาน ${unit}`}`, text: N.returned(unit, jobKey(j.poId, j.plate), j.direct5.date), go: { view: "agencyJob", po: j.poId, plate: j.plate } });
+    }
+    /* ชีต OH-Toast (17 พ.ย. 2569) — notification ตามเหตุการณ์ · ปลายทางแสดงในบรรทัดเวลา ("ถึง …") เพราะต้นแบบไม่มี login แยกคน
+       แสดงเฉพาะเหตุการณ์ 3 วันล่าสุด (= ที่กดในต้นแบบ) ไม่ให้ข้อมูลตั้งต้นหลายร้อยงานล้นกระดิ่ง */
+    const k = jobKey(j.poId, j.plate);
+    const oh = ohName(pos.find((x) => x.id === j.poId)?.name ?? "", k);
+    const ev = (id: string, at: string | undefined, to: string, text: string, status: NotificationItem["status"], target: Route) => {
+      if (at && recent(at)) out.push({ id: `${id}-${j.poId}-${j.plate}`, status, time: `${at} · ถึง ${to}`, text, go: target });
+    };
+    const agencyGo: Route = { view: "agencyJob", po: j.poId, plate: j.plate };
+    const jobGo: Route = { view: "job", po: j.poId, plate: j.plate };
+    ([[1, j.appt1], [5, j.appt5]] as const).forEach(([n, a]) => {
+      if (!a) return;
+      ev(`n13-${n}-${a.sentAt}`, a.sentAt, `หน่วยงาน ${unit}`, N.apptSent(k), "info", agencyGo); // แถว 13 → หน่วยงาน คนเดียว
+      if (a.reply?.accepted) ev(`n15-${n}`, a.reply.at, "กบค.", N.apptAccepted(unit, k), "success", jobGo); // แถว 15 → ตาม role กบค.
+    });
+    const delivererName = staff.find((s) => s.id === j.intake?.delivererId)?.name;
+    ev("n17", j.intake?.confirmedAt, delivererName ? `${delivererName} (หน่วยงาน ${unit})` : `หน่วยงาน ${unit}`, N.intakeConfirmed(), "success", agencyGo); // แถว 17 → หน่วยงาน คนเดียว
+    const ap = j.close?.approval;
+    if (j.code === "V10.3" && ap) ev(`n25-${ap.sentAt}`, ap.sentAt, staff.find((s) => s.id === ap.approverId)?.name ?? "ผู้อนุมัติ", N.approvalSent(oh), "warning", { view: "approvalJob", po: j.poId, plate: j.plate }); // แถว 25 → หัวหน้า กบค.
+    if (ap?.result === "approved") ev("n27", ap.at, "กบค.", N.approved(oh), "success", jobGo); // แถว 27 → กบค.
+    if (ap?.result === "returned") ev(`n29-${ap.at}`, ap.at, "กบค.", N.notApproved(oh, ap.reason ?? "—"), "error", jobGo); // แถว 29 → กบค.
     return out;
   }).sort((a, b) => Number(b.id.startsWith("w-")) - Number(a.id.startsWith("w-")));
   const noti = notiAll.filter((n) => !clearedIds.includes(n.id)).map((n) => ({ ...n, unread: !readIds.includes(n.id) }));

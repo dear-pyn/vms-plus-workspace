@@ -4,7 +4,6 @@
  *  ขั้น: 1/5 StepAppointment · 2 StepIntake · 3 StepProgress · 4 StepInspection · 6 StepClose · 7 StepSendApproval · viewOnly = มุมหน่วยงานเจ้าของ (S17) */
 import { useState, type ReactNode } from "react";
 import { OutlineBadge } from "@ui/Badge";
-import { truncateProgress } from "@rules/progress.mjs";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { EmptyState } from "@ui/EmptyState";
 import { ProgressSteps } from "@ui/ProgressSteps";
@@ -21,6 +20,7 @@ import { StepSendApproval } from "./StepSendApproval";
 import { seedSmiParts } from "./close";
 import { todayThai } from "../shared/time";
 import { nowStamp } from "../shared/time";
+import { T, jobKey, type ToastMsg } from "../shared/messages";
 
 const BADGE = { gray: "gray", warning: "gray", error: "error", info: "brand", success: "success", brand: "brand", disabled: "disabled", purple: "brand" } as const;
 
@@ -35,8 +35,8 @@ export interface JobPageProps {
   onGoPlan: () => void;
   onGoPO: () => void;
   /** บันทึกงาน (จำลองเครือข่ายที่หน้า page) — คืน true เมื่อสำเร็จ */
-  onUpdate: (next: VehicleJob, toast?: { msg: string; tone?: "success" | "error" | "info" }) => void;
-  onNotify: (msg: string, tone?: "success" | "error" | "info") => void;
+  onUpdate: (next: VehicleJob, toast?: ToastMsg) => void;
+  onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void;
   /** ต้นแบบ: เปิดหน้าผู้ยืนยันการรับมอบ (ขั้น 2) */
   onOpenApproval: (staffId: string) => void;
   /** S17 หน่วยงานเจ้าของยานพาหนะ / กรย. — ดูอย่างเดียวทุกขั้น */
@@ -62,7 +62,8 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   const [selection, setSelection] = useState({ code: job.code, step: Math.min(current, 7) });
   const view = selection.code === job.code ? Math.min(selection.step, current) : Math.min(current, 7);
   const setViewing = (step: number) => setSelection({ code: job.code, step });
-  const set = (code: JobCode, patch: Partial<VehicleJob>, toast?: { msg: string; tone?: "success" | "error" | "info" }) => {
+  const key = jobKey(po.id, job.plate);
+  const set = (code: JobCode, patch: Partial<VehicleJob>, toast?: ToastMsg) => {
     onUpdate({ ...job, ...patch, code }, toast);
     setSelection({ code, step: JOB_STATUS[code].step });
   };
@@ -70,12 +71,12 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   async function sendAppt(kind: 1 | 5, a: Appointment): Promise<boolean> {
     await wait(600);
     if (/error/i.test(a.note)) {
-      onNotify(`นัดหมาย ${po.id} ไม่สำเร็จ`, "error"); // มติ FigJam: {ข้อมูลสำคัญ เช่นเลขแผนหรือ PO} // toast 14 (H.4) — จำลอง: หมายเหตุมีคำว่า error
+      onNotify(T.apptFail(key).msg, "error"); // ชีต OH-Toast แถว 14 — จำลอง: หมายเหตุมีคำว่า error
       return false;
     }
     const range = `${a.from} – ${a.to}`;
-    if (kind === 1) set("V2", { appt1: a, detail: [`นัดเข้าอู่ ${range}`, "รอหน่วยงานตอบรับ"] }, { msg: `นัดหมาย ${po.id} สำเร็จ` }); // toast 13
-    else set("V8", { appt5: a, detail: [`นัดรับรถ ${range}`, "รอหน่วยงานตอบรับ"] }, { msg: `นัดหมาย ${po.id} สำเร็จ` });
+    if (kind === 1) set("V2", { appt1: a, detail: [`นัดเข้าอู่ ${range}`, "รอหน่วยงานตอบรับ"] }, T.apptSent()); // ชีต OH-Toast แถว 13
+    else set("V8", { appt5: a, detail: [`นัดรับรถ ${range}`, "รอหน่วยงานตอบรับ"] }, T.apptSent());
     return true;
   }
   function reply(kind: 1 | 5, accepted: boolean) {
@@ -83,10 +84,10 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     if (!a) return;
     const today = new Date().toLocaleDateString("th-TH", { day: "2-digit", month: "2-digit", year: "numeric" });
     const r = accepted ? { accepted, date: a.from, deliverer: "ผู้นำส่งตัวอย่าง", at: today } : { accepted, reason: "ยานพาหนะติดภารกิจซ่อมบำรุงสายส่ง ขอเลื่อนนัด", at: today };
-    const who = `หน่วยงาน ${vehicle?.affiliation ?? ""} ของ ${po.id}`;
+    const unit = vehicle?.affiliation ?? "";
     // ต้นแบบ: ตอบรับแล้วถือว่าถึงวันนัด → ขั้นถัดไปทันที (V4 → V4.1 · V10)
-    if (kind === 1) set(accepted ? "V4.1" : "V3", { appt1: { ...a, reply: r }, detail: accepted ? [`นัดเข้าอู่ ${a.from}`, "รอตรวจรับรถ"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }, { msg: `${who} ${accepted ? "ยืนยันนัดหมายแล้ว" : "ปฏิเสธนัดหมาย"}`, tone: accepted ? "success" : "error" });
-    else set(accepted ? "V10" : "V9", { appt5: { ...a, reply: r }, detail: accepted ? [`นัดรับรถ ${a.from}`, "รอปิดงาน"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }, { msg: `${who} ${accepted ? "ยืนยันนัดหมายแล้ว" : "ปฏิเสธนัดหมาย"}`, tone: accepted ? "success" : "error" });
+    if (kind === 1) set(accepted ? "V4.1" : "V3", { appt1: { ...a, reply: r }, detail: accepted ? [`นัดเข้าอู่ ${a.from}`, "รอตรวจรับรถ"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }, accepted ? T.apptAccepted() : T.apptRejected(unit, key));
+    else set(accepted ? "V10" : "V9", { appt5: { ...a, reply: r }, detail: accepted ? [`นัดรับรถ ${a.from}`, "รอปิดงาน"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }, accepted ? T.apptAccepted() : T.apptRejected(unit, key));
   }
 
   /** จำลองบันทึกไม่สำเร็จ (toast แถว 26): ข้อความที่กรอกมีคำว่า "error" */
@@ -97,13 +98,13 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   async function saveIntake(d: IntakeDraft): Promise<boolean> {
     await wait(600);
     if (fail(...d.checks.map((c) => c.note))) {
-      onNotify("500 Internal Server Error", "error");
+      { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
     const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
     const at = nowStamp();
     const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), engineHours: d.hours ? Number(d.hours.replace(/,/g, "")) : null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
-    set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, { msg: "ยืนยันรับรถสำเร็จ" }); // toast แถว 17
+    set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, T.intakeConfirmed()); // ชีต OH-Toast แถว 17
     return true;
   }
 
@@ -111,41 +112,41 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   async function saveProgress(d: ProgressDraft, id?: string): Promise<boolean> {
     await wait(500);
     if (fail(d.detail, d.note)) {
-      onNotify("500 Internal Server Error", "error");
+      { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
     const log = job.progressLog ?? [];
     const next = id ? log.map((e) => (e.id === id ? { ...e, ...d } : e)) : [...log, { id: `pg-${Date.now()}`, at: nowStamp(), ...d }];
     const last = next[next.length - 1];
-    set("V5", { progressLog: next, progress: last?.percent ?? 0 }, { msg: id ? "แก้ไขความคืบหน้าสำเร็จ" : "เพิ่มความคืบหน้าสำเร็จ" });
+    set("V5", { progressLog: next, progress: last?.percent ?? 0 }, id ? T.progressEdited() : T.progressAdded() /* แถว 19 · 18 */);
     return true;
   }
   async function deleteProgress(id: string): Promise<boolean> {
     await wait(400);
     const next = (job.progressLog ?? []).filter((e) => e.id !== id);
-    set("V5", { progressLog: next, progress: next[next.length - 1]?.percent ?? 0 }, { msg: "ลบรายละเอียดการติดตามสำเร็จ" } /* L.3 (จอมีช่องว่างเกินก่อน "สำเร็จ") */);
+    set("V5", { progressLog: next, progress: next[next.length - 1]?.percent ?? 0 }, T.progressDeleted() /* แถว 20 */);
     return true;
   }
   async function finishRepair(): Promise<boolean> {
     await wait(500);
-    set("V6", { progress: 100, detail: [`ซ่อมเสร็จ ${nowStamp().slice(0, 10)}`, "รอตรวจสภาพ"] }, { msg: "บันทึกซ่อมสำเร็จ" });
+    set("V6", { progress: 100, detail: [`ซ่อมเสร็จ ${nowStamp().slice(0, 10)}`, "รอตรวจสภาพ"] }, T.repairDone() /* แถว 21 */);
     return true;
   }
 
   async function confirmInspection(d: Omit<Inspection, "confirmedAt">): Promise<boolean> {
     await wait(600);
     if (fail(...[...d.safety, ...d.other, ...d.photos].map((f) => f.name))) {
-      onNotify("500 Internal Server Error", "error");
+      { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
-    set("V7", { inspection: { ...d, confirmedAt: nowStamp() }, detail: ["ตรวจสภาพแล้ว", "รอนัดรับรถ"] }, { msg: "ยืนยันการตรวจสอบสำเร็จ" }); // toast แถว 22
+    set("V7", { inspection: { ...d, confirmedAt: nowStamp() }, detail: ["ตรวจสภาพแล้ว", "รอนัดรับรถ"] }, T.inspectionConfirmed()); // ชีต OH-Toast แถว 22
     return true;
   }
 
   // ขั้น 6–7 (S14 · S15 · S20)
   const closeDefaults: CloseDraft = {
     returnedAt: job.direct5?.date ?? job.appt5?.reply?.date ?? "",
-    receiver: (job.direct5?.receiverId ? staff.find((s) => s.id === job.direct5!.receiverId)?.name : undefined) ?? job.appt5?.reply?.deliverer ?? "",
+    receiver: (job.direct5?.coordinatorId ? staff.find((s) => s.id === job.direct5!.coordinatorId)?.name : undefined) ?? job.appt5?.reply?.deliverer ?? "",
     body: seedSmiParts() /* บอร์ด 0.2: อะไหล่ที่เบิกจากคลัง (SMI) อยู่ในตารางตัวรถ แทนตาราง "คืนอะไหล่" แยก */,
     tools: [],
     stock: [],
@@ -156,11 +157,11 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   async function closeJob(d: CloseDraft): Promise<boolean> {
     await wait(600);
     if (fail(d.receiver)) {
-      onNotify("500 Internal Server Error", "error"); // toast แถว 26
+      { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
     const close = { ...d, stock: d.stock.map((x) => ({ ...x, sent: x.withdrawn > x.used })), closedAt: nowStamp() };
-    set("V10.2", { close, progress: 100, detail: [`ส่งมอบรถ ${d.returnedAt}`, "รอส่งอนุมัติปิดงาน"] }, { msg: "ปิดงานสำเร็จ" }); // O.3 toast ตรงจอ
+    set("V10.2", { close, progress: 100, detail: [`ส่งมอบรถ ${d.returnedAt}`, "รอส่งอนุมัติปิดงาน"] }, T.closed()); // ชีต OH-Toast แถว 23
     return true;
   }
   /** ขั้น 7 — เจ้าของงาน 17 พ.ย. 2569 (แทนมติ Refinement 9/11/2026 ที่ปิดงานทันที): ส่งอนุมัติต้องเลือกผู้อนุมัติ (ตามจอ UAT "ส่งอนุมัติเพื่อปิดงาน Overhaul")
@@ -170,7 +171,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     if (!job.close) return false;
     const resend = job.code === "V10.3";
     const approver = staff.find((s) => s.id === approverId);
-    set("V10.3", { progress: 100, close: { ...job.close, returned: undefined, approval: { sentAt: resend && job.close.approval ? job.close.approval.sentAt : nowStamp(), sentBy: "กบค. (ผู้ใช้งานปัจจุบัน)", approverId } }, detail: [`ส่งอนุมัติ ${todayThai()}`, `รอ ${approver?.name ?? "ผู้อนุมัติ"} อนุมัติ`] }, { msg: resend ? "แก้ไขผู้อนุมัติสำเร็จ" : "ส่งอนุมัติสำเร็จ" });
+    set("V10.3", { progress: 100, close: { ...job.close, returned: undefined, approval: { sentAt: resend && job.close.approval ? job.close.approval.sentAt : nowStamp(), sentBy: "กบค. (ผู้ใช้งานปัจจุบัน)", approverId } }, detail: [`ส่งอนุมัติ ${todayThai()}`, `รอ ${approver?.name ?? "ผู้อนุมัติ"} อนุมัติ`] }, resend ? { msg: "แก้ไขผู้อนุมัติสำเร็จ" } /* ไม่มีในชีต */ : T.approvalSent() /* แถว 25 */);
     return true;
   }
 
@@ -188,7 +189,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
             {job.direct1 ? (
               /* นำรถเข้า (16 พ.ย. 2569): แสดงข้อมูลที่บันทึกตอนเลือก "นำรถเข้า" */
               <dl className="rounded-lg bg-gray-50 p-6">
-                <Row cols={3} items={[["วันที่นำรถเข้า", job.direct1.date], ["ผู้ประสานงาน", staff.find((x) => x.id === job.direct1!.coordinatorId)?.name], ["เบอร์โทรศัพท์ผู้รับมอบรถ", staff.find((x) => x.id === job.direct1!.coordinatorId)?.phone]]} />
+                <Row cols={3} items={[["วันที่นำรถเข้า", job.direct1.date], ["ผู้ส่งมอบรถ", staff.find((x) => x.id === job.direct1!.coordinatorId)?.name], ["เบอร์โทรศัพท์ผู้ส่งมอบรถ", staff.find((x) => x.id === job.direct1!.coordinatorId)?.phone]]} />
               </dl>
             ) : (
               <p className="text-md text-gray-600">ข้ามขั้นตอนนัดหมาย (ยานพาหนะอยู่ที่อู่แล้ว)</p>
@@ -217,6 +218,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         <StepIntake
           key={`i-${job.code}`}
           intake={job.intake}
+          defaultDeliverer={job.direct1?.coordinatorId}
           staff={staff}
           readOnly={ro}
           onBack={onGoPO}
@@ -238,8 +240,8 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           <section className="flex flex-col gap-6">
             <SectionHeader title="รายละเอียดการรับรถคืน" />
             <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
-              <Row cols={3} items={[["รูปแบบการรับรถคืน", "ไม่มีการนัดหมาย"], ["วันที่ส่งมอบรถคืน", job.direct5.date], ["ผู้ประสานงาน", who(job.direct5.coordinatorId)?.name]]} />
-              <Row cols={3} items={[["ผู้รับรถ (หน่วยงาน)", who(job.direct5.receiverId)?.name], ["เบอร์โทรศัพท์ผู้รับรถ", who(job.direct5.receiverId)?.phone]]} />
+              <Row cols={3} items={[["รูปแบบการรับรถคืน", "ไม่มีการนัดหมาย"], ["วันที่ส่งมอบรถคืน", job.direct5.date], ["ผู้รับมอบรถ", who(job.direct5.coordinatorId)?.name]]} />
+              <Row cols={3} items={[["เบอร์โทรศัพท์ผู้รับมอบรถ", who(job.direct5.coordinatorId)?.phone]]} />
             </dl>
           </section>
         );
@@ -294,7 +296,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         badge={<OutlineBadge tone={BADGE[st.tone]}>{st.label}</OutlineBadge>}
         /* ภาพเจ้าของงาน 16 พ.ย. 2569 · ตัดทศนิยมไม่ปัด (กติกาเดียวกับตาราง) · ไม่แสดงในหน้าขั้น 6 ปิดงาน (เจ้าของงาน 16 พ.ย. 2569) */
         /* เจ้าของงาน 16 พ.ย. 2569: ไม่แสดงในขั้น 6–7 และเมื่อครบ 100% แล้ว (ซ่อมสำเร็จ) */
-        subtitle={view >= 6 || (job.progress ?? 0) >= 100 ? undefined : `ความคืบหน้า ${truncateProgress(job.progress ?? 0)}%`}
+        /* เจ้าของงาน 17 พ.ย. 2569: ไม่แสดง "ความคืบหน้า n%" ใต้ทะเบียนทุกหน้า (เดิมซ่อนเฉพาะขั้น 6–7 / 100%) */
         actions={actions}
       />
       {top}

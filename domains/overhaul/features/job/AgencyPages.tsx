@@ -25,6 +25,7 @@ import type { PlanVehicle } from "../vehicle/types";
 import { JobPage } from "./JobPage";
 import { usePrototypeFill } from "../../prototype/MockTools";
 import { Row } from "./StepAppointment";
+import { GIVER_INFO, RECEIVER_INFO } from "../shared/messages";
 
 export interface AgencyItem {
   job: VehicleJob;
@@ -109,7 +110,7 @@ export function AgencyList({ items, units, unit, onUnit, onOpen }: { items: Agen
 }
 
 /** หน้ายานพาหนะรายคัน (มุมหน่วยงาน) + ตอบรับนัดหมาย */
-export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item: AgencyItem; staff: Staff[]; onBack: () => void; onSubmit: (a: AgencyAnswer) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info") => void }) {
+export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item: AgencyItem; staff: Staff[]; onBack: () => void; onSubmit: (a: AgencyAnswer) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void }) {
   const { job, po, plan, vehicle, garage } = item;
   const kind = kindOf(job);
   const W = WORD[kind];
@@ -201,8 +202,9 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
               </dl>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <TextField label={W.range} readOnly value={appt ? `${appt.from} - ${appt.to}` : ""} />
-                <TextField label="ผู้ประสานงาน (กบค.)" readOnly value={coord?.name ?? ""} />
-                <TextField label="เบอร์โทรผู้ประสานงาน (กบค.)" readOnly value={coord?.phone ?? ""} />
+                {/* เจ้าของงาน 17 พ.ย. 2569: นัดนำรถเข้า = ผู้ส่งมอบรถ (หน่วยงาน) · นัดรับรถ = ผู้รับมอบรถ (หน่วยงาน) */}
+                <TextField label={kind === 1 ? "ผู้ส่งมอบรถ" : "ผู้รับมอบรถ"} info={kind === 1 ? GIVER_INFO : RECEIVER_INFO} readOnly value={coord?.name ?? ""} />
+                <TextField label={kind === 1 ? "เบอร์โทรศัพท์ผู้ส่งมอบรถ" : "เบอร์โทรศัพท์ผู้รับมอบรถ"} readOnly value={coord?.phone ?? ""} />
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <DateField
@@ -223,7 +225,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
                   emptyText="ไม่พบรายชื่อ"
                   value={personId}
                   onChange={setPersonId}
-                  options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }))}
+                  options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: `${s.id} · ${s.role}`, keywords: s.id }))}
                 />
                 <TextField label={`เบอร์โทร${W.person}`} readOnly placeholder={`แสดงเมื่อเลือก${W.person}`} value={person?.phone ?? ""} />
               </div>

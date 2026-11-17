@@ -15,7 +15,7 @@ const assert = require('node:assert/strict');
     await b.getByRole('button', {name: 'ปฏิเสธนัดหมาย', exact: true}).click();
     await b.getByPlaceholder('ระบุเหตุผล', {exact:true}).fill('ติดภารกิจ ทดสอบ sync');
     await b.getByRole('dialog').getByRole('button', {name: 'ปฏิเสธนัดหมาย', exact: true}).click();
-    await b.getByText('ตอบกลับสำเร็จ', {exact: true}).waitFor();
+    await b.getByText(/ยืนยันนัดหมายแล้ว|ปฏิเสธนัดหมาย/).first().waitFor(); // ชีต OH-Toast แถว 15 / 16
     await a.getByText('ติดภารกิจ ทดสอบ sync', {exact: false}).first().waitFor();
     await a.reload(); await a.getByText('ติดภารกิจ ทดสอบ sync', {exact: false}).first().waitFor();
     // Resend from coordinator; the already-open agency tab must receive the new appointment.

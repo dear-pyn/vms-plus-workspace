@@ -2,10 +2,11 @@
  *  Input label ปัจจุบัน (16/600 gray-600 ห่าง 8) · .f label small "(ถ้ามี)" · .f .help (error 14 error-600 ห่าง 6) ·
  *  .f .in input (h40 · r8 · pad 12 · ขอบ gray-300 · เงา xs · focus ขอบ brand-800 + วงแหวน) · .f.err (ขอบ error-300) · .f.ro (Display: พื้น gray-50 ตัวอักษร gray-700)
  *  - ช่องบังคับ "ไม่มี" เครื่องหมาย * (ไลบรารี Input label ไม่มี) — ช่องไม่บังคับต่อท้าย "(ถ้ามี)" ตามไลบรารี
- *  - **Info icon = ปิด** ทุกช่อง (เจ้าของงานเคาะ 19 ต.ค. 2569) — component นี้ไม่มีช่องให้ใส่ไอคอน info
+ *  - **Info icon** ปิดเป็นค่าตั้งต้น (เจ้าของงานเคาะ 19 ต.ค. 2569) · เปิดเฉพาะช่องที่ส่ง `info` (เจ้าของงาน 17 พ.ย. 2569: ผู้ส่งมอบรถ) → ไอคอน info-24-300-round + `Tooltip`
  *  Remote key: 100b172084b1ad5149031c2be07b944e763d0614 · ห้ามยึดสเปก label เก่า */
 import type { ReactNode } from "react";
 import { cx } from "./cx";
+import { InfoTooltip, type TooltipContent } from "./Tooltip";
 
 /** กล่องช่องกรอก (ใช้ร่วม TextField/SelectField/Combobox/DateField) — `focus-within` ให้วงแหวนตามกล่อง */
 export function fieldBoxClass({ error, readOnly, autoFilled, disabled }: { error?: boolean; readOnly?: boolean; autoFilled?: boolean; disabled?: boolean }) {
@@ -39,12 +40,14 @@ export interface FieldShellProps {
   error?: ReactNode;
   /** ข้อความช่วย (ถ้าไม่มี error) — 12 gray-600 ตาม Helper ของไลบรารี */
   helper?: ReactNode;
+  /** ไอคอน info ท้ายป้าย + Tooltip (ค่าตั้งต้นปิด) */
+  info?: TooltipContent;
   className?: string;
   children: ReactNode;
 }
 
 /** โครง label + ช่อง + error/helper ของทุกช่องกรอก */
-export function FieldShell({ id, label, optional, error, helper, className, children }: FieldShellProps) {
+export function FieldShell({ id, label, optional, error, helper, info, className, children }: FieldShellProps) {
   return (
     <div className={cx("min-w-0", className)}>
       {label && (
@@ -52,6 +55,7 @@ export function FieldShell({ id, label, optional, error, helper, className, chil
           {label}
           {/* leading-6 ซ้ำที่ (ถ้ามี) — text-md ของ theme ตั้ง line-height เอง ทำให้ป้ายที่มี "(ถ้ามี)" สูงกว่า → ช่องกรอกไม่ตรงแนวกัน (เจ้าของงาน 16 พ.ย. 2569) */}
           {optional && <small className="text-md leading-6 font-normal text-gray-400"> (ถ้ามี)</small>}
+          {info && <InfoTooltip {...info} />}
         </label>
       )}
       {children}

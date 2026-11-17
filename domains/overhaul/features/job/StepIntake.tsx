@@ -2,7 +2,7 @@
 /** ขั้น 2 ตรวจรับรถ — ตามภาพ UAT ที่เจ้าของงานส่ง 16 พ.ย. 2569 (แทนจอ OH2 / I.1–I.7 และการส่งขอยืนยัน 2 ฝ่ายของ FigJam Section 12)
  *  ลำดับ: Section header "รายการเอกสารรับรถ" · Table Alternating fills
  *    (รายการ · มี/ไม่มี = Radio button · ชำรุด/ผิดรุ่น = Checkbox (เลือกได้เมื่อ "มี") · หมายเหตุ = Text input · ข้อแบตเตอรี่มีช่องยี่ห้อ + จำนวน ลูก)
- *  → Section header "ลงนามการรับมอบรถ" · Input dropdown พิมพ์ค้น 2 ช่อง (ผู้ส่งมอบรถ · ผู้รับมอบ (กบค.))
+ *  → Section header "ลงนามการรับมอบรถ" · Input dropdown พิมพ์ค้น 2 ช่อง (ผู้ส่งมอบรถ · ผู้รับมอบรถ (กบค.))
  *  → File upload Type=Gallery "รูปสภาพยานพาหนะ (ก่อน Overhaul)" (ตาม I.1 + FigJam Section 12)
  *  → Secondary button lg "ย้อนกลับ" · Primary button lg "บันทึกและถัดไป" (disable จนตอบ มี/ไม่มี ครบทุกข้อ + เลือกผู้ลงนามครบ)
  *  ย้อนดู (ขั้นที่ผ่านแล้ว) = ตารางปิดแก้ไข · ผู้ลงนามเป็น Text input Readonly (ภาพ UAT ชุดแรก)
@@ -22,6 +22,7 @@ import { useLeaveGuard } from "../shared/useLeaveGuard";
 import { PhotoUploader } from "../shared/PhotoUploader";
 import type { CheckItem, Intake, Staff, Photo } from "../po/types";
 import { BATTERY, emptyChecks, intakeComplete } from "./intake";
+import { GIVER_INFO } from "../shared/messages";
 
 export interface IntakeDraft {
   /** เลขไมล์ปัจจุบัน (กม.) — ข้อความที่มีจุลภาค ("182,400") */
@@ -35,9 +36,11 @@ export interface IntakeDraft {
 }
 
 export function StepIntake({
-  intake, staff, readOnly, onBack, onSave,
+  intake, staff, readOnly, onBack, onSave, defaultDeliverer,
 }: {
   intake?: Intake;
+  /** ขั้น 1 "ไม่มีการนัดหมาย" เลือกผู้ส่งมอบรถไว้แล้ว → ตั้งต้นช่องผู้ส่งมอบรถ (หน่วยงาน) (17 พ.ย. 2569) */
+  defaultDeliverer?: string;
   staff: Staff[];
   readOnly?: boolean;
   onBack: () => void;
@@ -45,8 +48,8 @@ export function StepIntake({
   onSave: (d: IntakeDraft) => Promise<boolean>;
 }) {
   const init = useMemo<IntakeDraft>(
-    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", hours: intake?.engineHours != null ? intake.engineHours.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? "", receiverId: intake?.receiverId ?? "" }),
-    [intake],
+    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", hours: intake?.engineHours != null ? intake.engineHours.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? defaultDeliverer ?? "", receiverId: intake?.receiverId ?? "" }),
+    [intake, defaultDeliverer],
   );
   const [f, setF] = useState(init);
   const [busy, setBusy] = useState(false);
@@ -172,28 +175,29 @@ export function StepIntake({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {locked ? (
             <>
-              <TextField label="ผู้ส่งมอบรถ" readOnly value={name(f.delivererId)} />
-              <TextField label="ผู้รับมอบ (กบค.)" readOnly value={name(f.receiverId)} />
+              <TextField label="ผู้ส่งมอบรถ" info={GIVER_INFO} readOnly value={name(f.delivererId)} />
+              <TextField label="ผู้รับมอบรถ (กบค.)" readOnly value={name(f.receiverId)} />
             </>
           ) : (
             <>
               <Combobox
                 minChars={3}
                 label="ผู้ส่งมอบรถ"
-                placeholder="เลือกหรือค้นหาผู้ส่งมอบรถ"
+                info={GIVER_INFO}
+                placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
                 emptyText="ไม่พบรายชื่อ"
                 value={f.delivererId}
                 onChange={(v) => setF({ ...f, delivererId: v })}
-                options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }))}
+                options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: `${s.id} · ${s.role}`, keywords: s.id }))}
               />
               <Combobox
                 minChars={3}
-                label="ผู้รับมอบ (กบค.)"
-                placeholder="เลือกหรือค้นหาผู้รับมอบ (กบค.)"
+                label="ผู้รับมอบรถ (กบค.)"
+                placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
                 emptyText="ไม่พบรายชื่อ"
                 value={f.receiverId}
                 onChange={(v) => setF({ ...f, receiverId: v })}
-                options={staff.filter((s) => s.unit === "กบค.").map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }))}
+                options={staff.filter((s) => s.unit === "กบค.").map((s) => ({ value: s.id, label: s.name, sub: `${s.id} · ${s.role}`, keywords: s.id }))}
               />
             </>
           )}

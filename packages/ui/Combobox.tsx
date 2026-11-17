@@ -7,6 +7,7 @@
  *  ใช้เมื่อ: ตัวเลือกเยอะ ต้องพิมพ์ค้น (ศูนย์บริการ/อู่ · ผู้ประสานงาน) — ตัวเลือกน้อยใช้ <SelectField>
  *  minChars (เจ้าของงานสั่ง 16 พ.ย. 2569 "รายชื่อคนต้อง search 3 ตัวก่อนถึงจะเจอชื่อ"): พิมพ์ไม่ครบ = ไม่แสดงรายชื่อ แสดงข้อความแนะนำแทน */
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import type { TooltipContent } from "./Tooltip";
 import { FieldShell, fieldBoxClass, fieldControlClass } from "./Field";
 import { Floating } from "./Floating";
 import { Icon } from "./Icon";
@@ -22,12 +23,14 @@ export interface ComboOption {
 }
 
 export function Combobox({
-  label, optional, error, helper, options, value, onChange, placeholder, emptyText = "ไม่พบข้อมูล", icon = "search", className, disabled, footer, minChars = 0,
+  label, optional, error, helper, info, options, value, onChange, placeholder, emptyText = "ไม่พบข้อมูล", icon = "search", className, disabled, footer, minChars = 0,
 }: {
   label?: ReactNode;
   optional?: boolean;
   error?: ReactNode;
   helper?: ReactNode;
+  /** ไอคอน info ท้ายป้าย + Tooltip */
+  info?: TooltipContent;
   options: ComboOption[];
   value: string;
   onChange: (v: string) => void;
@@ -73,7 +76,7 @@ export function Combobox({
   };
 
   return (
-    <FieldShell id={id} label={label} optional={optional} error={error} helper={helper} className={className}>
+    <FieldShell id={id} label={label} optional={optional} error={error} helper={helper} info={info} className={className}>
       <div ref={box} className="relative">
         <div ref={field} className={fieldBoxClass({ error: !!error, disabled })}>
           <Icon name={icon} size={24} className="pointer-events-none ml-0.5 text-gray-500" />

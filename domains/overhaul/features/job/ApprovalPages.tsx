@@ -73,7 +73,7 @@ export function ApprovalList({ items, staff, me, onMe, onOpen }: { items: Agency
 }
 
 /** หน้ายานพาหนะรายคัน (มุมผู้อนุมัติ) + ปุ่มอนุมัติ/ส่งกลับแก้ไข */
-export function ApprovalReview({ item, staff, me, onBack, onDecide, onNotify }: { item: AgencyItem; staff: Staff[]; me: string; onBack: () => void; onDecide: (d: ApprovalDecision) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info") => void }) {
+export function ApprovalReview({ item, staff, me, onBack, onDecide, onNotify }: { item: AgencyItem; staff: Staff[]; me: string; onBack: () => void; onDecide: (d: ApprovalDecision) => Promise<boolean>; onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void }) {
   const { job, po, plan, vehicle, garage } = item;
   const [ask, setAsk] = useState(false);
   const [reason, setReason] = useState("");

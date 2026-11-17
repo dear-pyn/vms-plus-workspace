@@ -23,12 +23,12 @@ export const CASES: CaseDef[] = [
   { id: "s1-wait", group: "ขั้น 1 การนำรถเข้าอู่", title: "ส่งนัดแล้ว รอหน่วยงานตอบกลับ", code: "V2", progress: 0, detail: ["นัดเข้าอู่ 22 – 24/10/2569", "รอหน่วยงานตอบรับ"] },
   {
     id: "s1-reject", group: "ขั้น 1 การนำรถเข้าอู่", title: "หน่วยงานปฏิเสธนัด (แก้นัดแล้วส่งใหม่)", code: "V3", progress: 0, detail: ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"],
-    tweak: (j) => ({ ...j, appt1: { from: "22/10/2569", to: "24/10/2569", coordinatorId: "500101", note: "", sentAt: "19/10/2569", reply: { accepted: false, reason: "ช่วงวันดังกล่าวยานพาหนะออกปฏิบัติงาน (สะดวกช่วง 01/12/2569 - 05/12/2569)", at: "20/10/2569" } } }),
+    tweak: (j) => ({ ...j, appt1: { from: "22/10/2569", to: "24/10/2569", coordinatorId: "600201", note: "", sentAt: "19/10/2569", reply: { accepted: false, reason: "ช่วงวันดังกล่าวยานพาหนะออกปฏิบัติงาน (สะดวกช่วง 01/12/2569 - 05/12/2569)", at: "20/10/2569" } } }),
   },
   { id: "s2-wait", group: "ขั้น 2 ตรวจรับรถ", title: "รอตรวจรับรถ (มาจากการนัดหมาย)", code: "V4.1", progress: 0, detail: ["นัดเข้าอู่ 07/10/2569", "รอตรวจรับรถ"] },
   {
     id: "s2-direct", group: "ขั้น 2 ตรวจรับรถ", title: "รอตรวจรับรถ (ขั้น 1 เลือกไม่มีการนัดหมาย)", code: "V4.1", progress: 0, detail: ["นำรถเข้า 05/10/2569", "รอตรวจรับรถ"],
-    tweak: (j) => ({ ...j, appt1: undefined, skipped1: true, direct1: { date: "05/10/2569", coordinatorId: "500101" } }),
+    tweak: (j) => ({ ...j, appt1: undefined, skipped1: true, direct1: { date: "05/10/2569", coordinatorId: "600201" /* ผู้ส่งมอบรถ (หน่วยงาน) */ } }),
   },
   { id: "s3-doing", group: "ขั้น 3 ติดตามงานซ่อม", title: "กำลังซ่อม (ความคืบหน้า 45%)", code: "V5", progress: 45, detail: ["อยู่อู่ 8 วัน", "รับรถ 07/10/2569"] },
   { id: "s3-full", group: "ขั้น 3 ติดตามงานซ่อม", title: "ครบ 100% กดซ่อมสำเร็จได้", code: "V5", progress: 100, detail: ["อยู่อู่ 25 วัน", "รับรถ 07/10/2569"] },
@@ -42,7 +42,7 @@ export const CASES: CaseDef[] = [
   { id: "s6-appt", group: "ขั้น 6 ปิดงาน", title: "รอปิดงาน (มาจากการนัดรับรถ)", code: "V10", progress: 100, detail: ["นัดรับรถ 08/11/2569", "รอปิดงาน"] },
   {
     id: "s6-direct", group: "ขั้น 6 ปิดงาน", title: "รอปิดงาน (ขั้น 5 เลือกไม่มีการนัดหมาย)", code: "V10.1", progress: 100, detail: ["ส่งมอบรถคืน 09/11/2569", "รอปิดงาน"],
-    tweak: (j) => ({ ...j, appt5: undefined, skipped5: true, direct5: { date: "09/11/2569", coordinatorId: "500101", receiverId: "600201" } }),
+    tweak: (j) => ({ ...j, appt5: undefined, skipped5: true, direct5: { date: "09/11/2569", coordinatorId: "600201" } }),
   },
   { id: "s7-wait", group: "ขั้น 7 ยืนยันการส่งอนุมัติ", title: "รอส่งอนุมัติปิดงาน", code: "V10.2", progress: 100, detail: ["ส่งมอบรถ 09/11/2569", "รอส่งอนุมัติปิดงาน"] },
   {

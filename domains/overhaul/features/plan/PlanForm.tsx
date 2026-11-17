@@ -37,7 +37,7 @@ export interface PlanFormProps {
   onCancel: () => void;
   /** คืน true = สำเร็จ · string = ข้อความผิดพลาดจากระบบ (B.5) */
   onSave: (draft: PlanDraft) => Promise<true | string>;
-  onNotify: (msg: string, tone?: "success" | "error" | "info") => void;
+  onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void;
   onNotInScope: (what: string) => void;
   /** ดูข้อมูลยานพาหนะ / ดูข้อมูลการซ่อม → หน้ายานพาหนะเดิมของระบบ (เปิดแท็บใหม่ ไม่ให้ค่าที่กรอกหาย) */
   onOpenVehicle: (plate: string, tab: "info" | "repair") => void;

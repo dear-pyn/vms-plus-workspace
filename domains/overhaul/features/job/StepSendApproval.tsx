@@ -40,7 +40,7 @@ export function StepSendApproval({
   const returned = job.close?.returned;
   const waiting = job.code === "V10.3";
   const canAct = !viewOnly && (job.code === "V10.2" || waiting);
-  const options = approversOf(staff).map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }));
+  const options = approversOf(staff).map((s) => ({ value: s.id, label: s.name, sub: `${s.id} · ${s.role}`, keywords: s.id }));
 
   usePrototypeFill((mode) => {
     setErr("");

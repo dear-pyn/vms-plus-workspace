@@ -194,7 +194,7 @@ export function StepClose({
   readOnly?: boolean;
   onBack: () => void;
   onClose: (d: CloseDraft) => Promise<boolean>;
-  onNotify: (msg: string, tone?: "success" | "error" | "info") => void;
+  onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void;
 }) {
   const init = useMemo<CloseDraft>(() => (close ? { ...close } : defaults), [close, defaults]);
   const [d, setD] = useState<CloseDraft>(init);
@@ -328,7 +328,7 @@ export function StepClose({
         {d.warranty.on ? (
           <>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <DateField label="วันเริ่มรับประกัน" value={d.warranty.start} onChange={(v) => setD({ ...d, warranty: { ...d.warranty, start: v } })} error={err.start || undefined} />
+              <DateField label="วันเริ่มรับประกัน" placeholder="เลือกวันเริ่มรับประกัน" value={d.warranty.start} onChange={(v) => setD({ ...d, warranty: { ...d.warranty, start: v } })} error={err.start || undefined} />
               {/* เจ้าของงาน 16 พ.ย. 2569: กรอกตัวเลขได้เลย (เดิม Input dropdown 90/180/360/720 วัน) · Text input + หน่วย "วัน" ต่อท้าย */}
               <TextField
                 label="ระยะรับประกัน"

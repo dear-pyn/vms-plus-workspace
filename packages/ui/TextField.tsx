@@ -5,6 +5,7 @@
  *  prefix/suffix = ข้อความ/หน่วยในกล่อง (เช่น "บาท") — ไลบรารีไม่มีช่องนี้ตรงๆ ใช้ตำแหน่ง Leading/Trailing icon แทน */
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { FieldShell, fieldBoxClass, fieldControlClass } from "./Field";
+import type { TooltipContent } from "./Tooltip";
 import { Icon } from "./Icon";
 
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "prefix" | "size"> {
@@ -12,6 +13,8 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   optional?: boolean;
   error?: ReactNode;
   helper?: ReactNode;
+  /** ไอคอน info ท้ายป้าย + Tooltip */
+  info?: TooltipContent;
   /** ไอคอนนำหน้า (Material Symbols) เช่น "search" */
   icon?: string;
   /** ข้อความ/หน่วยนำหน้าในกล่อง */
@@ -28,12 +31,12 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 }
 
 export function TextField({
-  label, optional, error, helper, icon, prefix, suffix, readOnly, autoFilled, disabled, className, inputClassName, id, type = "text", ...rest
+  label, optional, error, helper, info, icon, prefix, suffix, readOnly, autoFilled, disabled, className, inputClassName, id, type = "text", ...rest
 }: TextFieldProps) {
   const auto = useId();
   const fid = id ?? auto;
   return (
-    <FieldShell id={fid} label={label} optional={optional} error={error} helper={helper} className={className}>
+    <FieldShell id={fid} label={label} optional={optional} error={error} helper={helper} info={info} className={className}>
       <div className={fieldBoxClass({ error: !!error, readOnly, autoFilled, disabled })}>
         {icon && <Icon name={icon} size={20} className="ml-0.5 text-gray-500" />}
         {prefix && <span className="shrink-0 text-md text-gray-600">{prefix}</span>}

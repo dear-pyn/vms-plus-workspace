@@ -38,8 +38,8 @@ const CYCLE: Array<[JobCode, number, [string, string?]]> = [
 export function enrichJob(j: VehicleJob): VehicleJob {
   const step = j.code === "V11" ? 7 : JOB_STATUS[j.code].step;
   const out: VehicleJob = { ...j };
-  if (step >= 2 || j.code === "V4") out.appt1 = { from: "06/10/2569", to: "08/10/2569", coordinatorId: "500101", note: "", sentAt: "01/10/2569", reply: { accepted: true, date: "07/10/2569", deliverer: "ผู้นำส่งตัวอย่าง", at: "02/10/2569" } };
-  if (j.code === "V2") out.appt1 = { from: "22/10/2569", to: "24/10/2569", coordinatorId: "500101", note: "นำคู่มือจดทะเบียนรถมาด้วย", sentAt: "19/10/2569" };
+  if (step >= 2 || j.code === "V4") out.appt1 = { from: "06/10/2569", to: "08/10/2569", coordinatorId: "600201", note: "", sentAt: "01/10/2569", reply: { accepted: true, date: "07/10/2569", deliverer: "ผู้นำส่งตัวอย่าง", at: "02/10/2569" } };
+  if (j.code === "V2") out.appt1 = { from: "22/10/2569", to: "24/10/2569", coordinatorId: "600201", note: "นำคู่มือจดทะเบียนรถมาด้วย", sentAt: "19/10/2569" };
   if (step >= 3) {
     const log = [
       { at: "07/10/2569 10:15", who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "ส่งขอยืนยันการรับมอบถึง นายวิชัย ทองดี (ฝั่ง กบค.)" },

@@ -19,6 +19,7 @@ import { SectionHeader, ContentItem } from "@ui/PageHeader";
 import { TextField } from "@ui/TextField";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
 import type { Appointment, DirectIntake, Garage, Staff } from "../po/types";
+import { GIVER_INFO, RECEIVER_INFO } from "../shared/messages";
 
 const WORD = {
   1: { section: "นัดหมายนำรถเข้าอู่", from: "นำรถเข้าตั้งแต่วันที่", range: "ช่วงวันนำรถเข้า", garage: "ชื่ออู่" },
@@ -74,20 +75,20 @@ export function StepAppointment({
   /* ภาพเจ้าของงาน 16 พ.ย. 2569: เปิดหน้ามายังไม่เลือก — ปุ่ม "ยืนยัน" ปิดจนกว่าจะเลือก */
   const [mode, setMode] = useState<"" | "appt" | "direct">(canDirect ? "" : "appt");
   const direct = canDirect && mode === "direct";
-  const [dx, setDx] = useState({ date: "", receiverId: "" });
+  const [dx, setDx] = useState({ date: "" });
   /** เปลี่ยนรูปแบบ = ล้างค่าเก่าทั้งหมด (วันที่ · ผู้ประสานงาน · error) — เจ้าของงาน 16 พ.ย. 2569 */
   const pickMode = (m: "appt" | "direct") => {
     if (m === mode) return;
     setMode(m);
     setF({ from: "", to: "", coordinatorId: "", note: "" });
-    setDx({ date: "", receiverId: "" });
+    setDx({ date: "" });
     setErr({});
   };
   usePrototypeFill((preset) => {
-    const coordinatorId = staff.find((s) => s.unit === "กบค.")?.id || "";
+    const coordinatorId = staff.find((s) => s.unit === (kind === 1 ? "หน่วยงาน" : "กบค."))?.id || "";
     setErr({});
     if (direct) {
-      setDx({ date: preset === "error" ? "99/99/2569" : mockDate(), receiverId: preset === "missing" ? "" : staff.find((s) => s.unit === "หน่วยงาน")?.id || "" });
+      setDx({ date: preset === "error" ? "99/99/2569" : mockDate() });
       setF((x) => ({ ...x, coordinatorId: preset === "missing" ? "" : coordinatorId }));
     } else {
       if (!mode) setMode("appt"); // ยังไม่เลือกรูปแบบ → Mock เลือก "นัดหมาย" ให้ (17 พ.ย. 2569)
@@ -103,9 +104,9 @@ export function StepAppointment({
   }
   function submitDirect() {
     /* "ไม่มีการนัดหมาย" (ภาพ 16 พ.ย. 2569): วันที่นำรถเข้า 1 วัน + ผู้ประสานงาน · ไม่มีช่องเลขไมล์ · ไม่มี Modal ยืนยัน → ไปขั้นตรวจรับรถทันที */
-    const e = { range: checkDirect(), coord: check("coord"), receiver: kind === 5 && !dx.receiverId ? "กรุณาเลือกผู้รับรถ (หน่วยงาน)" : "" };
+    const e = { range: checkDirect(), coord: check("coord") };
     setErr((x) => ({ ...x, ...e }));
-    if (!Object.values(e).some(Boolean)) onSkip({ date: dx.date, coordinatorId: f.coordinatorId, ...(kind === 5 ? { receiverId: dx.receiverId } : {}) });
+    if (!Object.values(e).some(Boolean)) onSkip({ date: dx.date, coordinatorId: f.coordinatorId });
   }
   const dirty = editing && (JSON.stringify(f) !== JSON.stringify(init) || mode === "direct");
 
@@ -127,7 +128,7 @@ export function StepAppointment({
       const s = parseThaiDate(x.from);
       return s && d < s ? "วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม" : "";
     }
-    if (k === "coord") return x.coordinatorId ? "" : "กรุณาเลือกผู้ประสานงาน";
+    if (k === "coord") return x.coordinatorId ? "" : kind === 1 ? "กรุณาเลือกผู้ส่งมอบรถ" : "กรุณาเลือกผู้รับมอบรถ";
     return "";
   }
   async function submit() {
@@ -151,8 +152,9 @@ export function StepAppointment({
       </dl>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <TextField label={w.range} readOnly value={`${appt.from} - ${appt.to}`} />
-        <TextField label="ผู้ประสานงาน (กบค.)" readOnly value={coord?.name ?? ""} />
-        <TextField label="เบอร์โทรผู้ประสานงาน (กบค.)" readOnly value={coord?.phone ?? ""} />
+        {/* เจ้าของงาน 17 พ.ย. 2569: ขั้น 1 = ผู้ส่งมอบรถ (หน่วยงาน) · ขั้น 5 = ผู้รับมอบรถ (หน่วยงาน) — เดิม ผู้ประสานงาน (กบค.) */}
+        <TextField label={kind === 1 ? "ผู้ส่งมอบรถ" : "ผู้รับมอบรถ"} info={kind === 1 ? GIVER_INFO : RECEIVER_INFO} readOnly value={coord?.name ?? ""} />
+        <TextField label={kind === 1 ? "เบอร์โทรศัพท์ผู้ส่งมอบรถ" : "เบอร์โทรศัพท์ผู้รับมอบรถ"} readOnly value={coord?.phone ?? ""} />
       </div>
     </>
   );
@@ -215,11 +217,15 @@ export function StepAppointment({
   /* ขั้น 1 ตามภาพเจ้าของงาน 16 พ.ย. 2569 (3 สถานะ: ยังไม่เลือก · นัดหมาย · ไม่มีการนัดหมาย):
      Section header "รูปแบบการนำรถเข้าอู่" + Radio text card 2 ใบ · Section header "รายละเอียดการนำรถเข้า" + กล่องเทาข้อมูลอู่ ·
      แถว 3 ช่อง: ช่วงเวลาที่นำรถเข้า (นัดหมาย = ช่วงวัน · ไม่มีการนัดหมาย = วันเดียว) · ผู้ประสานงาน (Input dropdown) · เบอร์โทรศัพท์ผู้รับมอบรถ (ระบบเติมให้)
-     ขั้น 5 / แก้นัดที่ส่งแล้ว ใช้คำเดิม ("รายละเอียดการนัดหมาย" · ผู้ประสานงาน (กบค.)) */
+     ขั้น 5 / แก้นัดที่ส่งแล้ว ใช้ "รายละเอียดการนัดหมาย" · ผู้รับมอบรถ (หน่วยงาน) (เจ้าของงาน 17 พ.ย. 2569 เดิม ผู้ประสานงาน (กบค.)) */
   const L = kind === 1
-    ? { mode: "รูปแบบการนำรถเข้าอู่", apptDesc: "หน่วยงานนัดหมายกับเจ้าของรถก่อนนำรถเข้า", directDesc: "กรณีที่รถถึงอู่ก่อนมีการนัดหมาย", detail: "รายละเอียดการนำรถเข้า", range: "ช่วงเวลาที่นำรถเข้า", day: "ช่วงเวลาที่นำรถเข้า", coord: "ผู้ประสานงาน", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" }
-    : { mode: "รูปแบบการรับรถคืน", apptDesc: "นัดหน่วยงานมารับรถที่อู่", directDesc: "หน่วยงานรับรถคืนแล้ว หรือส่งคืนโดยไม่ต้องนัด", detail: "รายละเอียดการรับรถคืน", range: "ช่วงเวลาที่นัดรับรถ", day: "วันที่ส่งมอบรถคืน", coord: "ผู้ประสานงาน", phone: "เบอร์โทรศัพท์ผู้ประสานงาน" };
-  const receiver = staff.find((s) => s.id === dx.receiverId);
+    ? { mode: "รูปแบบการนำรถเข้าอู่", apptDesc: "หน่วยงานนัดหมายกับเจ้าของรถก่อนนำรถเข้า", directDesc: "กรณีที่รถถึงอู่ก่อนมีการนัดหมาย", detail: "รายละเอียดการนำรถเข้า", range: "ช่วงเวลาที่นำรถเข้า", day: "วันที่นำรถเข้า", dayPh: "เลือกวันที่นำรถเข้า", coord: "ผู้ประสานงาน", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" }
+    : { mode: "รูปแบบการรับรถคืน", apptDesc: "นัดหน่วยงานมารับรถที่อู่", directDesc: "หน่วยงานรับรถคืนแล้ว หรือส่งคืนโดยไม่ต้องนัด", detail: "รายละเอียดการรับรถคืน", range: "ช่วงเวลาที่นัดรับรถ", day: "วันที่ส่งมอบรถคืน", dayPh: "เลือกวันที่ส่งมอบรถคืน", coord: "ผู้รับมอบรถ", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" };
+  /* เจ้าของงาน 17 พ.ย. 2569: ขั้น 1 (ทั้งนัดหมายและไม่มีการนัดหมาย) — "ผู้ประสานงาน" เปลี่ยนเป็น "ผู้ส่งมอบรถ" = คนของหน่วยงานที่นำรถมาส่ง
+     (เลือกจากพนักงานหน่วยงาน ไม่ใช่ กบค.) · ขั้น 5 "ผู้ประสานงาน" เปลี่ยนเป็น "ผู้รับมอบรถ (หน่วยงาน)" = คนของหน่วยงานที่มารับรถคืน (เลือกจากพนักงานหน่วยงาน) ·
+     เก็บใน coordinatorId เหมือนเดิม (ความหมาย = ผู้ส่งมอบรถ เมื่อเป็นขั้น 1 · ผู้รับมอบรถ เมื่อเป็นขั้น 5) */
+  const giver = kind === 1;
+  const P = giver ? { label: "ผู้ส่งมอบรถ", info: GIVER_INFO, unit: "หน่วยงาน", empty: "ไม่พบรายชื่อ", phone: "เบอร์โทรศัพท์ผู้ส่งมอบรถ", hint: "แสดงเมื่อเลือกผู้ส่งมอบรถ" } : { label: L.coord, info: RECEIVER_INFO, unit: "หน่วยงาน", empty: "ไม่พบรายชื่อ", phone: L.phone, hint: "แสดงเมื่อเลือกผู้รับมอบรถ" };
   return (
     <>
       {canDirect && (
@@ -246,6 +252,7 @@ export function StepAppointment({
           {direct ? (
             <DateField
               label={L.day}
+              placeholder={L.dayPh} /* เจ้าของงาน 17 พ.ย. 2569: ไม่มีการนัดหมาย ขั้น 1 "เลือกวันที่นำรถเข้า" · ขั้น 5 "เลือกวันที่ส่งมอบรถคืน" */
               max={new Date()} /* เกิดขึ้นแล้ว — ห้ามเป็นวันในอนาคต */
               value={dx.date}
               onChange={(v) => { setDx((x) => ({ ...x, date: v })); setErr((e) => ({ ...e, range: "" })); }}
@@ -265,35 +272,20 @@ export function StepAppointment({
           )}
           <Combobox
             minChars={3}
-            label={L.coord}
+            label={P.label}
+            info={P.info}
             placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
-            emptyText="ไม่พบผู้ประสานงาน"
+            emptyText={P.empty}
             value={f.coordinatorId}
             onChange={(v) => {
               setF({ ...f, coordinatorId: v });
               setErr((e) => ({ ...e, coord: "" }));
             }}
-            options={staff.filter((s) => s.unit === "กบค.").map((s) => ({ value: s.id, label: s.name, sub: `${s.role} · ${s.phone}`, keywords: s.id }))}
+            options={staff.filter((s) => s.unit === P.unit).map((s) => ({ value: s.id, label: s.name, sub: `${s.id} · ${s.role} · ${s.phone}`, keywords: s.id }))}
             error={err.coord || undefined}
           />
-          <TextField label={L.phone} autoFilled placeholder="แสดงเมื่อเลือกผู้ประสานงาน" value={coord?.phone ?? ""} />
+          <TextField label={P.phone} autoFilled placeholder={P.hint} value={coord?.phone ?? ""} />
         </div>
-        {/* ขั้น 5 "ไม่มีการนัดหมาย": ต้องรู้ว่าใครรับรถไป (เจ้าของงาน 16 พ.ย. 2569 — บังคับ) */}
-        {kind === 5 && direct && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Combobox
-              minChars={3}
-              label="ผู้รับรถ (หน่วยงาน)"
-              placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
-              emptyText="ไม่พบรายชื่อ"
-              value={dx.receiverId}
-              onChange={(v) => { setDx((x) => ({ ...x, receiverId: v })); setErr((e) => ({ ...e, receiver: "" })); }}
-              options={staff.filter((s) => s.unit === "หน่วยงาน").map((s) => ({ value: s.id, label: s.name, sub: s.role, keywords: s.id }))}
-              error={err.receiver || undefined}
-            />
-            <TextField label="เบอร์โทรศัพท์ผู้รับรถ" autoFilled placeholder="แสดงเมื่อเลือกผู้รับรถ" value={receiver?.phone ?? ""} />
-          </div>
-        )}
       </section>
       <div className="flex items-center justify-between gap-6" /* H.1 ไม่มีเส้นคั่นเหนือปุ่ม */>
         {/* แก้นัดที่ส่งแล้ว: ย้อนกลับ = กลับหน้ารอตอบกลับ (ไม่บันทึก) */}

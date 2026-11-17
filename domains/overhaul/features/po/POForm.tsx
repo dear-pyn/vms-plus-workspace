@@ -6,6 +6,7 @@
  *    ยานพาหนะมาจากที่เลือกไว้ตอนสร้างแผนเท่านั้น (ราคากลาง/ประเมิน Overhaul ได้มาจากแผน) · ตาราง + แบ่งหน้า 10 แถว ·
  *    ไม่มีคอลัมน์ความคืบหน้า · ปุ่มท้ายแถว = ลบออกจาก Purchase Order อย่างเดียว (ตาม F.2 ไอคอน delete) ·
  *    บันทึกไม่ได้เมื่อยานพาหนะถูกนำออกจากแผน → modal แจ้ง */
+import { GENERAL_ERROR, T } from "../shared/messages";
 import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockDate, mockFile } from "../../prototype/fixtures";
 import { useMemo, useState } from "react";
@@ -41,7 +42,7 @@ export interface POFormProps {
   onGoPlans: () => void;
   onGoPlan: () => void;
   onSave: (d: PODraft) => Promise<POSaveResult>;
-  onNotify: (msg: string, tone?: "success" | "error" | "info") => void;
+  onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void;
 }
 
 const MAX_FILES = 10;
@@ -96,7 +97,8 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
     setSaving(true);
     const r = await runSave(() => onSave(d));
     setSaving(false);
-    if (typeof r === "string") onNotify(r, "error"); // E.7 General Error
+    // ชีต OH-Toast แถว 11: General Error → หัวข้อ "บันทึกข้อมูลไม่สำเร็จ" + Status Code · แถว 12 ไม่พบแผน = ข้อความเดียว
+    if (typeof r === "string") { if (r === GENERAL_ERROR) onNotify(T.poSaveFail().msg, "error", r); else onNotify(r, "error"); }
     else if (r !== true) {
       // EC-31 เจ้าของงานสั่ง 16 พ.ย. 2569: error toast (ข้อความตรงตัว) + นำคันที่ไม่อยู่ในแผนออกจากตารางทันที (แทน modal ของ FigJam Section 10)
       setD((x) => ({ ...x, plates: x.plates.filter((pl) => !r.removed.includes(pl)) }));

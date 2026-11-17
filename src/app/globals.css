@@ -127,6 +127,7 @@
   --shadow-*: initial;
   --shadow-field: var(--shadow-xs);
   --shadow-float: var(--shadow-pop);
+  --shadow-tooltip: var(--shadow-lg); /* ✔ Tooltip ของไลบรารี (DROP_SHADOW #10182814 y12 blur16 spread-4) */
   --shadow-shell: var(--shadow-app);
   --shadow-ring: 0 0 0 4px var(--focus-ring);
   --shadow-ring-error: 0 0 0 4px var(--focus-ring-error);
