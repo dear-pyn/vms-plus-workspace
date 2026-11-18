@@ -3,7 +3,6 @@
  *  ลิสต์ทุกสถานะของงานรายคัน (แผนเคสทดสอบ ORZ6999999 · PO-699999 ยานพาหนะ 1 คันต่อ 1 สถานะ) + มุมหน่วยงาน + หน้าแผน/PO
  *  ปุ่ม "รีเซ็ตข้อมูลต้นแบบ" ล้าง localStorage กลับเป็นข้อมูลตั้งต้น (เล่นไปแล้วงานเลื่อนขั้น เคสเดิมจะหาย)
  *  component: Page header + Secondary button · Section header · Table + Pill (สถานะในตาราง) · Alert Info */
-import { Alert } from "@ui/Alert";
 import { Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
@@ -60,16 +59,13 @@ export function CasesPage({ jobs }: { jobs: VehicleJob[] }) {
       <PageHeader
         crumbs={[{ label: "สารบัญเคส (ต้นแบบ)" }]}
         title="สารบัญเคส"
-        subtitle="เปิดหน้าจอต้นแบบตามสถานะได้ทันที · ใช้คู่กับปุ่ม Mock · Prototype (เติมครบ / ไม่ครบ / บันทึกไม่สำเร็จ)"
+        subtitle="เครื่องมือของต้นแบบ ไม่ใช่หน้าของระบบจริง · งานจะเลื่อนขั้นตามที่กด ถ้าเคสไหนเลื่อนไปแล้ว กด รีเซ็ตข้อมูลต้นแบบ"
         actions={
           <Button variant="secondary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>
             รีเซ็ตข้อมูลต้นแบบ
           </Button>
         }
       />
-      <Alert tone="info" title="เป็นเครื่องมือของต้นแบบ ไม่ใช่หน้าของระบบจริง">
-        ข้อมูลที่กดเล่นเก็บในเบราว์เซอร์นี้ งานจะเลื่อนขั้นตามที่กด — ถ้าเคสไหนเลื่อนไปแล้ว กด "รีเซ็ตข้อมูลต้นแบบ" เพื่อกลับเป็นข้อมูลตั้งต้น
-      </Alert>
       {groups.map((g) => (
         <section key={g} className="flex flex-col gap-4">
           <SectionHeader title={g} />

@@ -7,7 +7,7 @@
  *  component: Page header + Badge outline · Content item row · Table (ดูอย่างเดียว) · File upload Gallery (ดูอย่างเดียว) · Alert ·
  *    อนุมัติทันที (กติกา submit 17 พ.ย. 2569) · Modal Form + Text area (เหตุผลที่ปฏิเสธ) · Secondary danger / Primary button lg */
 import { useState } from "react";
-import { Alert } from "@ui/Alert";
+import { EmptyState } from "@ui/EmptyState";
 import { OutlineBadge, Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
@@ -55,7 +55,7 @@ export function IntakeApproval({
         }
       />
       {!intake || !mine ? (
-        <Alert tone="info" title="ไม่พบคำขอเซ็นลงนาม">คำขอนี้ถูกยกเลิกหรือส่งใหม่แล้ว ดูคำขอล่าสุดจากแจ้งเตือน</Alert>
+        <EmptyState kind="data-empty" title="ไม่พบคำขอเซ็นลงนาม" description="คำขอนี้ถูกยกเลิกหรือส่งใหม่แล้ว ดูคำขอล่าสุดจากแจ้งเตือน" />
       ) : (
         <>
           <section className="flex flex-col gap-4">

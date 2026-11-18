@@ -7,7 +7,8 @@
  *  component: สรุปงานรายคัน (CloseSummary) · Alert · Secondary/Primary button lg · Modal Form (ปุ่ม ปิด / ส่งอนุมัติ ตามจอ UAT) ·
  *    Input dropdown แบบค้นหา (Combobox ไอคอน person · พิมพ์ 3 ตัวก่อนค้นรายชื่อ ตามกติกา 16 พ.ย. 2569) */
 import { useState } from "react";
-import { Alert } from "@ui/Alert";
+import { SectionHeader } from "@ui/PageHeader";
+import { Row } from "./StepAppointment";
 import { Button } from "@ui/Button";
 import { Combobox } from "@ui/Combobox";
 import { Modal } from "@ui/Modal";
@@ -63,9 +64,13 @@ export function StepSendApproval({
   return (
     <>
       {returned && job.code === "V10.2" && (
-        <Alert tone="error" title={`ผู้อนุมัติส่งกลับแก้ไข ${returned.at}`}>
-          {returned.by} · เหตุผล: {returned.reason}
-        </Alert>
+        /* ตัด Alert (18 พ.ย. 2569) → แถวข้อมูลในกล่องเทา (Content item row) */
+        <section className="flex flex-col gap-4">
+          <SectionHeader title="ผลการพิจารณาปิดงาน" />
+          <dl className="rounded-lg bg-gray-50 p-6">
+            <Row cols={3} items={[["ส่งกลับแก้ไขโดย", returned.by], ["วันที่ส่งกลับ", returned.at], ["เหตุผล", returned.reason]]} />
+          </dl>
+        </section>
       )}
       {/* เจ้าของงาน 17 พ.ย. 2569: ไม่ใส่ Alert info "รออนุมัติปิดงาน" — สถานะดูจาก Badge หัวหน้า · ผู้อนุมัติดู/แก้ได้จากปุ่ม "แก้ไขผู้อนุมัติ" */}
       <CloseSummary job={job} po={po} garage={garage} vehicle={vehicle} />

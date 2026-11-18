@@ -10,7 +10,6 @@ import { GENERAL_ERROR, T } from "../shared/messages";
 import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockDate, mockFile } from "../../prototype/fixtures";
 import { useMemo, useState } from "react";
-import { Alert } from "@ui/Alert";
 import { OutlineBadge } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { Combobox } from "@ui/Combobox";
@@ -235,7 +234,8 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
             />
           </>
         )}
-        {err("vehicles") && <Alert title={err("vehicles")} />}
+        {/* ตัด Alert (18 พ.ย. 2569) → ข้อความ error แบบเดียวกับช่องกรอก (Field error 14 · error-600) */}
+        {err("vehicles") && <p className="text-sm text-error-600" role="alert">{err("vehicles")}</p>}
       </section>
 
       <section className="flex flex-col gap-4">

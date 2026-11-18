@@ -9,7 +9,6 @@
 import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockDate } from "../../prototype/fixtures";
 import { useMemo, useState, type ReactNode } from "react";
-import { Alert } from "@ui/Alert";
 import { Button } from "@ui/Button";
 import { Combobox } from "@ui/Combobox";
 import { DateField, DateRangeField, formatThaiDate, parseThaiDate } from "@ui/DateField";
@@ -155,6 +154,9 @@ export function StepAppointment({
         {/* เจ้าของงาน 17 พ.ย. 2569: ขั้น 1 = ผู้ส่งมอบรถ (หน่วยงาน) · ขั้น 5 = ผู้รับมอบรถ (หน่วยงาน) — เดิม ผู้ประสานงาน (กบค.) */}
         <TextField label={kind === 1 ? "ผู้ส่งมอบรถ" : "ผู้รับมอบรถ"} info={kind === 1 ? GIVER_INFO : RECEIVER_INFO} readOnly value={coord?.name ?? ""} />
         <TextField label={kind === 1 ? "เบอร์โทรศัพท์ผู้ส่งมอบรถ" : "เบอร์โทรศัพท์ผู้รับมอบรถ"} readOnly value={coord?.phone ?? ""} />
+        {/* คำตอบของหน่วยงาน — แทน Alert เดิม (ตัด 18 พ.ย. 2569) · Text input Readonly แบบเดียวกับช่องข้างบน */}
+        {appt.reply?.accepted && appt.reply.date && <TextField label="วันที่หน่วยงานเลือก" readOnly value={appt.reply.date} />}
+        {appt.reply && !appt.reply.accepted && <TextField label="เหตุผลที่หน่วยงานปฏิเสธ" readOnly value={appt.reply.reason || "—"} className="md:col-span-2" />}
       </div>
     </>
   );
@@ -174,8 +176,10 @@ export function StepAppointment({
     return (
       <section className="flex flex-col gap-6">
         <SectionHeader title="รายละเอียดการนัดหมาย" />
-        <dl className="rounded-lg bg-gray-50 p-6">
+        <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
           <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+          {/* หน่วยงานปฏิเสธนัด → เหตุผลเป็นแถวข้อมูล แทน Alert (ตัด 18 พ.ย. 2569) */}
+          {rejected && <Row cols={3} items={[["เหตุผลที่หน่วยงานปฏิเสธ", appt?.reply?.reason]]} />}
         </dl>
         <EmptyState
           kind="data-empty"
@@ -197,12 +201,7 @@ export function StepAppointment({
         <section className="flex flex-col gap-6">
           <SectionHeader title="รายละเอียดการนัดหมาย" />
           {/* เจ้าของงาน 16 พ.ย. 2569: ไม่แสดง Alert "รอหน่วยงานเจ้าของยานพาหนะตอบกลับ" (UAT ไม่มี · สถานะอยู่ที่ป้ายบนหัวหน้าแล้ว) */}
-          {!readOnly && rejected && (
-            <Alert tone="warning" title="หน่วยงานปฏิเสธนัดหมาย">
-              หมายเหตุ: {appt.reply?.reason || "—"}
-            </Alert>
-          )}
-          {appt.reply?.accepted && <Alert tone="success" title={`หน่วยงานยืนยันนัดหมายแล้ว ${appt.reply.at}`}>{appt.reply.date ? `วันที่หน่วยงานเลือก ${appt.reply.date}` : null}{appt.reply.deliverer ? ` · ผู้นำส่งรถ ${appt.reply.deliverer}` : null}</Alert>}
+          {/* เจ้าของงาน 18 พ.ย. 2569 "ตัด alert กล่องสีในหน้าจอ" — คำตอบหน่วยงาน (วันที่เลือก · เหตุผลที่ปฏิเสธ) ย้ายไปเป็นช่องอ่านอย่างเดียวใน summary */}
           {summary}
         </section>
         <div className="flex items-center justify-between gap-3" /* H.5 ไม่มีเส้นคั่น */>
@@ -240,13 +239,10 @@ export function StepAppointment({
       )}
       <section className="flex flex-col gap-6">
         <SectionHeader title={L.detail} />
-        {rejected && (
-          <Alert tone="warning" title="หน่วยงานปฏิเสธนัดหมาย">
-            หมายเหตุ: {appt?.reply?.reason || "—"}
-          </Alert>
-        )}
-        <dl className="rounded-lg bg-gray-50 p-6">
+        <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
           <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+          {/* หน่วยงานปฏิเสธนัด → เหตุผลเป็นแถวข้อมูล แทน Alert (ตัด 18 พ.ย. 2569) */}
+          {rejected && <Row cols={3} items={[["เหตุผลที่หน่วยงานปฏิเสธ", appt?.reply?.reason]]} />}
         </dl>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {direct ? (

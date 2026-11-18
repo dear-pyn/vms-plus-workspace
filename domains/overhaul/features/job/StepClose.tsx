@@ -14,7 +14,6 @@ import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockDate, mockPartForm, mockParts } from "../../prototype/fixtures";
 import { useMemo, useState, type ReactNode } from "react";
 import { currency } from "@rules/currency.mjs";
-import { Alert } from "@ui/Alert";
 import { Button } from "@ui/Button";
 import { DateField, parseThaiDate } from "@ui/DateField";
 import { EmptyState } from "@ui/EmptyState";
@@ -311,7 +310,8 @@ export function StepClose({
 
   return (
     <>
-      {err.parts && <Alert tone="error" title={err.parts}>เพิ่มอะไหล่ในหมวดใดหมวดหนึ่งอย่างน้อย 1 รายการ</Alert>}
+      {/* ตัด Alert (18 พ.ย. 2569) → ข้อความ error แบบช่องกรอก */}
+      {err.parts && <p className="text-sm text-error-600" role="alert">{err.parts} เพิ่มอะไหล่ในหมวดใดหมวดหนึ่งอย่างน้อย 1 รายการ</p>}
       {CATS.map(partsSection)}
       <section className="flex flex-col gap-4">
         <SectionHeader title="ค่าใช้จ่ายในการดำเนินการ Overhaul" />

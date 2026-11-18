@@ -10,7 +10,6 @@ import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockPlan } from "../../prototype/fixtures";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@ui/Button";
-import { Alert } from "@ui/Alert";
 import { OutlineBadge } from "@ui/Badge";
 import { EmptyState } from "@ui/EmptyState";
 import { Icon } from "@ui/Icon";
@@ -206,11 +205,7 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
         ) : (
           <>
             {/* B.19 Alert [Color=Warning] — ราคาไม่บังคับตอนบันทึกแผน (T13 เจ้าของงาน) จึงเป็นคำเตือน ไม่บล็อกการบันทึก */}
-            {missing.length > 0 && (
-              <Alert tone="warning" title="กรุณาระบุราคากลางและราคาประเมิน Overhaul ให้ครบทุกคัน">
-                ยังไม่ระบุ {missing.length} คัน
-              </Alert>
-            )}
+            {/* เจ้าของงาน 18 พ.ย. 2569: ตัด Alert เตือนราคาไม่ครบ (ไม่บล็อกการบันทึกอยู่แล้ว) */}
             {/* ตารางแบบ A.5 ครบชุด (เจ้าของงาน 13 พ.ย. 2569 · D2) */}
             <VehicleBrowser
               rows={d.vehicles}
