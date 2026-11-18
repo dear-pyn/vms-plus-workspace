@@ -21,7 +21,7 @@ import { costRows, sumParts, warrantyEnd } from "./close";
 const baht = (n: number) => `${currency(n)} บาท`;
 
 /** ภาพหน้าปิดงานที่เจ้าของงานส่ง 16 พ.ย. 2569 — อะไหล่ที่ใช้งาน: กล่องเทา แถวละ "รหัส - ชื่อ xจำนวน" ซ้าย · "ราคา บาท" ชิดขวา ·
- *  เส้นคั่น แล้ว "รวมทั้งหมด" ตัวหนา (คงหัวย่อย ตัวรถ / เครื่องมือกล เพราะข้อมูลแยก 2 หมวด) */
+ *  เส้นคั่น แล้ว "รวมทั้งหมด" ตัวหนา · เจ้าของงาน 18 พ.ย. 2569 ให้บรรทัดรวม = font-bold text-gray-600 16px (text-base ใช้ไม่ได้ในธีม → text-md) (คงหัวย่อย ตัวรถ / เครื่องมือกล เพราะข้อมูลแยก 2 หมวด) */
 function PartList({ title, parts }: { title: string; parts: PartUsed[] }) {
   return (
     <div className="flex flex-col gap-3">
@@ -34,8 +34,8 @@ function PartList({ title, parts }: { title: string; parts: PartUsed[] }) {
           </div>
         ))}
         <div className="flex items-center justify-between gap-6 border-t border-gray-300 pt-4">
-          <dt className="text-lg font-semibold text-black">รวมทั้งหมด</dt>
-          <dd className="shrink-0 text-lg font-semibold text-black tabular-nums">{baht(sumParts(parts))}</dd>
+          <dt className="text-md font-bold text-gray-600">รวมทั้งหมด</dt>
+          <dd className="shrink-0 text-md font-bold text-gray-600 tabular-nums">{baht(sumParts(parts))}</dd>
         </div>
       </dl>
     </div>
@@ -55,8 +55,8 @@ function CostList({ rows }: { rows: Array<[string, number]> }) {
         </div>
       ))}
       <div className="flex items-center justify-between gap-6 border-t border-gray-300 pt-4">
-        <dt className="text-lg font-semibold text-black">{totalLabel}</dt>
-        <dd className="shrink-0 text-lg font-semibold text-black tabular-nums">{baht(total)}</dd>
+        <dt className="text-md font-bold text-gray-600">{totalLabel}</dt>
+        <dd className="shrink-0 text-md font-bold text-gray-600 tabular-nums">{baht(total)}</dd>
       </div>
     </dl>
   );
