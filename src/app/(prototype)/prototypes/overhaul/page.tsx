@@ -32,7 +32,7 @@ import { seedGarages } from "@overhaul/mock/garages";
 import { seedStaff } from "@overhaul/mock/staff";
 import { JobPage } from "@overhaul/features/job/JobPage";
 import { IntakeApproval } from "@overhaul/features/job/IntakeApproval";
-import { decideIntake } from "@overhaul/features/job/intake";
+import { signIntake } from "@overhaul/features/job/intake";
 import type { PendingClose } from "@overhaul/features/po/types";
 import { AgencyList, AgencyReply, awaitingReply, type AgencyAnswer, type AgencyItem } from "@overhaul/features/job/AgencyPages";
 import { ApprovalList, ApprovalReview, awaitingApproval, type ApprovalDecision } from "@overhaul/features/job/ApprovalPages";
@@ -481,7 +481,7 @@ export default function OverhaulPrototype() {
       />
     );
   } else if (route.view === "approve" && jobs.some((j) => j.poId === route.po && j.plate === route.plate)) {
-    // FigJam Section 12: ผู้ยืนยันการรับมอบ login แล้วเข้าจากแจ้งเตือน → อนุมัติ/ปฏิเสธ (ต้นแบบเข้าจากหน้างานรายคัน)
+    // เจ้าของงาน 17 พ.ย. 2569: ผู้ส่งมอบรถ/ผู้รับมอบรถ กดแจ้งเตือน → หน้าเซ็นลงนามการรับมอบรถ (ปุ่มเดียว "เซ็นลงนาม")
     const po = pos.find((x) => x.id === route.po)!;
     const jp = plans.find((x) => x.id === po.planId)!;
     const job = jobs.find((j) => j.poId === route.po && j.plate === route.plate)!;
@@ -497,16 +497,15 @@ export default function OverhaulPrototype() {
         me={me}
         staff={staff}
         onBackToJob={() => go({ view: "job", po: po.id, plate: job.plate })}
-        onDecide={async (ok, reason) => {
+        onSign={async () => {
           await wait(600);
           if (!job.intake || !me) return false;
-          if (/error/i.test(reason ?? "")) {
-            notify("500 Internal Server Error", "error");
-            return false;
-          }
-          const intake = decideIntake(job.intake, me.id, ok, reason ?? "", nowStamp(), me.name);
-          setJobs((js) => js.map((j) => (j === job ? { ...j, intake, detail: ok ? j.detail : ["ผู้ยืนยันปฏิเสธการรับมอบ", "รอแก้ไขแล้วส่งใหม่"] } : j)));
-          notify(ok ? "อนุมัติการรับมอบสำเร็จ" : "ปฏิเสธการรับมอบสำเร็จ");
+          setJobs((js) => js.map((j) => {
+            if (j.poId !== job.poId || j.plate !== job.plate || !j.intake) return j;
+            const intake = signIntake(j.intake, me.id, nowStamp(), me.name);
+            return intake === j.intake ? j : { ...j, intake };
+          }));
+          say(T.intakeConfirmed()); // New toast "บันทึกข้อมูลสำเร็จ"
           return true;
         }}
       />
@@ -574,8 +573,15 @@ export default function OverhaulPrototype() {
     const d = parseThaiDate(at.slice(0, 10));
     return !!d && Date.now() - d.getTime() < 3 * 86_400_000;
   };
-  const notiAll: Array<NotificationItem & { go: Route }> = jobs.flatMap((j) => {
-    const out: Array<NotificationItem & { go: Route }> = [];
+  const notificationTime = (at: string) => {
+    const date = parseThaiDate(at.slice(0, 10));
+    if (!date) return 0;
+    const [hour = 0, minute = 0] = (at.slice(11).split(":")).map(Number);
+    date.setHours(hour, minute, 0, 0);
+    return date.getTime();
+  };
+  const notiAll: Array<NotificationItem & { go: Route; timestamp?: number }> = jobs.flatMap((j) => {
+    const out: Array<NotificationItem & { go: Route; timestamp?: number }> = [];
     const w = j.close?.warranty;
     const left = j.code === "V11" && w?.on ? warrantyLeft(w.start, w.days) : null;
     if (left !== null && left >= 0 && left <= 30 && w)
@@ -591,8 +597,8 @@ export default function OverhaulPrototype() {
        แสดงเฉพาะเหตุการณ์ 3 วันล่าสุด (= ที่กดในต้นแบบ) ไม่ให้ข้อมูลตั้งต้นหลายร้อยงานล้นกระดิ่ง */
     const k = jobKey(j.poId, j.plate);
     const oh = ohName(pos.find((x) => x.id === j.poId)?.name ?? "", k);
-    const ev = (id: string, at: string | undefined, to: string, text: string, status: NotificationItem["status"], target: Route) => {
-      if (at && recent(at)) out.push({ id: `${id}-${j.poId}-${j.plate}`, status, time: `${at} · ถึง ${to}`, text, go: target });
+    const ev = (id: string, at: string | undefined, to: string, text: string, status: NotificationItem["status"], target: Route, timestamp?: number) => {
+      if (at && recent(at)) out.push({ id: `${id}-${j.poId}-${j.plate}`, status, time: `${at} · ถึง ${to}`, text, go: target, timestamp: timestamp ?? notificationTime(at) });
     };
     const agencyGo: Route = { view: "agencyJob", po: j.poId, plate: j.plate };
     const jobGo: Route = { view: "job", po: j.poId, plate: j.plate };
@@ -602,13 +608,19 @@ export default function OverhaulPrototype() {
       if (a.reply?.accepted) ev(`n15-${n}`, a.reply.at, "กบค.", N.apptAccepted(unit, k), "success", jobGo); // แถว 15 → ตาม role กบค.
     });
     const delivererName = staff.find((s) => s.id === j.intake?.delivererId)?.name;
+    /* ขั้น 2 เซ็นลงนามการรับมอบรถ (เจ้าของงาน 17 พ.ย. 2569 · ไม่อยู่ในชีต): คำขอ → ผู้ลงนามแต่ละคน · เซ็นแล้ว → กบค. */
+    j.intake?.approvals.forEach((a) => {
+      const nm = staff.find((s) => s.id === a.staffId)?.name ?? a.side;
+      if (!a.result) ev(`sg-${a.staffId}-${a.requestId ?? a.sentAt}`, a.sentAt, a.side === "หน่วยงาน" ? `${nm} (หน่วยงาน ${unit})` : nm, N.signRequest(k), "warning", { view: "approve", po: j.poId, plate: j.plate, staff: a.staffId }, a.requestedAt);
+      else ev(`sd-${a.staffId}`, a.at, "กบค.", N.signed(nm, k), "success", jobGo);
+    });
     ev("n17", j.intake?.confirmedAt, delivererName ? `${delivererName} (หน่วยงาน ${unit})` : `หน่วยงาน ${unit}`, N.intakeConfirmed(), "success", agencyGo); // แถว 17 → หน่วยงาน คนเดียว
     const ap = j.close?.approval;
     if (j.code === "V10.3" && ap) ev(`n25-${ap.sentAt}`, ap.sentAt, staff.find((s) => s.id === ap.approverId)?.name ?? "ผู้อนุมัติ", N.approvalSent(oh), "warning", { view: "approvalJob", po: j.poId, plate: j.plate }); // แถว 25 → หัวหน้า กบค.
     if (ap?.result === "approved") ev("n27", ap.at, "กบค.", N.approved(oh), "success", jobGo); // แถว 27 → กบค.
     if (ap?.result === "returned") ev(`n29-${ap.at}`, ap.at, "กบค.", N.notApproved(oh, ap.reason ?? "—"), "error", jobGo); // แถว 29 → กบค.
     return out;
-  }).sort((a, b) => Number(b.id.startsWith("w-")) - Number(a.id.startsWith("w-")));
+  }).sort((a, b) => (b.timestamp ?? notificationTime(b.time)) - (a.timestamp ?? notificationTime(a.time)));
   const noti = notiAll.filter((n) => !clearedIds.includes(n.id)).map((n) => ({ ...n, unread: !readIds.includes(n.id) }));
 
   return (

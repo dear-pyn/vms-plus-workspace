@@ -18,6 +18,7 @@ import type { Inspection } from "../po/types";
 import { StepClose, type CloseDraft } from "./StepClose";
 import { StepSendApproval } from "./StepSendApproval";
 import { seedSmiParts } from "./close";
+import { emptyChecks, intakeLocked, validateIntakeForSign } from "./intake";
 import { todayThai } from "../shared/time";
 import { nowStamp } from "../shared/time";
 import { T, jobKey, type ToastMsg } from "../shared/messages";
@@ -93,7 +94,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   /** จำลองบันทึกไม่สำเร็จ (toast แถว 26): ข้อความที่กรอกมีคำว่า "error" */
   const fail = (...texts: string[]) => texts.some((t) => /error/i.test(t));
 
-  /** ขั้น 2 (ภาพ UAT 16 พ.ย. 2569): "บันทึกและถัดไป" → ไปขั้นติดตามงานซ่อมเลย (ไม่มีส่งขอยืนยัน 2 ฝ่ายแล้ว)
+  /** ขั้น 2 (คำสั่งล่าสุด 17 พ.ย. 2569): เซ็นรับทราบครบสองฝ่ายแล้ว "บันทึกและถัดไป" → ติดตามงานซ่อม
    *  วันที่/เลขไมล์รับรถ ระบบใส่ให้จากขั้น 1 (นำรถเข้า · วันที่หน่วยงานเลือก) หรือวันที่บันทึก */
   async function saveIntake(d: IntakeDraft): Promise<boolean> {
     await wait(600);
@@ -101,10 +102,34 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
       { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
+    if (!["หน่วยงาน", "กบค."].every(side=>job.intake?.approvals.some(a=>a.side===side&&a.result==="approved"))) return false;
     const date = job.direct1?.date ?? job.appt1?.reply?.date ?? nowStamp().slice(0, 10);
     const at = nowStamp();
-    const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), engineHours: d.hours ? Number(d.hours.replace(/,/g, "")) : null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos, approvals: [], log: [{ at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
-    set("V5", { intake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, T.intakeConfirmed()); // ชีต OH-Toast แถว 17
+    const intake = { date, mileageKm: d.mileage ? Number(d.mileage.replace(/,/g, "")) : (job.direct1?.mileageKm ?? null), engineHours: d.hours ? Number(d.hours.replace(/,/g, "")) : null, checks: d.checks, delivererId: d.delivererId, receiverId: d.receiverId, photos: d.photos,
+      approvals: job.intake?.approvals ?? [], // ส่งอนุมัติ/เซ็นแล้วทีละคนก่อนบันทึก (sendSign)
+      log: [...(job.intake?.log ?? []), { at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: "บันทึกรายการเอกสารรับรถ" }], confirmedAt: at };
+    const signedIntake = { ...job.intake!, confirmedAt: at, log: intake.log };
+    set("V5", { intake: signedIntake, progress: 0, progressLog: job.progressLog ?? [], detail: ["อยู่อู่ 0 วัน", `รับรถ ${date}`] }, T.intakeConfirmed()); // ชีต OH-Toast แถว 17
+    return true;
+  }
+
+  /** ขั้น 2 ลงนามการรับมอบรถ — กระดานเจ้าของงาน 17 พ.ย. 2569: เลือกผู้ลงนาม → "ส่งอนุมัติ" (แจ้งเตือนให้คนนั้นเซ็นรับทราบจากหน้าเซ็นลงนาม)
+   *  ยังไม่เซ็น → "แก้ไข" เปลี่ยนคนแล้วส่งใหม่ได้ · เก็บลง job.intake ทันที (งานยังอยู่ขั้น 2 · ยังไม่มี confirmedAt) */
+  async function sendSign(side: "หน่วยงาน" | "กบค.", staffId: string, draft: IntakeDraft): Promise<boolean> {
+    if (Object.keys(validateIntakeForSign(draft)).length) return false;
+    await wait(500);
+    const at = nowStamp();
+    const base = job.intake ?? { date: "", mileageKm: null, checks: emptyChecks(), photos: [], approvals: [], log: [] };
+    if (base.approvals.some(a => a.side === side && a.result === "approved")) return false;
+    const who = staff.find((x) => x.id === staffId)?.name ?? staffId;
+    const intake = {
+      ...base,
+      ...(!intakeLocked(base) ? { date: base.date || job.direct1?.date || job.appt1?.reply?.date || nowStamp().slice(0,10), mileageKm: draft.mileage ? Number(draft.mileage.replace(/,/g,"")) : null, engineHours: draft.hours ? Number(draft.hours.replace(/,/g,"")) : null, checks: draft.checks, photos: draft.photos, delivererId: draft.delivererId, receiverId: draft.receiverId } : {}),
+      ...(side === "หน่วยงาน" ? { delivererId: staffId } : { receiverId: staffId }),
+      approvals: [...base.approvals.filter((a) => a.side !== side), { side, staffId, sentAt: at, requestId: crypto.randomUUID(), requestedAt: Date.now() }],
+      log: [...base.log, { at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: `ส่งให้ ${who} เซ็นลงนามการรับมอบรถ` }],
+    };
+    onUpdate({ ...job, intake }, T.apptSent() /* New toast "บันทึกข้อมูลสำเร็จ" */);
     return true;
   }
 
@@ -223,6 +248,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           readOnly={ro}
           onBack={onGoPO}
           onSave={saveIntake}
+          onSendSign={sendSign}
         />
       );
     }

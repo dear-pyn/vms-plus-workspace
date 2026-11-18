@@ -92,6 +92,9 @@ export interface Photo {
 
 /** ผู้ยืนยันการรับมอบ (FigJam Section 12: เลิกเซ็น → เลือกคน แล้วคนนั้น login เข้ามากด อนุมัติ/ปฏิเสธ · เก็บ audit log) */
 export interface Approval {
+  /** Unique notification identity, including resends within the same minute. */
+  requestId?: string;
+  requestedAt?: number;
   side: "กบค." | "หน่วยงาน";
   staffId: string;
   /** วันเวลาที่ส่งคำขอ dd/mm/yyyy HH:mm · ไม่มี = ยังไม่ส่ง */
