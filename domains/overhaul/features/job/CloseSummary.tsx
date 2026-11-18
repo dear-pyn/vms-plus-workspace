@@ -64,7 +64,7 @@ function CostList({ rows }: { rows: Array<[string, number]> }) {
 
 /** การ์ดยานพาหนะ — ไฟล์ UI Release#2 `Fleet card` (r16 พื้นขาว ขอบ gray-200 p16 gap16: รูป + เนื้อหา) + `Card item row` (ไอคอน brand · ป้าย · ค่าชิดขวา ในกล่องเทา)
  *  ตามภาพหน้าปิดงาน 16 พ.ย. 2569 · ต้นแบบยังไม่มีรูปยานพาหนะ → กรอบพื้นเทา + ไอคอน */
-function VehicleCard({ plate, vehicle, lastMileage }: { plate: string; vehicle?: PlanVehicle; lastMileage?: number | null }) {
+export function VehicleCard({ plate, vehicle, lastMileage }: { plate: string; vehicle?: PlanVehicle; lastMileage?: number | null }) {
   const rows: Array<[string, string, string]> = [
     ["event", "อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : "—"],
     ["schedule", "ชั่วโมงสะสม", vehicle?.engineHours != null ? `${vehicle.engineHours.toLocaleString()} ชม.` : "—"],
@@ -97,7 +97,7 @@ function VehicleCard({ plate, vehicle, lastMileage }: { plate: string; vehicle?:
   );
 }
 
-function Box({ items, cols = 3 }: { items: Array<[string, ReactNode]>; cols?: 2 | 3 }) {
+export function Box({ items, cols = 3 }: { items: Array<[string, ReactNode]>; cols?: 2 | 3 }) {
   return (
     <dl className={cols === 2 ? "grid grid-cols-1 gap-x-6 gap-y-5 rounded-lg bg-gray-50 p-6 sm:grid-cols-2" : "grid grid-cols-1 gap-x-6 gap-y-5 rounded-lg bg-gray-50 p-6 sm:grid-cols-2 xl:grid-cols-3"}>
       {items.map(([k, v]) => (

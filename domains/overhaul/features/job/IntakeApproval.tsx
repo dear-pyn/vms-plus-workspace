@@ -11,14 +11,13 @@ import { EmptyState } from "@ui/EmptyState";
 import { OutlineBadge, Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
-import { DataTable, Td, Th } from "@ui/Table";
 import type { Garage, Intake, Staff } from "../po/types";
 import type { PlanVehicle } from "../vehicle/types";
-import { PhotoUploader } from "../shared/PhotoUploader";
+import { StepIntake } from "./StepIntake";
 import { Row } from "./StepAppointment";
 
 export function IntakeApproval({
-  plate, poId, vehicle, garage, intake, me, staff, onSign, onBackToJob,
+  plate, poId, vehicle, intake, me, staff, onSign, onBackToJob,
 }: {
   plate: string;
   poId: string;
@@ -33,8 +32,6 @@ export function IntakeApproval({
 }) {
   const [busy, setBusy] = useState(false);
   const mine = intake?.approvals.find((a) => a.staffId === me?.id);
-  const other = intake?.approvals.find((a) => a.staffId !== me?.id);
-  const name = (id?: string) => staff.find((s) => s.id === id)?.name ?? "—";
 
   async function sign() {
     if (busy) return;
@@ -44,64 +41,47 @@ export function IntakeApproval({
   }
 
   const pending = mine?.sentAt && !mine.result;
+  /* เจ้าของงาน 18 พ.ย. 2569 "หน้าเซ็นลงนามมอบรถ ให้เหมือนรายคันเลยแต่เป็นแบบ view only":
+     หัวหน้า + ปุ่ม "เซ็นลงนาม" ขวาบน (แบบหน้าตอบรับนัดหมาย/อนุมัติปิดงาน) · ข้อมูลยานพาหนะ (แบบหน้ารายคัน) · ขั้น 2 ตรวจรับรถ (StepIntake readOnly) */
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
         crumbs={[{ label: "เซ็นลงนามการรับมอบรถ" }, { label: plate }]}
-        title={`เซ็นลงนามการรับมอบรถ ${plate}`}
-        subtitle={`ตรวจรับยานพาหนะเข้า Overhaul ตาม ${poId} · ผู้ลงนาม ${me?.name ?? "—"}`}
+        title={plate}
+        subtitle={`เซ็นลงนามการรับมอบรถ ตาม ${poId} · ผู้ลงนาม ${me?.name ?? "—"}`}
         badge={
           mine?.result === "approved" ? <Pill tone="success">เซ็นลงนามแล้ว</Pill> : pending ? undefined : <OutlineBadge tone="disabled">ไม่มีคำขอ</OutlineBadge>
         }
+        actions={
+          pending && (
+            <Button size="lg" loading={busy} onClick={() => void sign()}>
+              เซ็นลงนาม
+            </Button>
+          )
+        }
       />
       {!intake || !mine ? (
-        <EmptyState kind="data-empty" title="ไม่พบคำขอเซ็นลงนาม" description="คำขอนี้ถูกยกเลิกหรือส่งใหม่แล้ว ดูคำขอล่าสุดจากแจ้งเตือน" />
+        <>
+          <EmptyState kind="data-empty" title="ไม่พบคำขอเซ็นลงนาม" description="คำขอนี้ถูกยกเลิกหรือส่งใหม่แล้ว ดูคำขอล่าสุดจากแจ้งเตือน" />
+          <div>
+            <Button variant="tertiary" iconLeft="arrow_back" onClick={onBackToJob}>
+              ต้นแบบ: กลับหน้างานรายคัน (กบค.)
+            </Button>
+          </div>
+        </>
       ) : (
         <>
           <section className="flex flex-col gap-4">
-            <SectionHeader title="ข้อมูลการรับรถเข้าอู่" />
+            <SectionHeader title="ข้อมูลยานพาหนะ" />
             <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
-              <Row items={[["ทะเบียน", plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["สังกัด", vehicle?.affiliation], ["อู่", garage?.name]]} />
-              <Row items={[["วันที่รับรถเข้าอู่", intake.date], ["เลขไมล์ ณ วันรับรถ (กม.)", intake.mileageKm?.toLocaleString()], ["ชั่วโมงการทำงาน (ชม.)", intake.engineHours != null ? intake.engineHours.toLocaleString() : "—"], ["ผู้ลงนามอีกฝ่าย", `${name(other?.staffId)} (${other?.side ?? "—"})`], ["ส่งคำขอเมื่อ", mine.sentAt], ["เซ็นลงนามเมื่อ", mine.at ?? "—"]]} />
+              <Row cols={3} items={[["ทะเบียน", plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["ประเภท", vehicle?.type]]} />
+              <Row cols={3} items={[["อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : ""], ["เลขไมล์สะสม", vehicle?.mileageKm !== undefined ? `${vehicle.mileageKm.toLocaleString()} กม.` : ""], ["ชั่วโมงสะสม", vehicle?.engineHours !== undefined ? `${vehicle.engineHours.toLocaleString()} ชม.` : ""]]} />
             </dl>
           </section>
-          <section className="flex flex-col gap-4">
-            <SectionHeader title="รูปสภาพยานพาหนะก่อน Overhaul" />
-            <PhotoUploader label="รูปสภาพยานพาหนะ" photos={intake.photos} readOnly />
-          </section>
-          <section className="flex flex-col gap-4">
-            <SectionHeader title="รายการตรวจสอบก่อนซ่อม" />
-            <DataTable label="รายการตรวจสอบก่อนซ่อม" striped>
-              <thead>
-                <tr>
-                  <Th>รายการตรวจสอบ</Th>
-                  <Th className="w-36">ผลตรวจ</Th>
-                  <Th>หมายเหตุ</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {intake.checks.map((c) => (
-                  <tr key={c.item}>
-                    <Td>{c.item}</Td>
-                    <Td>{c.has ? <Pill tone="success">มี</Pill> : c.has === false ? "ไม่มี" : "—"}</Td>
-                    <Td>{c.note || "—"}</Td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
-          </section>
+          {/* ขั้น 2 แบบดูอย่างเดียว · ปุ่ม "ย้อนกลับ" ท้ายฟอร์ม = ต้นแบบ: กลับหน้างานรายคัน (กบค.) */}
+          <StepIntake intake={intake} staff={staff} readOnly onBack={onBackToJob} onSave={async () => false} onSendSign={async () => false} />
         </>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 pt-6">
-        <Button variant="tertiary" iconLeft="arrow_back" onClick={onBackToJob}>
-          ต้นแบบ: กลับหน้างานรายคัน (กบค.)
-        </Button>
-        {pending && (
-          <Button size="lg" loading={busy} onClick={() => void sign()}>
-            เซ็นลงนาม
-          </Button>
-        )}
-      </div>
     </div>
   );
 }
