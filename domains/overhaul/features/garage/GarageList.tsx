@@ -1,8 +1,8 @@
 "use client";
 /** เมนู อู่/ศูนย์บริการ — รายการ (จอเจ้าของงาน 19 พ.ย. 2569)
- *  คอลัมน์ตามจอ: รหัส · อู่/ศูนย์บริการ · ประเภท / ยี่ห้อที่รองรับ · ที่ตั้ง · เบอร์โทร · เมนู 3 จุด
+ *  คอลัมน์ตามจอ: รหัส · อู่/ศูนย์บริการ · ประเภท / ยี่ห้อที่รองรับ · ที่อยู่ · เบอร์โทร · เมนู 3 จุด
  *  เจ้าของงาน 19 พ.ย. 2569: "คะแนนเฉลี่ย เอาออกก่อน" (จอเดิมมีคอลัมน์นี้)
- *  ที่ตั้ง = จังหวัด (บรรทัดบน) + อำเภอ/เขต (บรรทัดล่าง) จากที่อยู่แบบเต็ม
+ *  เจ้าของงาน 19 พ.ย. 2569: คอลัมน์ "ที่ตั้ง" (จังหวัด / อำเภอ) → "ที่อยู่" แสดงที่อยู่เต็มต่อกันบรรทัดเดียว (ตัดที่ 2 บรรทัด · ชี้ดูเต็มได้)
  *  ค้นหา: ชื่ออู่ · จังหวัด · เบอร์โทร · รหัส · ตัวกรอง (Side panel): จังหวัด · ประเภทยานพาหนะ · ยี่ห้อ
  *  component: Page header (actions) · Search · Button ตัวกรอง/เพิ่ม · Table (Alternating) · Cell stack · Row menu · Pagination · Empty state · Side panel */
 import { useMemo, useState } from "react";
@@ -19,6 +19,7 @@ import { PanelSection, SidePanel } from "@ui/SidePanel";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
 import { GARAGE_BRANDS, GARAGE_VEHICLE_TYPES } from "../../mock/garages";
 import type { Garage } from "../po/types";
+import { formatAddress } from "./types";
 
 type Filter = { province: string; types: string[]; brands: string[] };
 const EMPTY: Filter = { province: "", types: [], brands: [] };
@@ -70,13 +71,13 @@ export function GarageList({ garages, onOpen, onEdit, onDelete, onCreate }: { ga
         <EmptyState kind="search-not-found" title="ไม่พบอู่/ศูนย์บริการ" description="ไม่มีอู่/ศูนย์บริการที่ตรงกับคำค้นหรือตัวกรอง" action={<Button variant="secondary" onClick={clearAll}>ล้างคำค้นและตัวกรอง</Button>} />
       ) : (
         <>
-          <DataTable label="รายการอู่/ศูนย์บริการ" striped cols={[104, 340, 240, 220, 168, 56]}>
+          <DataTable label="รายการอู่/ศูนย์บริการ" striped cols={[104, 280, 220, 340, 140, 56]}>
             <thead>
               <tr>
                 <Th>รหัส</Th>
                 <Th>อู่/ศูนย์บริการ</Th>
                 <Th>ประเภท / ยี่ห้อที่รองรับ</Th>
-                <Th>ที่ตั้ง</Th>
+                <Th>ที่อยู่</Th>
                 <Th>เบอร์โทร</Th>
                 <Th aria-label="จัดการ" />
               </tr>
@@ -89,7 +90,7 @@ export function GarageList({ garages, onOpen, onEdit, onDelete, onCreate }: { ga
                   </Td>
                   <Td title={g.name}><span className="line-clamp-2 break-words whitespace-normal">{g.name}</span></Td>
                   <Td className="whitespace-normal"><CellStack main={g.vehicleTypes?.join(", ") || "-"} sub={g.brands?.join(", ") || undefined} /></Td>
-                  <Td className="whitespace-normal"><CellStack main={g.addr?.province || "-"} sub={g.addr?.district || undefined} /></Td>
+                  <Td title={formatAddress(g.addr) || undefined}><span className="line-clamp-2 break-words whitespace-normal">{formatAddress(g.addr) || "-"}</span></Td>
                   <Td className="tabular-nums">{g.phone}</Td>
                   <Td className="w-14 text-right">
                     <RowMenu
