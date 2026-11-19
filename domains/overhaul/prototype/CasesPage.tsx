@@ -2,19 +2,25 @@
 /** สารบัญเคส (#/cases) — เครื่องมือต้นแบบ ไม่ใช่หน้าของระบบจริง (เจ้าของงานขอ 17 พ.ย. 2569 "มีวิธีไหนที่จะดูทุกเคสได้บ้าง" → แบบที่ 1)
  *  ลิสต์ทุกสถานะของงานรายคัน (แผนเคสทดสอบ ORZ6999999 · PO-699999 ยานพาหนะ 1 คันต่อ 1 สถานะ) + มุมหน่วยงาน + หน้าแผน/PO
  *  ปุ่ม "รีเซ็ตข้อมูลต้นแบบ" ล้าง localStorage กลับเป็นข้อมูลตั้งต้น (เล่นไปแล้วงานเลื่อนขั้น เคสเดิมจะหาย)
+ *  19 พ.ย. 2569: ปุ่ม "สร้างเคสทดสอบชุดใหม่" เพิ่มชุดเคสลง localStorage เครื่องนี้ (ไม่ขึ้นข้อมูลกลาง) · ลิงก์ในตารางชี้ชุดล่าสุด
+ *    ไม่มีชุดของเครื่องนี้ → ชี้ชุดตั้งต้นในข้อมูลกลาง (PO-699999) แบบเดิม
  *  component: Page header + Secondary button · Section header · Table + Pill (สถานะในตาราง) · Alert Info */
 import { Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { DataTable, Td, Th } from "@ui/Table";
 import { JOB_STATUS, type VehicleJob } from "../features/po/types";
-import { CASES, CASE_PLAN_ID, CASE_PO_ID } from "../mock/cases";
+import { CASES, CASE_PLAN_ID, CASE_PO_ID, isMockPlanId, mockPoOf } from "../mock/cases";
 import { resetPrototypeData } from "./usePrototypeData";
 
 type Link = { group: string; title: string; href: string; status?: VehicleJob["code"]; note?: string };
 
-export function CasesPage({ jobs }: { jobs: VehicleJob[] }) {
-  const caseJobs = jobs.filter((j) => j.poId === CASE_PO_ID);
+export function CasesPage({ jobs, mockPlanIds, onAddMock, onClearMock }: { jobs: VehicleJob[]; /** แผนชุดเคสทดสอบของเครื่องนี้ */ mockPlanIds: string[]; onAddMock: () => void; onClearMock: () => void }) {
+  const latestMock = [...mockPlanIds].filter(isMockPlanId).sort().at(-1);
+  const CASE_PLAN = latestMock ?? CASE_PLAN_ID;
+  const CASE_PO = latestMock ? mockPoOf(latestMock) : CASE_PO_ID;
+  const caseJobs = jobs.filter((j) => j.poId === CASE_PO);
+  const again = latestMock ? "กดสร้างเคสทดสอบชุดใหม่" : "กดสร้างเคสทดสอบชุดใหม่ หรือรีเซ็ต";
   const enc = (s: string) => encodeURIComponent(s);
   const rows: Link[] = CASES.map((c, i) => {
     const j = caseJobs[i];
@@ -22,9 +28,9 @@ export function CasesPage({ jobs }: { jobs: VehicleJob[] }) {
     return {
       group: c.group,
       title: c.title,
-      href: j ? `#/job/${CASE_PO_ID}/${enc(j.plate)}` : "",
+      href: j ? `#/job/${CASE_PO}/${enc(j.plate)}` : "",
       status: j?.code,
-      note: !j ? "ไม่มีในข้อมูลตอนนี้ — กดรีเซ็ต" : moved ? `เลื่อนเป็น "${JOB_STATUS[j.code].label}" แล้ว — กดรีเซ็ตเพื่อกลับเคสเดิม` : j.plate,
+      note: !j ? `ไม่มีในข้อมูลตอนนี้ — ${again}` : moved ? `เลื่อนเป็น "${JOB_STATUS[j.code].label}" แล้ว — ${again}` : j.plate,
     };
   });
   const wait1 = caseJobs.find((j) => j.code === "V2");
@@ -33,17 +39,17 @@ export function CasesPage({ jobs }: { jobs: VehicleJob[] }) {
   rows.push(
     { group: "มุมหน่วยงานเจ้าของยานพาหนะ", title: "รายการรอตอบรับนัดหมาย (เมนูตอบรับนัดหมาย)", href: "#/agency" },
     { group: "มุมผู้อนุมัติปิดงาน", title: "รายการรออนุมัติปิดงาน (เมนูอนุมัติปิดงาน)", href: "#/approval" },
-    { group: "มุมผู้อนุมัติปิดงาน", title: "อนุมัติ / ส่งกลับแก้ไข", href: waitAp ? `#/approval/job/${CASE_PO_ID}/${enc(waitAp.plate)}` : "", note: waitAp ? waitAp.plate : "ไม่มีงานรออนุมัติ — กดรีเซ็ต" },
-    { group: "มุมหน่วยงานเจ้าของยานพาหนะ", title: "ตอบรับ/ปฏิเสธ นัดนำรถเข้าอู่", href: wait1 ? `#/agency/job/${CASE_PO_ID}/${enc(wait1.plate)}` : "", note: wait1 ? wait1.plate : "ไม่มีงานรอตอบรับ — กดรีเซ็ต" },
-    { group: "มุมหน่วยงานเจ้าของยานพาหนะ", title: "ตอบรับ/ปฏิเสธ นัดรับรถ", href: wait5 ? `#/agency/job/${CASE_PO_ID}/${enc(wait5.plate)}` : "", note: wait5 ? wait5.plate : "ไม่มีงานรอตอบรับ — กดรีเซ็ต" },
+    { group: "มุมผู้อนุมัติปิดงาน", title: "อนุมัติ / ส่งกลับแก้ไข", href: waitAp ? `#/approval/job/${CASE_PO}/${enc(waitAp.plate)}` : "", note: waitAp ? waitAp.plate : `ไม่มีงานรออนุมัติ — ${again}` },
+    { group: "มุมหน่วยงานเจ้าของยานพาหนะ", title: "ตอบรับ/ปฏิเสธ นัดนำรถเข้าอู่", href: wait1 ? `#/agency/job/${CASE_PO}/${enc(wait1.plate)}` : "", note: wait1 ? wait1.plate : `ไม่มีงานรอตอบรับ — ${again}` },
+    { group: "มุมหน่วยงานเจ้าของยานพาหนะ", title: "ตอบรับ/ปฏิเสธ นัดรับรถ", href: wait5 ? `#/agency/job/${CASE_PO}/${enc(wait5.plate)}` : "", note: wait5 ? wait5.plate : `ไม่มีงานรอตอบรับ — ${again}` },
     { group: "แผน / Purchase Order", title: "Dashboard ระดับแผน (CI VMS Plus)", href: "#/dashboard" },
     { group: "แผน / Purchase Order", title: "Dashboard ระดับยานพาหนะ (CI VMS Plus)", href: "#/dashboard/vehicles" },
     { group: "แผน / Purchase Order", title: "รายการแผน Overhaul", href: "#/" },
     { group: "แผน / Purchase Order", title: "แท็บยานพาหนะที่ Overhaul", href: "#/vehicles" } /* อยู่ข้างรายการแผน (17 พ.ย. 2569) */,
     { group: "แผน / Purchase Order", title: "สร้างแผน Overhaul", href: "#/new" },
     { group: "แผน / Purchase Order", title: "รายละเอียดแผน — ยังไม่มี Purchase Order", href: "#/plan/ORZ7000011" },
-    { group: "แผน / Purchase Order", title: "รายละเอียดแผน — มี Purchase Order", href: `#/plan/${CASE_PLAN_ID}` },
-    { group: "แผน / Purchase Order", title: "รายละเอียด Purchase Order (ทุกสถานะในตารางเดียว)", href: `#/plan/${CASE_PLAN_ID}/po/${CASE_PO_ID}` },
+    { group: "แผน / Purchase Order", title: "รายละเอียดแผน — มี Purchase Order", href: `#/plan/${CASE_PLAN}` },
+    { group: "แผน / Purchase Order", title: "รายละเอียด Purchase Order (ทุกสถานะในตารางเดียว)", href: `#/plan/${CASE_PLAN}/po/${CASE_PO}` },
     /* แผนที่ยังไม่มี PO = มียานพาหนะว่างให้เลือก (แผนเคสทดสอบอยู่ใน PO ครบแล้ว เลือกไม่ได้) */
     { group: "แผน / Purchase Order", title: "เพิ่ม Purchase Order", href: "#/plan/ORZ7000011/po/new" },
   );
@@ -59,11 +65,23 @@ export function CasesPage({ jobs }: { jobs: VehicleJob[] }) {
       <PageHeader
         crumbs={[{ label: "สารบัญเคส (ต้นแบบ)" }]}
         title="สารบัญเคส"
-        subtitle="เครื่องมือของต้นแบบ ไม่ใช่หน้าของระบบจริง · งานจะเลื่อนขั้นตามที่กด ถ้าเคสไหนเลื่อนไปแล้ว กด รีเซ็ตข้อมูลต้นแบบ"
+        subtitle={latestMock
+          ? `เครื่องมือของต้นแบบ · กำลังใช้ชุดเคสทดสอบ ${CASE_PLAN} ที่เก็บเฉพาะเครื่องนี้ กดอะไรในชุดนี้ไม่ขึ้นข้อมูลกลาง`
+          : "เครื่องมือของต้นแบบ · ตอนนี้ชี้ชุดเคสในข้อมูลกลาง (ทุกคนเห็น) กด สร้างเคสทดสอบชุดใหม่ เพื่อทดสอบเฉพาะเครื่องนี้"}
         actions={
-          <Button variant="secondary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>
-            รีเซ็ตข้อมูลต้นแบบ
-          </Button>
+          <>
+            {mockPlanIds.length > 0 && (
+              <Button variant="tertiaryDanger" iconLeft="delete" onClick={onClearMock}>
+                ล้างเคสทดสอบ ({mockPlanIds.length} ชุด)
+              </Button>
+            )}
+            <Button variant="secondary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>
+              รีเซ็ตข้อมูลต้นแบบ
+            </Button>
+            <Button iconLeft="add" onClick={onAddMock}>
+              สร้างเคสทดสอบชุดใหม่
+            </Button>
+          </>
         }
       />
       {groups.map((g) => (

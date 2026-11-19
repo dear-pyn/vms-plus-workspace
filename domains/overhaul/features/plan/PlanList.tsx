@@ -29,6 +29,8 @@ export interface PlanListProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
+  /** ปุ่มรายงาน ขวาปุ่มตัวกรอง (19 พ.ย. 2569) */
+  onReport?: () => void;
   /** ปุ่มที่อยู่นอกขอบเขตต้นแบบรอบนี้ */
   onNotInScope: (what: string) => void;
 }
@@ -54,7 +56,7 @@ const filterCount = (f: Filter) => (f.year ? 1 : 0) + (f.budgets.length ? 1 : 0)
 
 type SortKey = "id" | "budgetType" | "status";
 
-export function PlanList({ plans, onOpen, onEdit, onDelete, onCreate, onNotInScope }: PlanListProps) {
+export function PlanList({ plans, onOpen, onEdit, onDelete, onCreate, onReport, onNotInScope }: PlanListProps) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>(EMPTY);
   const [draft, setDraft] = useState<Filter>(EMPTY);
@@ -125,6 +127,11 @@ export function PlanList({ plans, onOpen, onEdit, onDelete, onCreate, onNotInSco
             ตัวกรอง
             {active > 0 && <CountPill className="ml-1">{active}</CountPill>}
           </Button>
+          {onReport && (
+            <Button variant="secondary" iconLeft="download" onClick={onReport}>
+              รายงาน
+            </Button>
+          )}
           <Button iconLeft="add" onClick={onCreate}>
             สร้างแผน Overhaul
           </Button>

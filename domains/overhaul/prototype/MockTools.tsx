@@ -5,6 +5,8 @@ import { Button } from "@ui/Button";
 import { resetPrototypeData, useStorageMode } from "./usePrototypeData";
 export type MockMode = "ready" | "missing" | "error";
 const EVENT = "overhaul:mock-fill";
+/** ปุ่มสร้างชุดเคสทดสอบ (19 พ.ย. 2569) — หน้าต้นแบบรับแล้วเพิ่มชุดลง localStorage เครื่องนี้ */
+export const MOCK_CASES_EVENT = "overhaul:mock-cases";
 type Request = { mode: MockMode; handled: boolean };
 export function usePrototypeFill(fill: (mode: MockMode) => void, enabled = true) {
   useEffect(() => {
@@ -42,6 +44,7 @@ export function MockTools() {
         {/* 17 พ.ย. 2569: ทางเข้าสารบัญเคส + รีเซ็ตข้อมูล */}
         <div className="flex flex-col gap-2 border-t border-gray-200 pt-3">
           <Button variant="tertiaryBrand" iconLeft="list_alt" onClick={() => { window.location.hash = "/cases"; setOpen(false); }}>สารบัญเคส</Button>
+          <Button variant="tertiaryBrand" iconLeft="add" onClick={() => { window.dispatchEvent(new Event(MOCK_CASES_EVENT)); window.location.hash = "/cases"; setOpen(false); }}>สร้างเคสทดสอบทุกสถานะ (เครื่องนี้)</Button>
           <Button variant="tertiary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>{storage === "remote" ? "รีเซ็ตข้อมูลต้นแบบ (ทุกคน)" : "รีเซ็ตข้อมูลต้นแบบ"}</Button>
         </div>
       </div>}

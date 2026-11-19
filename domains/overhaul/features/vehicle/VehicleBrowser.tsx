@@ -10,7 +10,7 @@ import { Pagination } from "@ui/Pagination";
 import { SearchInput } from "@ui/SearchInput";
 import { SelectField } from "@ui/SelectField";
 import { SidePanel } from "@ui/SidePanel";
-import { nextSort, sortRows, VehicleTable, type VehicleRow, type VehicleSortKey } from "./VehicleTable";
+import { nextSort, sortRows, VehicleTable, type VehicleRow, type VehicleListSortKey } from "./VehicleTable";
 
 type Key = "type" | "make" | "model";
 type Filter = Record<Key, string>;
@@ -27,6 +27,8 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
   toolbarExtra,
   toolbarActions,
   hideProgress,
+  showPlan,
+  planStatus,
 }: {
   rows: T[];
   label: string;
@@ -41,13 +43,16 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
   toolbarActions?: ReactNode;
   /** ไม่มีคอลัมน์ความคืบหน้า (ฟอร์มแผน) */
   hideProgress?: boolean;
+  /** คอลัมน์ แผน / Purchase Order (ค้นหาด้วยเลขแผน/PO ได้) */
+  showPlan?: boolean;
+  planStatus?: (v: T) => ReactNode;
 }) {
   const [q, setQ] = useState("");
   const [year, setYear] = useState("");
   const [filter, setFilter] = useState<Filter>(EMPTY);
   const [draft, setDraft] = useState<Filter>(EMPTY);
   const [panel, setPanel] = useState(false);
-  const [sort, setSort] = useState<{ key: VehicleSortKey; dir: 1 | -1 } | null>(null);
+  const [sort, setSort] = useState<{ key: VehicleListSortKey; dir: 1 | -1 } | null>(null);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
 
@@ -58,7 +63,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
     const k = q.trim().toLowerCase();
     const out = all.filter(
       (v) =>
-        (!k || [v.plate, `${v.make} ${v.model}`].some((s) => s.toLowerCase().includes(k))) &&
+        (!k || [v.plate, `${v.make} ${v.model}`, v.planNo ?? "", v.poNo ?? ""].some((s) => s.toLowerCase().includes(k))) &&
         (!year || String(v.fiscalYear) === year) &&
         (Object.keys(filter) as Key[]).every((f) => !filter[f] || v[f] === filter[f]),
     );
@@ -81,7 +86,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
               setQ(v);
               setPage(1);
             }}
-            placeholder="ค้นหาทะเบียน, ยี่ห้อ/รุ่น"
+            placeholder={showPlan ? "ค้นหาทะเบียน, ยี่ห้อ/รุ่น, เลขแผน, Purchase Order" : "ค้นหาทะเบียน, ยี่ห้อ/รุ่น"}
             aria-label={`ค้นหา${label}`}
             className="w-80 max-md:w-full"
           />
@@ -131,6 +136,8 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
             rows={shown}
             label={label}
             hideProgress={hideProgress}
+            showPlan={showPlan}
+            planStatus={planStatus}
             rowKey={rowKey}
             sort={sort}
             onSort={(k) => {

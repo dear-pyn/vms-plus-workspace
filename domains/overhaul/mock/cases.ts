@@ -69,3 +69,25 @@ export function seedCases(base: Plan, vehicles: PlanVehicle[], enrich: (j: Vehic
   const po: PurchaseOrder = { id: CASE_PO_ID, planId: CASE_PLAN_ID, name: "เคสทดสอบทุกสถานะ", garageId: "G01", contractStart: "01/09/2569", contractEnd: "31/12/2569", plates: picked.map((v) => v.plate), docs: { order: [{ name: `ใบสั่งจ้าง-${CASE_PO_ID}.pdf`, sizeKb: 500 }], other: [] }, createdAt: "01/10/2569" };
   return { plan, po, jobs, plates };
 }
+
+/** ชุดเคสทดสอบที่สร้างเพิ่มจากปุ่ม (19 พ.ย. 2569) — เก็บใน localStorage เครื่องนี้ ไม่ขึ้นข้อมูลกลาง
+ *  เลขแผน ORZ98xxxxx / PO-98xxxx (ปี 98 ไม่ชนเลขรันของแผน/PO จริงในต้นแบบ) */
+export const MOCK_PLAN_PREFIX = "ORZ98";
+export const MOCK_PO_PREFIX = "PO-98";
+export const isMockPlanId = (id: string) => id.startsWith(MOCK_PLAN_PREFIX);
+export const mockPoOf = (planId: string) => `${MOCK_PO_PREFIX}${planId.slice(MOCK_PLAN_PREFIX.length).slice(-4)}`;
+
+/** คัดลอกชุดเคสตั้งต้น (CASE_PLAN_ID) เป็นชุดใหม่ เลขถัดจากชุด mock ล่าสุด · คืน undefined ถ้าข้อมูลตั้งต้นไม่มีชุดเคส */
+export function newMockCaseSet(seed: { plans: Plan[]; pos: PurchaseOrder[]; jobs: VehicleJob[] }, existingPlans: Plan[]): { plans: Plan[]; pos: PurchaseOrder[]; jobs: VehicleJob[] } | undefined {
+  const plan = seed.plans.find((p) => p.id === CASE_PLAN_ID);
+  const po = seed.pos.find((p) => p.id === CASE_PO_ID);
+  if (!plan || !po) return undefined;
+  const n = 1 + Math.max(0, ...existingPlans.filter((p) => isMockPlanId(p.id)).map((p) => Number(p.id.slice(MOCK_PLAN_PREFIX.length)) || 0));
+  const planId = `${MOCK_PLAN_PREFIX}${String(n).padStart(5, "0")}`;
+  const poId = mockPoOf(planId);
+  return {
+    plans: [{ ...plan, id: planId, name: `ชุดเคสทดสอบ #${n} (เฉพาะเครื่องนี้)` }],
+    pos: [{ ...po, id: poId, planId, name: `เคสทดสอบทุกสถานะ #${n}`, docs: { ...po.docs, order: [{ name: `ใบสั่งจ้าง-${poId}.pdf`, sizeKb: 500 }] } }],
+    jobs: seed.jobs.filter((j) => j.poId === CASE_PO_ID).map((j) => ({ ...j, poId })),
+  };
+}

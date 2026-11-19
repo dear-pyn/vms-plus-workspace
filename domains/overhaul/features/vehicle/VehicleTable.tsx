@@ -11,21 +11,23 @@ import { cx } from "@ui/cx";
 import { currency } from "@rules/currency.mjs";
 import type { VehicleInfo } from "./types";
 
-export type VehicleRow = VehicleInfo & { referencePrice: number | null; overhaulEstimate: number | null; progress: number | null };
+export type VehicleRow = VehicleInfo & { referencePrice: number | null; overhaulEstimate: number | null; progress: number | null; /** แท็บยานพาหนะที่ Overhaul (19 พ.ย. 2569) */ planNo?: string; poNo?: string; /** ลำดับสถานะตามขั้นงาน ใช้เรียงคอลัมน์สถานะ */ statusOrder?: number | null };
 export type VehicleSortKey = "value" | "ageYears" | "progress";
+/** + คอลัมน์สถานะ (แท็บยานพาหนะที่ Overhaul) */
+export type VehicleListSortKey = VehicleSortKey | "statusOrder" | "planNo";
 export type VehicleSort<K extends string = VehicleSortKey> = { key: K; dir: 1 | -1 } | null;
 
 /** กดหัวคอลัมน์ซ้ำ = สลับ น้อยไปมาก/มากไปน้อย · คอลัมน์ใหม่เริ่มน้อยไปมาก (ใช้ร่วม: แท็บยานพาหนะที่ Overhaul + Modal เพิ่มยานพาหนะ) */
 export const nextSort = <K extends string>(s: VehicleSort<K>, k: K): VehicleSort<K> => (s?.key === k ? { key: k, dir: s.dir === 1 ? -1 : 1 } : { key: k, dir: 1 });
 
-/** เรียงตามตัวเลข — ไม่มีข้อมูล (null/undefined) อยู่ท้ายเสมอ */
+/** เรียงตามตัวเลข (ข้อความ เช่น เลขแผน = เรียงตามตัวอักษร) — ไม่มีข้อมูล (null/undefined) อยู่ท้ายเสมอ */
 export function sortRows<T, K extends keyof T & string>(rows: T[], sort: VehicleSort<K>): T[] {
   if (!sort) return rows;
   return [...rows].sort((a, b) => {
-    const x = a[sort.key] as unknown as number | null | undefined, y = b[sort.key] as unknown as number | null | undefined;
+    const x = a[sort.key] as unknown as number | string | null | undefined, y = b[sort.key] as unknown as number | string | null | undefined;
     if (x == null) return 1;
     if (y == null) return -1;
-    return (x - y) * sort.dir;
+    return (typeof x === "string" || typeof y === "string" ? String(x).localeCompare(String(y), "th", { numeric: true }) : x - y) * sort.dir;
   });
 }
 
@@ -58,12 +60,14 @@ export function VehicleTable<T extends VehicleRow>({
   onRowClick,
   scrollY,
   hideProgress,
+  showPlan,
+  planStatus,
 }: {
   rows: T[];
   label: string;
   action?: (v: T) => ReactNode;
-  sort?: { key: VehicleSortKey; dir: 1 | -1 } | null;
-  onSort?: (k: VehicleSortKey) => void;
+  sort?: { key: VehicleListSortKey; dir: 1 | -1 } | null;
+  onSort?(k: VehicleListSortKey): void;
   rowKey?: (v: T) => string;
   /** คอลัมน์ Checkbox หน้าสุด (Modal เพิ่มยานพาหนะ) — head = เลือกทั้งหน้า */
   select?: { head: ReactNode; cell: (v: T) => ReactNode };
@@ -76,8 +80,12 @@ export function VehicleTable<T extends VehicleRow>({
   scrollY?: boolean;
   /** ไม่มีคอลัมน์ "ความคืบหน้า" — ตารางยานพาหนะในแผนและ Purchase Order (เจ้าของงานสั่ง 16 พ.ย. 2569) · แท็บยานพาหนะที่ Overhaul ยังมี */
   hideProgress?: boolean;
+  /** คอลัมน์ "แผน / Purchase Order" แบบตาราง Dashboard ระดับยานพาหนะ — แท็บยานพาหนะที่ Overhaul (เจ้าของงาน 19 พ.ย. 2569) */
+  showPlan?: boolean;
+  /** คอลัมน์ "สถานะ" ต่อจากแผน / Purchase Order (สถานะงานรายคันในแผน — 19 พ.ย. 2569) */
+  planStatus?: (v: T) => ReactNode;
 }) {
-  const sortTh = (k: VehicleSortKey, text: string) =>
+  const sortTh = (k: VehicleListSortKey, text: string) =>
     onSort ? (
       <SortTh k={k} sort={sort ?? null} onSort={onSort}>
         {text}
@@ -92,11 +100,15 @@ export function VehicleTable<T extends VehicleRow>({
           {select && <Th className="w-12">{select.head}</Th>}
           <Th>ทะเบียน</Th>
           <Th>ประเภทยานพาหนะ</Th>
+          {/* เจ้าของงาน 19 พ.ย. 2569: เรียงตามเลขแผน */}
+          {showPlan && sortTh("planNo", "แผน / Purchase Order")}
           {sortTh("value", "มูลค่ายานพาหนะ (บาท)")}
           <Th>ราคากลาง</Th>
           <Th>ประเมิน Overhaul (บาท)</Th>
           {sortTh("ageYears", "อายุการใช้งาน")}
           {!hideProgress && sortTh("progress", "ความคืบหน้า")}
+          {/* เจ้าของงาน 19 พ.ย. 2569: สถานะอยู่หลังความคืบหน้า + เรียงได้ */}
+          {planStatus && sortTh("statusOrder", "สถานะ")}
           {status && <Th>{statusLabel}</Th>}
           {action && <Th aria-label="จัดการ" />}
         </tr>
@@ -111,11 +123,14 @@ export function VehicleTable<T extends VehicleRow>({
             <Td>
               <CellStack main={`${v.make} ${v.model}`} sub={v.type} />
             </Td>
+            {/* เจ้าของงาน 19 พ.ย. 2569: ยังไม่มี PO ไม่ต้องแสดงข้อความ */}
+            {showPlan && <Td><CellStack main={v.planNo ?? "—"} sub={v.poNo} /></Td>}
             <Td className="tabular-nums">{currency(v.value)}</Td>
             <Td className="tabular-nums">{price(v.referencePrice)}</Td>
             <Td className="tabular-nums">{price(v.overhaulEstimate)}</Td>
             <Td>{Number.isFinite(v.ageYears) ? `${v.ageYears} ปี` : "—"}</Td>
             {!hideProgress && <Td className="w-40">{v.progress === null ? "—" : <ProgressBar tone="info" decimals={1} value={v.progress} label={`ความคืบหน้า ${v.plate}`} />}</Td>}
+            {planStatus && <Td>{planStatus(v)}</Td>}
             {status && <Td>{status(v)}</Td>}
             {action && <Td className="w-14 text-right">{action(v)}</Td>}
           </tr>

@@ -131,7 +131,7 @@ export function PODetail({
           rows={sortRows(rows, sort)}
           label="รายการยานพาหนะใน Purchase Order"
           sort={sort}
-          onSort={(key) => setSort((prev) => nextSort(prev, key))}
+          onSort={(key) => { if (key !== "statusOrder" && key !== "planNo") setSort((prev) => nextSort(prev, key)); } /* ตารางนี้ไม่มีคอลัมน์ planStatus */}
           statusLabel="สถานะงาน"
           status={(v) => v.job ? <Pill tone={JOB_STATUS[v.job.code].tone}>{JOB_STATUS[v.job.code].label}</Pill> : "—"}
           onRowClick={(v) => onOpenJob(v.plate)}

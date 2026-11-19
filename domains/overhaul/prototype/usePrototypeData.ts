@@ -3,6 +3,9 @@
  *  19 พ.ย. 2569: เก็บใน Supabase (ตาราง prototype_snapshot · 1 แถวต่อชุดข้อมูล) เมื่อตั้งค่า NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
  *    ⇒ ทุกเครื่องเห็นข้อมูลชุดเดียวกันและอัปเดตตามกันทันที (realtime) · ไม่ได้ตั้งค่า หรือต่อไม่ได้ ⇒ ใช้ localStorage ของเบราว์เซอร์เหมือนเดิม
  *  กันเขียนทับ: บันทึกได้เฉพาะเมื่อ version ใน DB ยังเท่าที่อ่านไว้ · ถ้ามีคนบันทึกก่อน ดึงของล่าสุดแล้วทำการแก้ของเราซ้ำบนนั้น
+ *  19 พ.ย. 2569 เจ้าของงาน: "กด mock data ทุกเคส ให้สร้างเพิ่มใน localStorage และถ้ากดจากข้อมูลนั้นไม่ต้องเพิ่มใน supa จริง"
+ *    ⇒ ชุดเคสทดสอบ (addMockSet) เก็บแยกใน localStorage (MOCK_KEY) แสดงต่อท้ายข้อมูลกลาง · แผน mock + PO ใต้แผนนั้น + งานใต้ PO นั้น
+ *      บันทึกลงเครื่องนี้เท่านั้น ไม่ส่งขึ้น Supabase · ของอื่นบันทึกขึ้นข้อมูลกลางตามเดิม
  *  ⚠ ข้อมูลจำลองเท่านั้น — ใครมีลิงก์ต้นแบบก็อ่านได้ ห้ามใส่ชื่อ/เบอร์/ข้อมูลคนจริง (PDPA) */
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type SetStateAction } from "react";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -14,6 +17,8 @@ type Row = { version: number; data: Data };
 
 const KEY = "vms-plus:overhaul-prototype:v1";
 const RESET_FLAG = "vms-plus:overhaul-prototype:reset";
+const MOCK_KEY = "vms-plus:overhaul-prototype:mock:v1";
+const EMPTY: Data = { plans: [], pos: [], jobs: [] };
 const TABLE = "prototype_snapshot";
 const DATASET = "overhaul-main";
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,25 +54,63 @@ function readLocal(fallback: Data): Data {
 function writeLocal(d: Data) {
   try { localStorage.setItem(KEY, JSON.stringify({ version: 1, data: d })); } catch { /* storage unavailable */ }
 }
+function readMock(): Data {
+  try {
+    const raw = localStorage.getItem(MOCK_KEY);
+    const value = raw ? JSON.parse(raw) : null;
+    return value?.version === 1 && valid(value.data) ? value.data : EMPTY;
+  } catch { return EMPTY; }
+}
+function writeMock(d: Data) {
+  try {
+    if (!d.plans.length && !d.pos.length && !d.jobs.length) localStorage.removeItem(MOCK_KEY);
+    else localStorage.setItem(MOCK_KEY, JSON.stringify({ version: 1, data: d }));
+  } catch { /* storage unavailable */ }
+}
+const merge = (r: Data, m: Data): Data => (m.plans.length || m.pos.length || m.jobs.length ? { plans: [...r.plans, ...m.plans], pos: [...r.pos, ...m.pos], jobs: [...r.jobs, ...m.jobs] } : r);
+/** แยกข้อมูลที่แก้แล้วกลับเป็น ข้อมูลกลาง / ข้อมูล mock — ยึดแผน mock ที่มีอยู่ก่อนแก้ (prev) */
+function split(next: Data, prev: Data): { remote: Data; mock: Data } {
+  const planIds = new Set(prev.plans.map((p) => p.id));
+  const poIds = new Set(prev.pos.map((p) => p.id));
+  next.pos.forEach((p) => { if (planIds.has(p.planId)) poIds.add(p.id); });
+  const isPlan = (p: Plan) => planIds.has(p.id);
+  const isPo = (p: PurchaseOrder) => planIds.has(p.planId) || poIds.has(p.id);
+  const isJob = (j: VehicleJob) => poIds.has(j.poId);
+  return {
+    remote: { plans: next.plans.filter((p) => !isPlan(p)), pos: next.pos.filter((p) => !isPo(p)), jobs: next.jobs.filter((j) => !isJob(j)) },
+    mock: { plans: next.plans.filter(isPlan), pos: next.pos.filter(isPo), jobs: next.jobs.filter(isJob) },
+  };
+}
+const sameList = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+
 function takeResetFlag(): boolean {
   try { const v = localStorage.getItem(RESET_FLAG) === "1"; localStorage.removeItem(RESET_FLAG); return v; } catch { return false; }
 }
 
 export function usePrototypeData(seed: Data) {
   const [data, setData] = useState<Data>(seed);
-  const current = useRef(data);
+  /** ข้อมูลกลาง (Supabase หรือ localStorage KEY เมื่อไม่มี DB) — ไม่รวม mock */
+  const current = useRef(seed);
+  /** ชุดเคสทดสอบ — localStorage เครื่องนี้เท่านั้น */
+  const mockRef = useRef<Data>(EMPTY);
   const version = useRef(0);
   const ready = useRef<Promise<boolean>>(Promise.resolve(false));
   const queue = useRef<Promise<void>>(Promise.resolve());
 
-  const show = useCallback((d: Data) => { current.current = d; setData(d); writeLocal(d); }, []);
+  const show = useCallback((d: Data) => { current.current = d; setData(merge(d, mockRef.current)); writeLocal(d); }, []);
+  const showMock = useCallback((m: Data) => { mockRef.current = m; writeMock(m); setData(merge(current.current, m)); }, []);
 
   useEffect(() => {
     const sb = db();
-    const syncLocal = () => { current.current = readLocal(current.current); setData(current.current); };
-    const receive = (e: StorageEvent) => { if (e.key === KEY && mode !== "remote") syncLocal(); };
+    mockRef.current = readMock();
+    const syncMock = () => { mockRef.current = readMock(); setData(merge(current.current, mockRef.current)); };
+    const syncLocal = () => { current.current = readLocal(current.current); mockRef.current = readMock(); setData(merge(current.current, mockRef.current)); };
+    const receive = (e: StorageEvent) => {
+      if (e.key === MOCK_KEY) syncMock();
+      else if (e.key === KEY && mode !== "remote") syncLocal();
+    };
     window.addEventListener("storage", receive);
-    const onFocus = () => { if (mode !== "remote") syncLocal(); };
+    const onFocus = () => { if (mode !== "remote") syncLocal(); else syncMock(); };
     window.addEventListener("focus", onFocus);
     const reset = takeResetFlag();
     if (!sb) {
@@ -125,19 +168,29 @@ export function usePrototypeData(seed: Data) {
 
   const update = useCallback(<K extends keyof Data>(key: K, action: SetStateAction<Data[K]>) => {
     const compute = (base: Data): Data => ({ ...base, [key]: typeof action === "function" ? (action as (prev: Data[K]) => Data[K])(base[key]) : action });
+    /** ทำการแก้บนข้อมูลรวม (กลาง + mock) แล้วแยกกลับ → ส่วน mock เก็บเครื่องนี้ทันที · คืนเฉพาะส่วนข้อมูลกลาง */
+    const prevMock = readMock(); // ยึดสถานะ mock ก่อนแก้ — ทำซ้ำ (ชนเวอร์ชัน) แล้วไม่แก้ mock ซ้อนสองรอบ
+    const apply = (remoteBase: Data): Data => {
+      const { remote, mock } = split(compute(merge(remoteBase, prevMock)), prevMock);
+      mockRef.current = mock;
+      writeMock(mock);
+      return remote;
+    };
     const beforeReady = mode === "connecting";
-    if (mode !== "remote") {
-      // Read latest before writing so an update to plans cannot erase another tab's reply.
-      show(compute(mode === "local" ? readLocal(current.current) : current.current));
-    } else {
-      show(compute(current.current));
+    const base = mode === "local" ? readLocal(current.current) : current.current;
+    const next = apply(base);
+    if (sameList(next[key], base[key])) {
+      // แก้เฉพาะข้อมูล mock → ไม่แตะข้อมูลกลาง / Supabase
+      setData(merge(current.current, mockRef.current));
+      return;
     }
+    show(next);
     const sb = db();
     if (!sb) return;
     queue.current = queue.current.then(async () => {
       if (!(await ready.current)) return;
       // แก้ก่อนโหลดจาก DB เสร็จ → ทำการแก้ซ้ำบนข้อมูลจาก DB (ข้อมูลในจอถูกแทนด้วยของ DB แล้ว)
-      let payload = beforeReady ? compute(current.current) : current.current;
+      let payload = beforeReady ? apply(current.current) : current.current;
       if (beforeReady) show(payload);
       for (let attempt = 0; attempt < 4; attempt++) {
         const v = version.current;
@@ -148,16 +201,24 @@ export function usePrototypeData(seed: Data) {
         const { data: row } = await sb.from(TABLE).select("version,data").eq("id", DATASET).single();
         if (!row || !valid(row.data)) return;
         version.current = row.version;
-        payload = compute(row.data);
+        payload = apply(row.data);
         show(payload);
       }
     }).catch((e) => console.warn("[prototype] บันทึกไม่สำเร็จ", e));
   }, [show]);
 
+  /** เพิ่มชุดเคสทดสอบลงเครื่องนี้ (ไม่ขึ้น Supabase) */
+  const addMockSet = useCallback((set: Data) => {
+    const m = readMock();
+    showMock({ plans: [...m.plans, ...set.plans], pos: [...m.pos, ...set.pos], jobs: [...m.jobs, ...set.jobs] });
+  }, [showMock]);
+  /** ลบชุดเคสทดสอบทั้งหมดของเครื่องนี้ (ข้อมูลกลางไม่เปลี่ยน) */
+  const clearMock = useCallback(() => showMock(EMPTY), [showMock]);
+
   const setPlans = useCallback((action: SetStateAction<Plan[]>) => update("plans", action), [update]);
   const setPos = useCallback((action: SetStateAction<PurchaseOrder[]>) => update("pos", action), [update]);
   const setJobs = useCallback((action: SetStateAction<VehicleJob[]>) => update("jobs", action), [update]);
-  return { ...data, setPlans, setPos, setJobs };
+  return { ...data, setPlans, setPos, setJobs, addMockSet, clearMock };
 }
 
 /** กลับเป็นข้อมูลตั้งต้น (รวมเคสทดสอบครบทุกสถานะ) แล้วโหลดหน้าใหม่ — ใช้จากหน้าสารบัญเคส / ปุ่ม Mock
@@ -165,6 +226,7 @@ export function usePrototypeData(seed: Data) {
 export function resetPrototypeData(hash = "#/cases") {
   try {
     localStorage.removeItem(KEY);
+    localStorage.removeItem(MOCK_KEY);
     if (db()) localStorage.setItem(RESET_FLAG, "1");
   } catch { /* storage unavailable */ }
   window.location.hash = hash;

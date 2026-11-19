@@ -8,7 +8,8 @@
 import { OverhaulDashboard } from "@overhaul/features/dashboard/Dashboard";
 import { downloadPlanExcel } from "@overhaul/features/plan/PlanForm";
 import { usePrototypeData } from "@overhaul/prototype/usePrototypeData";
-import { MockTools } from "@overhaul/prototype/MockTools";
+import { MOCK_CASES_EVENT, MockTools } from "@overhaul/prototype/MockTools";
+import { isMockPlanId, newMockCaseSet } from "@overhaul/mock/cases";
 import { CasesPage } from "@overhaul/prototype/CasesPage";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { SelectField } from "@ui/SelectField";
@@ -145,7 +146,18 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
-  const { plans, pos, jobs, setPlans, setPos, setJobs } = usePrototypeData(seed);
+  const { plans, pos, jobs, setPlans, setPos, setJobs, addMockSet, clearMock } = usePrototypeData(seed);
+  /* 19 พ.ย. 2569 เจ้าของงาน: ชุดเคสทดสอบสร้างเพิ่มใน localStorage เครื่องนี้ · กดอะไรในชุดนั้นไม่ขึ้น Supabase */
+  const plansRef = useRef(plans);
+  plansRef.current = plans;
+  const addMockCases = useCallback(() => {
+    const set = newMockCaseSet(seed, plansRef.current);
+    if (set) addMockSet(set);
+  }, [seed, addMockSet]);
+  useEffect(() => {
+    window.addEventListener(MOCK_CASES_EVENT, addMockCases);
+    return () => window.removeEventListener(MOCK_CASES_EVENT, addMockCases);
+  }, [addMockCases]);
   /* ข้อมูลที่บันทึกไว้ก่อน 17 พ.ย. 2569 ยังไม่มีชุด Dashboard → เติมครั้งเดียว (ไม่แตะข้อมูลอื่นที่กดเล่นไว้) */
   useEffect(() => {
     const dsPos = seed.pos.filter((x) => DASH_PLANS.some((p) => p.planNo === x.planId));
@@ -157,7 +169,6 @@ export default function OverhaulPrototype() {
   }, [pos, seed, setPlans, setPos, setJobs]);
   const [garages] = useState(seedGarages);
   const [staff] = useState(seedStaff);
-  const [vehicles] = useState(seedVehicles);
   const [fleet] = useState(seedFleet);
   const [route, setRoute] = useState<Route>({ view: "list" });
   const [toast, setToast] = useState<{ msg: string; tone: ToastTone; description?: string } | null>(null);
@@ -200,8 +211,9 @@ export default function OverhaulPrototype() {
     go({ view: "list" });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- แจ้งครั้งเดียวต่อการเปิดเส้นทางที่ไม่พบแผน
   }, [missingPlanId]);
+  const report = () => downloadPlanExcel(plans.flatMap((p) => p.vehicles));
   const home = (tab: "plans" | "vehicles", body: React.ReactNode) => (
-    <OverhaulHome tab={tab} onReport={() => downloadPlanExcel(plans.flatMap((p) => p.vehicles))} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
+    <OverhaulHome tab={tab} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
       {body}
     </OverhaulHome>
   );
@@ -364,7 +376,7 @@ export default function OverhaulPrototype() {
     ];
     body = <VehicleDetailPage vehicle={vInfo} crumbs={crumbs} tab={route.tab} onTab={(t) => go({ view: "vehicle", plate: route.plate, tab: t, from: route.from })} repairs={repairsOf(route.plate)} onNotInScope={notInScope} />;
   } else if (route.view === "vehicles") {
-    body = home("vehicles", <VehicleList vehicles={vehicles} onOpenVehicle={(plate) => openVehicle("vehicles")(plate, "info")} />);
+    body = home("vehicles", <VehicleList plans={plans} pos={pos} jobs={jobs} onReport={report} onOpenVehicle={openVehicle("vehicles")} />);
   } else if (route.view === "new") {
     body = <PlanForm key="new" {...formProps} onCancel={() => go({ view: "list" })} onSave={(d) => persist(d)} />;
   } else if (route.view === "edit" && plan) {
@@ -514,7 +526,14 @@ export default function OverhaulPrototype() {
   } else if (route.view === "dashboard") {
     body = <OverhaulDashboard tab={route.tab} onTab={(tab) => go({ view: "dashboard", tab })} onManage={() => go({ view: "list" })} onVehicle={(plate) => openVehicle("dashboard")(plate, "info")} jobs={jobs} />;
   } else if (route.view === "cases") {
-    body = <CasesPage jobs={jobs} />;
+    body = (
+      <CasesPage
+        jobs={jobs}
+        mockPlanIds={plans.filter((p) => isMockPlanId(p.id)).map((p) => p.id)}
+        onAddMock={() => { addMockCases(); notify("สร้างเคสทดสอบชุดใหม่แล้ว (เฉพาะเครื่องนี้)"); }}
+        onClearMock={() => { clearMock(); notify("ล้างเคสทดสอบของเครื่องนี้แล้ว"); }}
+      />
+    );
   } else if (route.view === "agency") {
     const items = agencyItems();
     const { unit } = loginUnit(items);
@@ -560,6 +579,7 @@ export default function OverhaulPrototype() {
         onEdit={(id) => go({ view: "edit", id })}
         onDelete={(id) => deletePlan(id)}
         onCreate={() => go({ view: "new" })}
+        onReport={report}
         onNotInScope={notInScope}
       />,
     );
