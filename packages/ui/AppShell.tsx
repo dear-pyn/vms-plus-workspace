@@ -47,7 +47,7 @@ const OPEN_FLEX = "group-hover/side:flex group-has-[:focus-visible]/side:flex gr
 const OPEN_FULL = "group-hover/side:w-full group-has-[:focus-visible]/side:w-full group-data-[pinned=true]/side:w-full";
 const LABEL = cx("min-w-0 overflow-hidden whitespace-nowrap text-ellipsis max-w-0 opacity-0 transition-[max-width,opacity]", EASE, "group-hover/side:max-w-[188px] group-has-[:focus-visible]/side:max-w-[188px] group-data-[pinned=true]/side:max-w-[188px] group-hover/side:opacity-100 group-has-[:focus-visible]/side:opacity-100 group-data-[pinned=true]/side:opacity-100");
 
-export function AppShell({ nav, activeId, children, user = "ผู้ใช้", notifications }: { nav: NavGroup[]; activeId: string; children: ReactNode; user?: string; /** มีค่า = กระดิ่งเปิดแผง Notification card */ notifications?: ReactNode }) {
+export function AppShell({ nav, activeId, children, user = "ผู้ใช้", notifications, prototypeBar }: { nav: NavGroup[]; activeId: string; children: ReactNode; user?: string; /** มีค่า = กระดิ่งเปิดแผง Notification card */ notifications?: ReactNode; /** เฉพาะต้นแบบ: ตัวเลือกจำลอง เช่น login เป็นหน่วยงาน/ผู้อนุมัติ — วางที่ header แยกจากเนื้อหาหน้า ไม่ใช่ UI ของระบบจริง (18 พ.ย. 2569) */ prototypeBar?: ReactNode }) {
   const activeGroup = nav.find((g) => g.id === activeId || g.children?.some((c) => c.id === activeId))?.id;
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (activeGroup ? { [activeGroup]: true } : {}));
   const [pinned, setPinned] = useState(false);
@@ -159,6 +159,7 @@ export function AppShell({ nav, activeId, children, user = "ผู้ใช้",
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-end gap-2 border-b border-gray-200 bg-white px-8 py-3 max-md:px-4">
+          {prototypeBar && <div className="mr-auto flex min-w-0 items-center">{prototypeBar}</div>}
           {notifications ?? (
             <button type="button" aria-label="การแจ้งเตือน" className="flex size-10 items-center justify-center rounded-md text-gray-500 hover:bg-gray-200">
               <Icon name="notifications" size={24} />

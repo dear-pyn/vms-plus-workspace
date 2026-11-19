@@ -10,7 +10,8 @@ import { downloadPlanExcel } from "@overhaul/features/plan/PlanForm";
 import { usePrototypeData } from "@overhaul/prototype/usePrototypeData";
 import { MockTools } from "@overhaul/prototype/MockTools";
 import { CasesPage } from "@overhaul/prototype/CasesPage";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { SelectField } from "@ui/SelectField";
 import { AppShell } from "@ui/AppShell";
 import { parseThaiDate } from "@ui/DateField";
 import { ConfirmDialog } from "@ui/Modal";
@@ -356,7 +357,7 @@ export default function OverhaulPrototype() {
   if (route.view === "vehicle" && vInfo) {
     // T2 breadcrumb: จัดการงาน Overhaul > (แผน X | ยานพาหนะที่ Overhaul) > ทะเบียน — กดย้อนกลับได้ทุกชั้น
     const from = route.from ?? "";
-    const crumbs = [
+    const crumbs = from === "dashboard" ? [{ label: "Dashboard Overhaul", onClick: () => go({ view: "dashboard", tab: "vehicles" }) }, { label: route.plate }] : [
       { label: "จัดการงาน Overhaul", onClick: () => go({ view: "list" }) },
       ...(from.startsWith("plan:") ? [{ label: `แผน ${from.slice(5)}`, onClick: () => go({ view: "detail", id: from.slice(5) }) }] : from === "vehicles" ? [{ label: "ยานพาหนะที่ Overhaul", onClick: () => go({ view: "vehicles" }) }] : []),
       { label: route.plate },
@@ -511,16 +512,15 @@ export default function OverhaulPrototype() {
       />
     );
   } else if (route.view === "dashboard") {
-    body = <OverhaulDashboard tab={route.tab} onTab={(tab) => go({ view: "dashboard", tab })} onManage={() => go({ view: "list" })} onJob={(po, plate) => go({ view: "job", po, plate })} />;
+    body = <OverhaulDashboard tab={route.tab} onTab={(tab) => go({ view: "dashboard", tab })} onManage={() => go({ view: "list" })} onVehicle={(plate) => openVehicle("dashboard")(plate, "info")} />;
   } else if (route.view === "cases") {
     body = <CasesPage jobs={jobs} />;
   } else if (route.view === "agency") {
     const items = agencyItems();
-    const units = [...new Set(items.map((x) => x.vehicle?.affiliation).filter((u): u is string => !!u))].sort();
-    const unit = agencyUnit || items.find((x) => awaitingReply(x.job))?.vehicle?.affiliation || units[0] || "";
+    const { unit } = loginUnit(items);
     body = (
       <AgencyList
-        items={items} units={units} unit={unit} onUnit={setAgencyUnit}
+        items={items} unit={unit}
         onOpen={(po, plate) => {
           setAgencyUnit(unit); // คงหน่วยงานที่เลือกไว้เมื่อกลับมาหน้ารายการ
           go({ view: "agencyJob", po, plate });
@@ -530,9 +530,9 @@ export default function OverhaulPrototype() {
   } else if (route.view === "approval" || (route.view === "approvalJob" && closeItem(route.po, route.plate))) {
     /* เจ้าของงาน 17 พ.ย. 2569: เมนูใหม่ "อนุมัติปิดงาน" แบบเดียวกับ "ตอบรับนัดหมาย" · ต้นแบบเลือกผู้อนุมัติที่ login จากช่องบนหน้ารายการ */
     const items = agencyItems();
-    const me = approverMe || items.find((x) => x.job.code === "V10.3")?.job.close?.approval?.approverId || approversOf(staff)[0]?.id || "";
+    const me = loginApprover(items);
     if (route.view === "approval") {
-      body = <ApprovalList items={items} staff={staff} me={me} onMe={setApproverMe} onOpen={(po, plate) => { setApproverMe(me); go({ view: "approvalJob", po, plate }); }} />;
+      body = <ApprovalList items={items} staff={staff} me={me} onOpen={(po, plate) => { setApproverMe(me); go({ view: "approvalJob", po, plate }); }} />;
     } else {
       const item = items.find((x) => x.po.id === route.po && x.job.plate === route.plate)!;
       const who = item.job.close?.approval?.approverId ?? me;
@@ -580,6 +580,34 @@ export default function OverhaulPrototype() {
     date.setHours(hour, minute, 0, 0);
     return date.getTime();
   };
+  /* 18 พ.ย. 2569 เจ้าของงาน "ทำ ui จริงเสีย": ตัวเลือกจำลอง "login เป็นหน่วยงาน / ผู้อนุมัติ" ย้ายจากในหน้าไป header (prototypeBar ของ AppShell)
+     หน้าเมนูตอบรับนัดหมายและอนุมัติปิดงานจึงเหลือแค่ UI ของระบบจริง · หน้ารายคันแสดงแบบปิด (ล็อกตามงานที่เปิด) */
+  function loginUnit(items: AgencyItem[]) {
+    const units = [...new Set(items.map((x) => x.vehicle?.affiliation).filter((u): u is string => !!u))].sort();
+    return { units, unit: agencyUnit || items.find((x) => awaitingReply(x.job))?.vehicle?.affiliation || units[0] || "" };
+  }
+  function loginApprover(items: AgencyItem[]) {
+    return approverMe || items.find((x) => x.job.code === "V10.3")?.job.close?.approval?.approverId || approversOf(staff)[0]?.id || "";
+  }
+  let prototypeBar: ReactNode = null;
+  if (route.view === "agency" || route.view === "agencyJob" || route.view === "approval" || route.view === "approvalJob") {
+    const items = agencyItems();
+    const onJob = route.view === "agencyJob" || route.view === "approvalJob";
+    const job = onJob ? items.find((x) => x.po.id === route.po && x.job.plate === route.plate) : undefined;
+    if (route.view === "agency" || route.view === "agencyJob") {
+      const { units, unit } = loginUnit(items);
+      const value = job?.vehicle?.affiliation ?? unit;
+      prototypeBar = (
+        <SelectField aria-label="ต้นแบบ: login เป็นหน่วยงาน" className="w-72 max-md:w-48" icon="science" disabled={onJob} value={value} onChange={(e) => setAgencyUnit(e.target.value)} options={units.map((u) => ({ value: u, label: `ต้นแบบ · ${u}` }))} />
+      );
+    } else {
+      const me = job?.job.close?.approval?.approverId ?? loginApprover(items);
+      prototypeBar = (
+        <SelectField aria-label="ต้นแบบ: login เป็นผู้อนุมัติ" className="w-80 max-md:w-48" icon="science" disabled={onJob} value={me} onChange={(e) => setApproverMe(e.target.value)} options={approversOf(staff).map((s) => ({ value: s.id, label: `ต้นแบบ · ${s.name}` }))} />
+      );
+    }
+  }
+
   const notiAll: Array<NotificationItem & { go: Route; timestamp?: number }> = jobs.flatMap((j) => {
     const out: Array<NotificationItem & { go: Route; timestamp?: number }> = [];
     const w = j.close?.warranty;
@@ -638,6 +666,7 @@ export default function OverhaulPrototype() {
           onClearAll={() => setClearedIds(notiAll.map((n) => n.id))}
         />
       }
+      prototypeBar={prototypeBar}
     >
       {/* D-R1 เดิม: แถบ "ต้นแบบ: มุมมอง" — เอาออก 16 พ.ย. 2569 · มุมหน่วยงานเข้าจากเมนู "ตอบรับนัดหมาย" ใต้ Overhaul แทน */}
       {body}

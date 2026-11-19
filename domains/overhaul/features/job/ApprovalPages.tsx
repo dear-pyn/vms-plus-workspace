@@ -12,13 +12,11 @@ import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
 import { Modal } from "@ui/Modal";
 import { PageHeader, SectionHeader } from "@ui/PageHeader";
-import { SelectField } from "@ui/SelectField";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
 import { TextArea } from "@ui/TextArea";
 import { JOB_STATUS, type Staff } from "../po/types";
 import type { AgencyItem } from "./AgencyPages";
 import { JobPage } from "./JobPage";
-import { approversOf } from "./StepSendApproval";
 import { usePrototypeFill } from "../../prototype/MockTools";
 
 export type ApprovalDecision = { approved: true } | { approved: false; reason: string };
@@ -27,14 +25,11 @@ export type ApprovalDecision = { approved: true } | { approved: false; reason: s
 export const awaitingApproval = (x: AgencyItem, approverId: string) => x.job.code === "V10.3" && x.job.close?.approval?.approverId === approverId;
 
 /** เมนู "อนุมัติปิดงาน" — รายการรายคันที่รออนุมัติ */
-export function ApprovalList({ items, staff, me, onMe, onOpen }: { items: AgencyItem[]; staff: Staff[]; me: string; onMe: (id: string) => void; onOpen: (po: string, plate: string) => void }) {
+export function ApprovalList({ items, staff, me, onOpen }: { items: AgencyItem[]; staff: Staff[]; /** ผู้อนุมัติที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ me: string; onOpen: (po: string, plate: string) => void }) {
   const mine = items.filter((x) => awaitingApproval(x, me));
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
-      <PageHeader crumbs={[{ label: "อนุมัติปิดงาน" }]} title="อนุมัติปิดงาน" subtitle="งาน Overhaul รายคันที่ กบค. ส่งมาให้อนุมัติปิดงาน" />
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <SelectField label="ผู้อนุมัติ (ต้นแบบ: เลือกผู้ที่ login)" value={me} onChange={(e) => onMe(e.target.value)} options={approversOf(staff).map((s) => ({ value: s.id, label: `${s.name} · ${s.role}` }))} />
-      </div>
+      <PageHeader crumbs={[{ label: "อนุมัติปิดงาน" }]} title="อนุมัติปิดงาน" /* subtitle เอาออก: ซ้ำชื่อหน้า (เจ้าของงาน 18 พ.ย. 2569) */ />
       <section className="flex flex-col gap-4">
         <SectionHeader title={`รออนุมัติปิดงาน (${mine.length})`} />
         {mine.length === 0 ? (

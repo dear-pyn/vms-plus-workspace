@@ -37,7 +37,7 @@ export const CASES: CaseDef[] = [
   { id: "s5-wait", group: "ขั้น 5 นัดรับรถ", title: "ส่งนัดแล้ว รอหน่วยงานตอบกลับ", code: "V8", progress: 100, detail: ["นัดรับรถ 10 – 12/11/2569", "รอหน่วยงานตอบรับ"] },
   {
     id: "s5-reject", group: "ขั้น 5 นัดรับรถ", title: "หน่วยงานปฏิเสธนัดรับรถ", code: "V9", progress: 100, detail: ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"],
-    tweak: (j) => ({ ...j, appt5: { from: "10/11/2569", to: "12/11/2569", coordinatorId: "500101", note: "", sentAt: "05/11/2569", reply: { accepted: false, reason: "ไม่มีพนักงานขับรถไปรับในช่วงนั้น", at: "06/11/2569" } } }),
+    tweak: (j) => ({ ...j, appt5: { from: "10/11/2569", to: "12/11/2569", coordinatorId: "600202", note: "", sentAt: "05/11/2569", reply: { accepted: false, reason: "ไม่มีพนักงานขับรถไปรับในช่วงนั้น", at: "06/11/2569" } } }),
   },
   { id: "s6-appt", group: "ขั้น 6 ปิดงาน", title: "รอปิดงาน (มาจากการนัดรับรถ)", code: "V10", progress: 100, detail: ["นัดรับรถ 08/11/2569", "รอปิดงาน"] },
   {

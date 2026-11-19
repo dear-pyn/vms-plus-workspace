@@ -74,7 +74,7 @@ export function enrichJob(j: VehicleJob): VehicleJob {
     if (step === 3) out.progress = out.progressLog[out.progressLog.length - 1].percent;
   }
   if (step >= 5) out.inspection = { safety: [{ name: "Safety-Inspection.pdf", sizeKb: 640 }], other: [], photos: [{ name: "หลังซ่อม-ด้านหน้า.jpg", sizeKb: 910 }], confirmedAt: "02/11/2569 15:20" };
-  if (step >= 6) out.appt5 = { from: "08/11/2569", to: "09/11/2569", coordinatorId: "500101", note: "", sentAt: "03/11/2569", reply: { accepted: true, date: "08/11/2569", deliverer: "ผู้รับรถตัวอย่าง", at: "04/11/2569" } };
+  if (step >= 6) out.appt5 = { from: "08/11/2569", to: "09/11/2569", coordinatorId: "600202" /* ผู้รับมอบรถ (หน่วยงาน) · 17 พ.ย. 2569 */, note: "", sentAt: "03/11/2569", reply: { accepted: true, date: "08/11/2569", at: "04/11/2569" } };
   if (step >= 7) {
     // ปิดงานแล้ว: 72-6648 สงขลา ประกันเหลือ 15 วัน (Q.2/Q.4 · T.3) · คันอื่นเริ่มประกัน 09/11/2569 360 วัน
     const nearEnd = j.plate === "72-6648 สงขลา";
@@ -91,7 +91,7 @@ export function enrichJob(j: VehicleJob): VehicleJob {
       closedAt: "09/11/2569 15:00",
     };
   }
-  else if (j.code === "V8") out.appt5 = { from: "10/11/2569", to: "12/11/2569", coordinatorId: "500101", note: "", sentAt: "05/11/2569" };
+  else if (j.code === "V8") out.appt5 = { from: "10/11/2569", to: "12/11/2569", coordinatorId: "600202" /* ผู้รับมอบรถ (หน่วยงาน) */, note: "", sentAt: "05/11/2569" };
   return out;
 }
 

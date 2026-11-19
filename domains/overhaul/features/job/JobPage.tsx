@@ -84,7 +84,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     const a = kind === 1 ? job.appt1 : job.appt5;
     if (!a) return;
     const today = new Date().toLocaleDateString("th-TH", { day: "2-digit", month: "2-digit", year: "numeric" });
-    const r = accepted ? { accepted, date: a.from, deliverer: "ผู้นำส่งตัวอย่าง", at: today } : { accepted, reason: "ยานพาหนะติดภารกิจซ่อมบำรุงสายส่ง ขอเลื่อนนัด", at: today };
+    const r = accepted ? { accepted, date: a.from, at: today } : { accepted, reason: "ยานพาหนะติดภารกิจซ่อมบำรุงสายส่ง ขอเลื่อนนัด", at: today };
     const unit = vehicle?.affiliation ?? "";
     // ต้นแบบ: ตอบรับแล้วถือว่าถึงวันนัด → ขั้นถัดไปทันที (V4 → V4.1 · V10)
     if (kind === 1) set(accepted ? "V4.1" : "V3", { appt1: { ...a, reply: r }, detail: accepted ? [`นัดเข้าอู่ ${a.from}`, "รอตรวจรับรถ"] : ["หน่วยงานปฏิเสธนัด", "รอแก้นัดหมาย"] }, accepted ? T.apptAccepted() : T.apptRejected(unit, key));
@@ -171,7 +171,8 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   // ขั้น 6–7 (S14 · S15 · S20)
   const closeDefaults: CloseDraft = {
     returnedAt: job.direct5?.date ?? job.appt5?.reply?.date ?? "",
-    receiver: (job.direct5?.coordinatorId ? staff.find((s) => s.id === job.direct5!.coordinatorId)?.name : undefined) ?? job.appt5?.reply?.deliverer ?? "",
+    /* 18 พ.ย. 2569: ผู้รับมอบรถ = คนที่ กบค. เลือกไว้ในขั้น 5 (ไม่มีนัด หรือ มีนัด) · หน่วยงานไม่กรอกชื่อตอนตอบรับนัดแล้ว · reply.deliverer เหลือไว้อ่านข้อมูลเก่า */
+    receiver: staff.find((s) => s.id === (job.direct5?.coordinatorId ?? job.appt5?.coordinatorId))?.name ?? job.appt5?.reply?.deliverer ?? "",
     body: seedSmiParts() /* บอร์ด 0.2: อะไหล่ที่เบิกจากคลัง (SMI) อยู่ในตารางตัวรถ แทนตาราง "คืนอะไหล่" แยก */,
     tools: [],
     stock: [],
@@ -243,7 +244,8 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
         <StepIntake
           key={`i-${job.code}`}
           intake={job.intake}
-          defaultDeliverer={job.direct1?.coordinatorId}
+          /* 18 พ.ย. 2569: หน่วยงานไม่กรอกชื่อคนตอนตอบรับนัดแล้ว → ตั้งต้นผู้ส่งมอบรถจากขั้น 1 ทั้งกรณีไม่มีนัดและมีนัด · เปลี่ยนเป็นคนที่มาส่งจริงได้จนกว่าจะเซ็น */
+          defaultDeliverer={job.direct1?.coordinatorId ?? job.appt1?.coordinatorId}
           staff={staff}
           readOnly={ro}
           onBack={onGoPO}

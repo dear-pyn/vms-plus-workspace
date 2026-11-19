@@ -82,7 +82,7 @@ function FilterCard({ description, children }: { description: string; children: 
   );
 }
 
-export function OverhaulDashboard({ tab, onTab, onManage, onJob }: { tab: Tab; onTab: (tab: Tab) => void; onManage: () => void; onJob: (po: string, plate: string) => void }) {
+export function OverhaulDashboard({ tab, onTab, onManage, onVehicle }: { tab: Tab; onTab: (tab: Tab) => void; onManage: () => void; /** 18 พ.ย. 2569: ไอคอนรูปตา → หน้ายานพาหนะของ VMS Plus ปัจจุบัน (แท็บใหม่ ตามกติกา T3) แทนหน้างานรายคัน */ onVehicle: (plate: string) => void }) {
   return (
     <div className="flex flex-col gap-6 p-8 max-md:p-4">
       <PageHeader
@@ -92,7 +92,7 @@ export function OverhaulDashboard({ tab, onTab, onManage, onJob }: { tab: Tab; o
         actions={<Button variant="secondary" iconLeft="arrow_forward" onClick={onManage}>จัดการงาน Overhaul</Button>}
       />
       <Tabs value={tab} onChange={(v) => onTab(v as Tab)} items={[{ id: "plans", label: "ระดับแผน" }, { id: "vehicles", label: "ระดับยานพาหนะ" }]} />
-      {tab === "plans" ? <PlanLevel /> : <VehicleLevel onJob={onJob} />}
+      {tab === "plans" ? <PlanLevel /> : <VehicleLevel onVehicle={onVehicle} />}
       <p className="text-center text-xs text-gray-500">ราคาซื้อใหม่ใช้ราคากลาง · ข้อมูลจำลองสำหรับต้นแบบ</p>
     </div>
   );
@@ -280,7 +280,7 @@ function PlanLevel() {
 
 /* ───────── ระดับยานพาหนะ ───────── */
 
-function VehicleLevel({ onJob }: { onJob: (po: string, plate: string) => void }) {
+function VehicleLevel({ onVehicle }: { onVehicle: (plate: string) => void }) {
   const [year, setYear] = useState(YEARS[0]);
   const [sel, setSel] = useState<string[] | null>(null);
   const [q, setQ] = useState("");
@@ -340,7 +340,7 @@ function VehicleLevel({ onJob }: { onJob: (po: string, plate: string) => void })
             </ol>
           </Panel>
 
-          <Panel title="ยานพาหนะที่ Overhaul" subtitle={'กดไอคอนรูปตาเพื่อเปิดหน้างานของคันนั้น · จำนวนเงินเป็นบาท'} actions={<span className="text-sm text-gray-600">{n(shown.length)} คัน</span>}>
+          <Panel title="ยานพาหนะที่ Overhaul" subtitle={'กดไอคอนรูปตาเพื่อเปิดข้อมูลยานพาหนะ · จำนวนเงินเป็นบาท'} actions={<span className="text-sm text-gray-600">{n(shown.length)} คัน</span>}>
             {!shown.length ? (
               <EmptyState kind="search-not-found" title="ไม่พบยานพาหนะ" description="ลองเปลี่ยนคำค้นหรือแผนที่เลือก" />
             ) : (
@@ -367,7 +367,7 @@ function VehicleLevel({ onJob }: { onJob: (po: string, plate: string) => void })
                         <Td className="text-right tabular-nums">{currency(x.newPrice)}</Td>
                         <Td><CellStack main={<span className={x.worth ? "text-success-600" : "text-error-600"}>{x.worth ? "คุ้มค่า" : "ควรพิจารณาซื้อใหม่"}</span>} sub={`${Math.round(x.ratio)}%`} /></Td>
                         {/* เจ้าของงาน 17 พ.ย. 2569: ปุ่มไอคอนตา — `Table cell` Style=Action icons (View) · Tertiary button icon-only → ไปหน้างานรายคันจริงของต้นแบบ */}
-                        <Td><Button variant="tertiary" iconOnly="visibility" aria-label={`ดูงานที่ทำ ${x.plate}`} title="ดูงานที่ทำ" onClick={() => onJob(x.po, x.plate)} /></Td>
+                        <Td><Button variant="tertiary" iconOnly="visibility" aria-label={`ดูข้อมูลยานพาหนะ ${x.plate}`} title="ดูข้อมูลยานพาหนะ" onClick={() => onVehicle(x.plate)} /></Td>
                       </tr>
                     ))}
                   </tbody>

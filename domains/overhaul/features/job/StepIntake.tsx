@@ -214,7 +214,7 @@ export function StepIntake({
             ③ ส่งแล้ว = ช่องปิด · ปุ่ม "แก้ไข" เปิด (ยังไม่เซ็น → กลับไป ②) · เซ็นแล้ว (Confirm) = ช่องปิด + Pill "เซ็นลงนามแล้ว" ไม่มีแก้ไข
             component: Input dropdown (Combobox · disabled) · Secondary button md · `Pill outline` Success/Warning — ไฟล์ Component VMS Plus · ภาพ UAT handover sign */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Signer label="ผู้ส่งมอบรถ" info={GIVER_INFO} error={fieldError("delivererId")} side="หน่วยงาน" unit="หน่วยงาน" value={shown.delivererId} onChange={(v) => setF((x) => ({ ...x, delivererId: v }))} intake={intake} staff={staff} locked={signerLocked} allowSend={!readOnly} onSend={requestSign} blocked={busy || uploading} />
+          <Signer label="ผู้ส่งมอบรถ" info={GIVER_INFO} error={fieldError("delivererId")} side="หน่วยงาน" unit="หน่วยงาน" planned={defaultDeliverer} value={shown.delivererId} onChange={(v) => setF((x) => ({ ...x, delivererId: v }))} intake={intake} staff={staff} locked={signerLocked} allowSend={!readOnly} onSend={requestSign} blocked={busy || uploading} />
           <Signer label="ผู้รับมอบรถ (กบค.)" error={fieldError("receiverId")} side="กบค." unit="กบค." value={shown.receiverId} onChange={(v) => setF((x) => ({ ...x, receiverId: v }))} intake={intake} staff={staff} locked={signerLocked} allowSend={!readOnly} onSend={requestSign} blocked={busy || uploading} />
         </div>
       </section>
@@ -236,8 +236,10 @@ export function StepIntake({
 }
 
 /** ผู้ลงนาม 1 คน — สถานะ ①②③ ตามกระดานเจ้าของงาน 17 พ.ย. 2569 */
-function Signer({ label, info, side, unit, value, onChange, intake, staff, locked, allowSend, onSend, error, blocked }: {
+function Signer({ label, info, side, unit, value, onChange, intake, staff, locked, allowSend, onSend, error, blocked, planned }: {
   label: string;
+  /** ผู้ส่งมอบรถที่ระบุไว้ในขั้น 1 — ใช้บอกใน helper ว่าช่องตั้งต้นมาจากไหน และบอกชื่อเดิมเมื่อเปลี่ยนเป็นคนที่มาส่งจริง (18 พ.ย. 2569) */
+  planned?: string;
   info?: { title: string; text: string };
   side: "หน่วยงาน" | "กบค.";
   unit: string;
@@ -258,6 +260,9 @@ function Signer({ label, info, side, unit, value, onChange, intake, staff, locke
   const [busy, setBusy] = useState(false);
   const open = !locked && !signed && (!sent || editing);
   const canSend = !signed && allowSend && (open || !sent);
+  const plannedName = planned ? staff.find((s) => s.id === planned)?.name : undefined;
+  /* helper ของ Combobox (component กลาง) แสดงเฉพาะตอนยังแก้ได้: ยังเป็นคนเดิม = บอกว่าเปลี่ยนได้ · เปลี่ยนแล้ว = บอกชื่อที่ระบุไว้ในขั้น 1 */
+  const helper = !open || !plannedName ? undefined : value === planned ? "ตามที่ระบุไว้ในขั้นที่ 1 เปลี่ยนได้ถ้าผู้ที่มาส่งจริงเป็นคนอื่น" : value ? `ขั้นที่ 1 ระบุไว้: ${plannedName}` : undefined;
   async function send() {
     if (busy || blocked || !value) return;
     setBusy(true);
@@ -271,6 +276,7 @@ function Signer({ label, info, side, unit, value, onChange, intake, staff, locke
         label={label}
         info={info}
         error={error}
+        helper={helper}
         placeholder="ค้นหาชื่อ-นามสกุล, รหัสพนักงาน"
         emptyText="ไม่พบรายชื่อ"
         disabled={!open || busy || blocked}

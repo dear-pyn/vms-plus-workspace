@@ -16,15 +16,14 @@ import { Button } from "@ui/Button";
 import { DateField, DateRangeField, parseThaiDate } from "@ui/DateField";
 import { EmptyState } from "@ui/EmptyState";
 import { Modal } from "@ui/Modal";
-import { PageHeader, SectionHeader, SectionLabel } from "@ui/PageHeader";
-import { SelectField } from "@ui/SelectField";
+import { PageHeader, SectionHeader } from "@ui/PageHeader";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
 import { TextArea } from "@ui/TextArea";
 import { JOB_STATUS, type Garage, type PurchaseOrder, type Staff, type VehicleJob } from "../po/types";
 import type { Plan } from "../plan/types";
 import type { PlanVehicle } from "../vehicle/types";
 import { JobPage } from "./JobPage";
-import { Box, VehicleCard } from "./CloseSummary";
+import { Row } from "./StepAppointment";
 
 /* สีป้ายสถานะหัวหน้า — ชุดเดียวกับ JobPage */
 const BADGE = { gray: "gray", warning: "gray", error: "error", info: "brand", success: "success", brand: "brand", disabled: "disabled", purple: "brand" } as const;
@@ -48,19 +47,16 @@ const kindOf = (j: VehicleJob) => (j.code === "V8" ? 5 : 1);
 const apptOf = (j: VehicleJob) => (kindOf(j) === 5 ? j.appt5 : j.appt1);
 const WORD = {
   /* เจ้าของงาน 18 พ.ย. 2569: 2 แบบ "ตอบรับส่งมอบรถ" (ขั้น 1) / "ตอบรับรับรถ" (ขั้น 5) · คำในช่องตามขั้น 1 และ 5 ของฝั่ง กบค. (StepAppointment) */
-  1: { what: "ตอบรับส่งมอบรถ", range: "ช่วงเวลาที่นำรถเข้า", day: "วันที่นำรถเข้า", dayPh: "เลือกวันที่นำรถเข้า", person: "ผู้ส่งมอบรถ", phone: "เบอร์โทรศัพท์ผู้ส่งมอบรถ" },
-  5: { what: "ตอบรับรับรถ", range: "ช่วงเวลาที่นัดรับรถ", day: "วันที่ส่งมอบรถคืน", dayPh: "เลือกวันที่ส่งมอบรถคืน", person: "ผู้รับมอบรถ", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" },
+  1: { what: "ส่งรถเข้าอู่", range: "ช่วงเวลาที่นำรถเข้า", day: "วันที่นำรถเข้า", dayPh: "เลือกวันที่นำรถเข้า", person: "ผู้ส่งมอบรถ", phone: "เบอร์โทรศัพท์ผู้ส่งมอบรถ" },
+  5: { what: "รับรถคืน", range: "ช่วงเวลาที่นัดรับรถ", day: "วันที่รับรถ", dayPh: "เลือกวันที่รับรถ" /* 18 พ.ย. 2569: คู่กับ "ช่วงเวลาที่นัดรับรถ" แบบขั้น 1 (ช่วงเวลาที่นำรถเข้า · วันที่นำรถเข้า) · "วันที่ส่งมอบรถคืน" เป็นคำของ กบค. กรณีไม่มีการนัดหมาย */, person: "ผู้รับมอบรถ", phone: "เบอร์โทรศัพท์ผู้รับมอบรถ" },
 } as const;
 
 /** เมนู "ตอบรับนัดหมาย" — รายการรายคันที่รอหน่วยงานตอบรับ */
-export function AgencyList({ items, units, unit, onUnit, onOpen }: { items: AgencyItem[]; units: string[]; unit: string; onUnit: (u: string) => void; onOpen: (po: string, plate: string) => void }) {
+export function AgencyList({ items, unit, onOpen }: { items: AgencyItem[]; /** หน่วยงานที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ unit: string; onOpen: (po: string, plate: string) => void }) {
   const mine = items.filter((x) => x.vehicle?.affiliation === unit && awaitingReply(x.job));
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
-      <PageHeader crumbs={[{ label: "ตอบรับนัดหมาย" }]} title="ตอบรับนัดหมาย" subtitle="ยานพาหนะของหน่วยงานที่ กบค. ส่งนัดหมายมา รอตอบรับหรือปฏิเสธ" />
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <SelectField label="หน่วยงาน (ต้นแบบ: เลือกหน่วยงานที่ login)" value={unit} onChange={(e) => onUnit(e.target.value)} options={units.map((u) => ({ value: u, label: u }))} />
-      </div>
+      <PageHeader crumbs={[{ label: "ตอบรับนัดหมาย" }]} title="ตอบรับนัดหมาย" /* subtitle เอาออก: ซ้ำชื่อหน้า (เจ้าของงาน 18 พ.ย. 2569) */ />
       <section className="flex flex-col gap-4">
         <SectionHeader title={`รอตอบรับนัดหมาย (${mine.length})`} />
         {mine.length === 0 ? (
@@ -69,13 +65,14 @@ export function AgencyList({ items, units, unit, onUnit, onOpen }: { items: Agen
           <DataTable label="รอตอบรับนัดหมาย" striped>
             <thead>
               <tr>
+                {/* 18 พ.ย. 2569: แยกนัด "ส่งรถเข้าอู่" (ขั้น 1) กับ "รับรถคืน" (ขั้น 5) ให้เห็นตั้งแต่รายการ — คอลัมน์ "นัดหมาย" เป็น Pill ต่อจากทะเบียน
+                    แทนคอลัมน์ "ประเภท" (ข้อความ "ตอบรับส่งมอบรถ/ตอบรับรับรถ" ไม่สื่อ และชนกับประเภทยานพาหนะ) + "สถานะ" (ทุกแถวเป็น "รอหน่วยงานตอบรับ…" บอกได้แค่ชนิดนัดซ้ำกัน) */}
                 <Th>ทะเบียน</Th>
+                <Th>นัดหมาย</Th>
                 <Th>ยี่ห้อ/รุ่น · ประเภท</Th>
-                <Th>ประเภท</Th>
                 <Th>ช่วงวันที่เสนอ</Th>
                 <Th>แผน / Purchase Order</Th>
                 <Th>ส่งเมื่อ</Th>
-                <Th>สถานะ</Th>
                 <Th className="w-16">
                   <span className="sr-only">ตอบรับนัดหมาย</span>
                 </Th>
@@ -88,17 +85,16 @@ export function AgencyList({ items, units, unit, onUnit, onOpen }: { items: Agen
                   <tr key={`${po.id}-${job.plate}`} className="cursor-pointer hover:bg-gray-100" onClick={() => onOpen(po.id, job.plate)}>
                     <Td className="font-semibold">{job.plate}</Td>
                     <Td>
+                      <Pill tone={JOB_STATUS[job.code].tone}>{WORD[kindOf(job)].what}</Pill>
+                    </Td>
+                    <Td>
                       <CellStack main={vehicle ? `${vehicle.make} ${vehicle.model}` : "—"} sub={vehicle?.type} />
                     </Td>
-                    <Td>{WORD[kindOf(job)].what}</Td>
                     <Td>{a ? `${a.from} - ${a.to}` : "—"}</Td>
                     <Td>
                       <CellStack main={plan.id} sub={po.id} />
                     </Td>
                     <Td>{a?.sentAt ?? "—"}</Td>
-                    <Td>
-                      <Pill tone={JOB_STATUS[job.code].tone}>{JOB_STATUS[job.code].label}</Pill>
-                    </Td>
                     <Td>
                       <Button variant="tertiary" iconOnly="keyboard_arrow_right" aria-label={`ตอบรับนัดหมาย ${job.plate}`} onClick={() => onOpen(po.id, job.plate)} />
                     </Td>
@@ -185,14 +181,16 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
         onOpenApproval={() => undefined}
       />
       ) : (
-        /* เจ้าของงาน 18 พ.ย. 2569 "หน้าใหม่ของเมนูตอบรับนัดหมายเลย" · "หน้าจะคล้ายๆ step 7 แบบไม่มี step":
-           หัวหน้า + ปุ่มขวาบน · ช่องวันที่ (Date picker single) ด้านบน · 2 คอลัมน์แบบขั้น 7 (ซ้าย รายละเอียดการนัดหมาย/ข้อมูลผู้ซ่อม · ขวา การ์ดยานพาหนะ) ไม่มี Progress steps
-           component: Page header + Badge outline · Date picker · Section label · Content item (กล่องเทา) · Fleet card — ตามหน้าขั้น 7 (CloseSummary) */
+        /* เจ้าของงาน 18 พ.ย. 2569 (เย็น): กลับไปใช้โครงแบบ 16 พ.ย. ที่ dev ทำแล้ว (ข้อมูลยานพาหนะ · รายละเอียดการนัดหมาย แบบขั้น 1/5 ไม่มี Progress steps) + แก้ 3 ข้อ
+           ① ช่องวันที่อยู่ในส่วน "รายละเอียดการนัดหมาย" ต่อจากกล่องข้อมูลนัด ตามลำดับขั้น 1/5 (เจ้าของงานเคาะ 18 พ.ย. 2569 · เดิมเสนอไว้ใต้หัวหน้า)
+           ② ข้อมูลที่ กบค. ใส่ไว้ (ช่วงวัน · ผู้ส่ง/ผู้รับมอบรถ · เบอร์) แสดงเป็น Content item ในกล่องเทา ไม่ใช่ Text input readonly (เดิมดูเหมือนช่องให้กรอก)
+           ③ ตัดช่องผู้นำส่งรถ/ผู้รับรถ (ถ้ามี) — คนที่มาจริงเลือกในขั้น 2 ตอนเซ็นลงนาม (ไม่ให้มี 3 ชื่อสำหรับบทบาทเดียว)
+           component: Page header + Badge outline · Date picker · Section header · Content item row (กล่องเทา) — ชุดเดียวกับหน้างานรายคัน ขั้น 1/5 */
         <div className="flex flex-col gap-8 p-8 max-md:px-4">
           <PageHeader
             crumbs={[{ label: "ตอบรับนัดหมาย", onClick: onBack }, { label: job.plate }]}
             title={job.plate}
-            subtitle={W.what}
+            /* subtitle "ตอบรับส่งมอบรถ/ตอบรับรับรถ" เอาออก: ไม่สื่อ · ชนิดนัดดูได้จากป้ายช่วงเวลาในหน้า (เจ้าของงาน 18 พ.ย. 2569) */
             badge={<OutlineBadge tone={BADGE[JOB_STATUS[job.code].tone]}>{JOB_STATUS[job.code].label}</OutlineBadge>}
             actions={
             <>
@@ -215,27 +213,23 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
             </>
             }
           />
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div className="flex min-w-0 flex-col gap-8">
-              {/* เจ้าของงาน 18 พ.ย. 2569: ช่องวันที่อยู่คอลัมน์ซ้าย */}
-              {dateField}
-              {/* ตามภาพเจ้าของงาน 18 พ.ย. 2569: "ข้อมูลการนัดหมาย" 3 คอลัมน์ (ช่วงวัน · ผู้ประสานงาน · เบอร์ / อู่ · เบอร์อู่ · ที่อยู่) + "รายละเอียดงาน Overhaul" 2 คอลัมน์ (ไม่เอา "ขั้นตอน") */}
-              <section className="flex flex-col gap-4">
-                <SectionLabel title="ข้อมูลการนัดหมาย" />
-                <Box cols={3} items={[[W.range, appt ? `${appt.from} - ${appt.to}` : ""], [W.person, coord?.name], [W.phone, coord?.phone], ["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
-              </section>
-              <section className="flex flex-col gap-4">
-                <SectionLabel title="รายละเอียดงาน Overhaul" />
-                <Box cols={2} items={[["หมายเลขแผน", plan.id], ["ชื่อแผน", plan.name], ["หมายเลข Purchase Order", po.id]]} />
-              </section>
-            </div>
-            <div className="flex min-w-0 flex-col gap-8">
-              <section className="flex flex-col gap-4">
-                <SectionLabel title="ยานพาหนะ" />
-                <VehicleCard plate={job.plate} vehicle={vehicle} lastMileage={job.intake?.mileageKm} />
-              </section>
-            </div>
-          </div>
+          <section className="flex flex-col gap-4">
+            <SectionHeader title="ข้อมูลยานพาหนะ" />
+            <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
+              <Row cols={3} items={[["ทะเบียน", job.plate], ["ยี่ห้อ/รุ่น", vehicle ? `${vehicle.make} ${vehicle.model}` : ""], ["ประเภท", vehicle?.type]]} />
+              <Row cols={3} items={[["อายุการใช้งาน", vehicle ? `${vehicle.ageYears} ปี` : ""], ["เลขไมล์สะสม", vehicle?.mileageKm !== undefined ? `${vehicle.mileageKm.toLocaleString()} กม.` : ""], ["ชั่วโมงสะสม", vehicle?.engineHours !== undefined ? `${vehicle.engineHours.toLocaleString()} ชม.` : ""]]} />
+            </dl>
+          </section>
+          <section className="flex flex-col gap-4">
+            <SectionHeader title="รายละเอียดการนัดหมาย" />
+            {/* ② */}
+            <dl className="flex flex-col gap-5 rounded-lg bg-gray-50 p-6">
+              <Row cols={3} items={[["ศูนย์บริการ/อู่", garage?.name], ["เบอร์โทร ศูนย์บริการ/อู่", garage?.phone], ["ที่อยู่", garage?.address]]} />
+              <Row cols={3} items={[[W.range, appt ? `${appt.from} - ${appt.to}` : ""], [W.person, coord?.name], [W.phone, coord?.phone]]} />
+            </dl>
+            {/* ① วันที่นำรถเข้า / วันที่รับรถ อยู่ใต้หัวข้อ "รายละเอียดการนัดหมาย" ต่อจากกล่องข้อมูลนัด — ลำดับเดียวกับฟอร์มขั้น 1/5 ของ กบค. (เจ้าของงาน 18 พ.ย. 2569) */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">{dateField}</div>
+          </section>
         </div>
       )}
 
