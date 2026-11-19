@@ -257,7 +257,8 @@ export function POForm({ plan, po, garages, takenBy, locked = [], onCancel, onGo
       <VehiclePickerModal
         open={picker}
         onClose={() => setPicker(false)}
-        fleet={plan.vehicles.map((v) => ({ ...v, unavailableReason: takenBy[v.plate] ? `อยู่ใน ${takenBy[v.plate]}` : undefined }))}
+        /* EC-32 เจ้าของงาน 19 พ.ย. 2569: ยานพาหนะในแผนที่อยู่ใน PO อื่นแล้ว ยังเลือกได้ (เดิมปิด checkbox ป้าย "อยู่ใน PO-xxx") */
+        fleet={plan.vehicles}
         excludePlates={d.plates}
         description={`ยานพาหนะในแผน ${plan.id}`}
         onAdd={(picked) => {
