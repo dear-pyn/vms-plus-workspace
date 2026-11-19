@@ -68,7 +68,6 @@ export function PriceModal({ vehicle, onClose, onSave }: { vehicle: PlanVehicle 
   }
   const r = parseMoney(ref);
   const e = parseMoney(est);
-  const warn = Number.isFinite(r) && Number.isFinite(e) && e > r;
   const msg = "กรุณาระบุจำนวนเงินตั้งแต่ 0.00 ขึ้นไป";
   return (
     <Modal
@@ -92,7 +91,7 @@ export function PriceModal({ vehicle, onClose, onSave }: { vehicle: PlanVehicle 
       <div className="flex flex-col gap-4">
         <MoneyField label="ราคากลาง (บาท)" placeholder="ระบุราคากลาง" value={ref} onChange={setRef} error={err.ref} />
         <MoneyField label="ราคาประเมิน Overhaul (บาท)" placeholder="ระบุราคาประเมิน Overhaul" value={est} onChange={setEst} error={err.est} />
-        {warn && <p className="text-sm text-warning-700">ราคาประเมิน Overhaul สูงกว่าราคากลาง (ซ่อมแพงกว่าซื้อใหม่)</p>}
+        {/* เจ้าของงาน 19 พ.ย. 2569: เอาข้อความเตือน "ราคาประเมิน Overhaul สูงกว่าราคากลาง" ออก */}
       </div>
     </Modal>
   );

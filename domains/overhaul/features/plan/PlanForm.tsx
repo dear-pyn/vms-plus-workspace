@@ -86,7 +86,6 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
 
   const missing = d.vehicles.filter(missingPrice);
   const totalEstimate = d.vehicles.reduce((n, v) => n + (v.overhaulEstimate ?? 0), 0);
-  const overBudget = Number.isFinite(d.budget) && totalEstimate > d.budget;
 
   /** EC-24 เปลี่ยนประเภทงบ → ล้างค่าช่องเดิม */
   function changeBudgetType(t: string) {
@@ -237,10 +236,9 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
                 />
               )}
             />
-            {/* EC-03 ยอดรวมราคาประเมินเทียบวงเงินอนุมัติ */}
-            <p className={overBudget ? "text-sm text-warning-700" : "text-sm text-gray-600"}>
+            {/* EC-03 ยอดรวมราคาประเมินเทียบวงเงินอนุมัติ · เจ้าของงาน 19 พ.ย. 2569: เอาข้อความเตือนสีส้ม "เกินวงเงินอนุมัติ" ออก (คงยอดรวมสีเทา) */}
+            <p className="text-sm text-gray-600">
               รวมราคาประเมิน Overhaul {currency(totalEstimate)} บาท{Number.isFinite(d.budget) ? ` จากวงเงินอนุมัติ ${currency(d.budget)} บาท` : ""}
-              {overBudget && " — เกินวงเงินอนุมัติ (รอยืนยัน EC-03 ว่าบล็อกการบันทึกหรือไม่)"}
             </p>
           </>
         )}
