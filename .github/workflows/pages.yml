@@ -31,6 +31,10 @@ jobs:
 
       # basePath = ชื่อ repo เพราะ Pages เสิร์ฟที่ /<repo>/ · build ใส่ out/.nojekyll ให้แล้ว (ไม่ผ่าน Jekyll)
       - name: build (validate + next build + .nojekyll)
+        # ฐานข้อมูลกลางของต้นแบบ (Supabase · ข้อมูลจำลองเท่านั้น) — publishable key ออกแบบให้อยู่ในหน้าเว็บได้ สิทธิ์คุมด้วย RLS ของตาราง prototype_snapshot
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://hgattobrdvjzapsbaxkc.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_0O2NK19Y4SAOwc3RIvF_8w_v5hJxUlY
         run: NEXT_PUBLIC_BASE_PATH=/${{ github.event.repository.name }} npm run build
 
       - name: วางไฟล์ลง branch gh-pages

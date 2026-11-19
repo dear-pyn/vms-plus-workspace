@@ -512,7 +512,7 @@ export default function OverhaulPrototype() {
       />
     );
   } else if (route.view === "dashboard") {
-    body = <OverhaulDashboard tab={route.tab} onTab={(tab) => go({ view: "dashboard", tab })} onManage={() => go({ view: "list" })} onVehicle={(plate) => openVehicle("dashboard")(plate, "info")} />;
+    body = <OverhaulDashboard tab={route.tab} onTab={(tab) => go({ view: "dashboard", tab })} onManage={() => go({ view: "list" })} onVehicle={(plate) => openVehicle("dashboard")(plate, "info")} jobs={jobs} />;
   } else if (route.view === "cases") {
     body = <CasesPage jobs={jobs} />;
   } else if (route.view === "agency") {

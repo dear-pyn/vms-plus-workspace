@@ -19,8 +19,9 @@ import { SelectField } from "@ui/SelectField";
 import { CellStack, DataTable, Td, Th } from "@ui/Table";
 import { Tabs } from "@ui/Tabs";
 import { currency } from "@rules/currency.mjs";
-import { DASH_PLANS, DASH_VEHICLES, type DashPlan } from "../../mock/dashboard";
-import { DASH_STATUS, DASH_STEPS, WORTH_LIMIT, groups, pctOf, summarize, toRows } from "./model";
+import { DASH_PLANS, DASH_VEHICLES, type DashPlan, type DashVehicle } from "../../mock/dashboard";
+import { DASH_STATUS, DASH_STEPS, WORTH_LIMIT, groups, liveVehicles, pctOf, summarize, toRows } from "./model";
+import type { VehicleJob } from "../po/types";
 import { PlanMultiSelect } from "./PlanMultiSelect";
 
 type Tab = "plans" | "vehicles";
@@ -82,7 +83,8 @@ function FilterCard({ description, children }: { description: string; children: 
   );
 }
 
-export function OverhaulDashboard({ tab, onTab, onManage, onVehicle }: { tab: Tab; onTab: (tab: Tab) => void; onManage: () => void; /** 18 พ.ย. 2569: ไอคอนรูปตา → หน้ายานพาหนะของ VMS Plus ปัจจุบัน (แท็บใหม่ ตามกติกา T3) แทนหน้างานรายคัน */ onVehicle: (plate: string) => void }) {
+export function OverhaulDashboard({ tab, onTab, onManage, onVehicle, jobs }: { tab: Tab; /** งานรายคันจริงของต้นแบบ — Dashboard คำนวณจากค่านี้ (18 พ.ย. 2569) */ jobs: VehicleJob[]; onTab: (tab: Tab) => void; onManage: () => void; /** 18 พ.ย. 2569: ไอคอนรูปตา → หน้ายานพาหนะของ VMS Plus ปัจจุบัน (แท็บใหม่ ตามกติกา T3) แทนหน้างานรายคัน */ onVehicle: (plate: string) => void }) {
+  const vehicles = useMemo(() => liveVehicles(DASH_VEHICLES, jobs), [jobs]);
   return (
     <div className="flex flex-col gap-6 p-8 max-md:p-4">
       <PageHeader
@@ -92,14 +94,14 @@ export function OverhaulDashboard({ tab, onTab, onManage, onVehicle }: { tab: Ta
         actions={<Button variant="secondary" iconLeft="arrow_forward" onClick={onManage}>จัดการงาน Overhaul</Button>}
       />
       <Tabs value={tab} onChange={(v) => onTab(v as Tab)} items={[{ id: "plans", label: "ระดับแผน" }, { id: "vehicles", label: "ระดับยานพาหนะ" }]} />
-      {tab === "plans" ? <PlanLevel /> : <VehicleLevel onVehicle={onVehicle} />}
+      {tab === "plans" ? <PlanLevel vehicles={vehicles} /> : <VehicleLevel vehicles={vehicles} onVehicle={onVehicle} />}
       <p className="text-center text-xs text-gray-500">ราคาซื้อใหม่ใช้ราคากลาง · ข้อมูลจำลองสำหรับต้นแบบ</p>
     </div>
   );
 }
 
 /* ───────── ระดับแผน ───────── */
-function PlanLevel() {
+function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
   const [year, setYear] = useState(YEARS[0]);
   const plans = plansOf(year);
   const [sel, setSel] = useState<string[] | null>(null);
@@ -107,7 +109,7 @@ function PlanLevel() {
   const [cmpSize, setCmpSize] = useState(10);
   const ids = sel ?? [latestPlan(plans)].filter((x): x is string => !!x);
   const selPlans = plans.filter((p) => ids.includes(p.id));
-  const rows = useMemo(() => toRows(DASH_VEHICLES, selPlans), [selPlans]);
+  const rows = useMemo(() => toRows(vehicles, selPlans), [vehicles, selPlans]);
   const s = summarize(rows);
   const budget = selPlans.reduce((t, p) => t + p.approvedBudget, 0);
   const avgBudget = rows.length ? rows.reduce((t, x) => t + x.per, 0) / rows.length : 0;
@@ -280,7 +282,7 @@ function PlanLevel() {
 
 /* ───────── ระดับยานพาหนะ ───────── */
 
-function VehicleLevel({ onVehicle }: { onVehicle: (plate: string) => void }) {
+function VehicleLevel({ vehicles, onVehicle }: { vehicles: DashVehicle[]; onVehicle: (plate: string) => void }) {
   const [year, setYear] = useState(YEARS[0]);
   const [sel, setSel] = useState<string[] | null>(null);
   const [q, setQ] = useState("");
@@ -290,7 +292,7 @@ function VehicleLevel({ onVehicle }: { onVehicle: (plate: string) => void }) {
   /* เริ่มที่ทุกแผนของปี (ตามต้นแบบ) · เลือกหลายแผน + พิมพ์ค้นได้แบบเดียวกับระดับแผน (เจ้าของงาน 17 พ.ย. 2569) */
   const ids = sel ?? plans.map((p) => p.id);
   const selPlans = plans.filter((p) => ids.includes(p.id));
-  const rows = useMemo(() => toRows(DASH_VEHICLES, selPlans), [selPlans]);
+  const rows = useMemo(() => toRows(vehicles, selPlans), [vehicles, selPlans]);
   const s = summarize(rows);
   const k = q.trim().toLowerCase();
   const shown = rows.filter((x) => !k || `${x.plate} ${x.model}`.toLowerCase().includes(k));

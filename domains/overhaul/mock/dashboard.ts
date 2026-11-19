@@ -21,6 +21,9 @@ export type DashStatus =
   | "pending_intake_appointment"
   | "pending_response"
   | "rejected"
+  | "intake_accepted"
+  | "pending_return_response"
+  | "pending_submit_approval"
   | "pending_inspection"
   | "repairing"
   | "under_safety_inspection"
@@ -126,6 +129,7 @@ export const DASH_VEHICLES: DashVehicle[] = (() => {
 export const DASH_TO_JOB: Record<DashStatus, JobCode> = {
   pending_intake_appointment: "V1", pending_response: "V2", rejected: "V3", pending_inspection: "V4.1", repairing: "V5",
   under_safety_inspection: "V6", pending_return_appointment: "V7", return_rejected: "V9", closing_in_progress: "V10.1", pending_approval: "V10.3", completed: "V11",
+  intake_accepted: "V4", pending_return_response: "V8", pending_submit_approval: "V10.2",
 };
 
 export function seedDashboardSet(base: Plan, enrich: (j: VehicleJob) => VehicleJob): { plans: Plan[]; pos: PurchaseOrder[]; jobs: VehicleJob[] } {
@@ -152,6 +156,8 @@ export function seedDashboardSet(base: Plan, enrich: (j: VehicleJob) => VehicleJ
           j = { ...j, close: { ...j.close, body, tools: [], labor: null, other: null } };
         }
         if (code === "V10.3" && j.close) j = { ...j, close: { ...j.close, approval: { sentAt: "10/11/2569 09:00", sentBy: "กบค. (ผู้ใช้งานปัจจุบัน)", approverId: "500103" } } };
+        /* บั๊ก 18 พ.ย. 2569 (Additional notes): "เสร็จแล้ว" ต้องผ่านผู้อนุมัติแล้ว → คันที่ปิดงานแล้วมีผลอนุมัติ ขั้น 7 จึงติ๊ก */
+        if (code === "V11" && j.close) j = { ...j, close: { ...j.close, approval: { sentAt: "10/11/2569 09:00", sentBy: "กบค. (ผู้ใช้งานปัจจุบัน)", approverId: "500103", result: "approved", at: "10/11/2569 14:00" } } };
         jobs.push(j);
       });
     });
