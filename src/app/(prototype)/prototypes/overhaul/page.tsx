@@ -13,6 +13,8 @@ import { isMockPlanId, newMockCaseSet } from "@overhaul/mock/cases";
 import { CasesPage } from "@overhaul/prototype/CasesPage";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { SelectField } from "@ui/SelectField";
+import { Button } from "@ui/Button";
+import { EmptyState } from "@ui/EmptyState";
 import { AppShell } from "@ui/AppShell";
 import { parseThaiDate } from "@ui/DateField";
 import { ConfirmDialog } from "@ui/Modal";
@@ -48,6 +50,11 @@ import { PODetail } from "@overhaul/features/po/PODetail";
 import type { PODraft, PurchaseOrder, VehicleJob } from "@overhaul/features/po/types";
 import { seedVehicles } from "@overhaul/mock/vehicles";
 import { mainNav } from "@/lib/nav";
+import { GarageList } from "@overhaul/features/garage/GarageList";
+import { GarageForm } from "@overhaul/features/garage/GarageForm";
+import { GarageDetail } from "@overhaul/features/garage/GarageDetail";
+import { formatAddress, nextGarageCode, type GarageDraft } from "@overhaul/features/garage/types";
+import type { Garage } from "@overhaul/features/po/types";
 
 type Route =
   | { view: "list"; empty?: boolean }
@@ -66,7 +73,11 @@ type Route =
   | { view: "cases" }
   | { view: "agencyJob"; po: string; plate: string }
   | { view: "approval" }
-  | { view: "approvalJob"; po: string; plate: string };
+  | { view: "approvalJob"; po: string; plate: string }
+  | { view: "garages" }
+  | { view: "garageNew" }
+  | { view: "garage"; id: string }
+  | { view: "garageEdit"; id: string };
 
 function parse(hash: string): Route {
   const h = hash.replace(/^#/, "");
@@ -88,6 +99,11 @@ function parse(hash: string): Route {
   if (h === "/approval") return { view: "approval" };
   const apj = h.match(/^\/approval\/job\/([^/]+)\/([^/]+)$/);
   if (apj) return { view: "approvalJob", po: decodeURIComponent(apj[1]), plate: decodeURIComponent(apj[2]) };
+  /* 19 พ.ย. 2569 เมนู อู่/ศูนย์บริการ */
+  if (h === "/garages") return { view: "garages" };
+  if (h === "/garages/new") return { view: "garageNew" };
+  const gm = h.match(/^\/garage\/([^/]+)(\/edit)?$/);
+  if (gm) return gm[2] ? { view: "garageEdit", id: decodeURIComponent(gm[1]) } : { view: "garage", id: decodeURIComponent(gm[1]) };
   if (h === "/cases") return { view: "cases" }; // สารบัญเคส (เครื่องมือต้นแบบ 17 พ.ย. 2569)
   const ag = h.match(/^\/agency\/job\/([^/]+)\/([^/]+)$/);
   if (ag) return { view: "agencyJob", po: decodeURIComponent(ag[1]), plate: decodeURIComponent(ag[2]) };
@@ -119,6 +135,10 @@ function href(r: Route): string {
     case "approval": return "/approval";
     case "approvalJob": return `/approval/job/${r.po}/${encodeURIComponent(r.plate)}`;
     case "cases": return "/cases";
+    case "garages": return "/garages";
+    case "garageNew": return "/garages/new";
+    case "garage": return `/garage/${encodeURIComponent(r.id)}`;
+    case "garageEdit": return `/garage/${encodeURIComponent(r.id)}/edit`;
     case "agencyJob": return `/agency/job/${r.po}/${encodeURIComponent(r.plate)}`;
   }
 }
@@ -143,6 +163,7 @@ const nextId = (plans: Plan[], fy: number) => {
   return `${prefix}${String(max + 1).padStart(5, "0")}`;
 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const GARAGE_KEY = "vms-plus:overhaul-garages:v1";
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
@@ -167,7 +188,22 @@ export default function OverhaulPrototype() {
     setPos((ps) => [...ps, ...dsPos]);
     setJobs((js) => [...js, ...seed.jobs.filter((j) => ids.has(j.poId))]);
   }, [pos, seed, setPlans, setPos, setJobs]);
-  const [garages] = useState(seedGarages);
+  /* 19 พ.ย. 2569 เมนู อู่/ศูนย์บริการ: แก้ได้ · เก็บในเบราว์เซอร์นี้ (localStorage) ยังไม่ขึ้นฐานข้อมูลกลาง */
+  const [garages, setGaragesState] = useState<Garage[]>(seedGarages);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(GARAGE_KEY);
+      const v = raw ? JSON.parse(raw) : null;
+      if (v?.version === 1 && Array.isArray(v.data)) setGaragesState(v.data);
+    } catch { /* storage unavailable */ }
+  }, []);
+  const setGarages = useCallback((fn: (gs: Garage[]) => Garage[]) => setGaragesState((gs) => {
+    const next = fn(gs);
+    try { localStorage.setItem(GARAGE_KEY, JSON.stringify({ version: 1, data: next })); } catch { /* storage unavailable */ }
+    return next;
+  }), []);
+  const [askDeleteGarage, setAskDeleteGarage] = useState<string | null>(null);
+  const liveGarages = (keep?: string) => garages.filter((g) => !g.deleted || g.id === keep);
   const [staff] = useState(seedStaff);
   const [fleet] = useState(seedFleet);
   const [route, setRoute] = useState<Route>({ view: "list" });
@@ -217,6 +253,24 @@ export default function OverhaulPrototype() {
       {body}
     </OverhaulHome>
   );
+
+  /** อู่/ศูนย์บริการ: บันทึก (จำลองเครือข่าย 600 ms · ชื่อมี "error" = บันทึกไม่สำเร็จ) */
+  async function persistGarage(d: GarageDraft, id?: string): Promise<true | string> {
+    await wait(600);
+    if (/error/i.test(d.name)) return "500 Internal Server Error";
+    const fields = { name: d.name, phone: d.phone, email: d.email, vehicleTypes: d.vehicleTypes, brands: d.brands, addr: d.addr, address: formatAddress(d.addr), lat: d.lat.trim(), lng: d.lng.trim(), docs: d.docs };
+    if (id) {
+      setGarages((gs) => gs.map((g) => (g.id === id ? { ...g, ...fields } : g)));
+      go({ view: "garage", id });
+    } else {
+      const code = nextGarageCode(garages);
+      const newId = `G-${code}`;
+      setGarages((gs) => [...gs, { id: newId, code, ...fields }]);
+      go({ view: "garages" });
+    }
+    notify("บันทึกข้อมูลสำเร็จ");
+    return true;
+  }
 
   /** บันทึกจริง (จำลองเครือข่าย 600 ms) — ชื่อมี "error" = B.5 */
   async function persist(draft: PlanDraft, id?: string): Promise<true | string> {
@@ -423,7 +477,7 @@ export default function OverhaulPrototype() {
       <POForm
         key={`po-new-${plan.id}`}
         plan={plan}
-        garages={garages}
+        garages={liveGarages()}
         takenBy={takenBy(plan.id)}
         onCancel={() => go({ view: "detail", id: plan.id })}
         onGoPlans={() => go({ view: "list" })}
@@ -440,7 +494,7 @@ export default function OverhaulPrototype() {
         key={`po-edit-${po.id}`}
         plan={plan}
         po={po}
-        garages={garages}
+        garages={liveGarages(pos.find((x) => x.id === route.po)?.garageId)}
         takenBy={takenBy(plan.id, po.id)}
         locked={jobs.filter((j) => j.poId === po.id && j.code !== "V1").map((j) => j.plate)}
         onCancel={back}
@@ -570,6 +624,21 @@ export default function OverhaulPrototype() {
         onNotify={notify}
       />
     );
+  } else if (route.view === "garages") {
+    body = <GarageList garages={garages} onOpen={(id) => go({ view: "garage", id })} onEdit={(id) => go({ view: "garageEdit", id })} onDelete={setAskDeleteGarage} onCreate={() => go({ view: "garageNew" })} />;
+  } else if (route.view === "garageNew") {
+    body = <GarageForm key="garage-new" all={garages} onCancel={() => go({ view: "garages" })} onGoList={() => go({ view: "garages" })} onSave={(d) => persistGarage(d)} onNotify={notify} />;
+  } else if ((route.view === "garage" || route.view === "garageEdit") && garages.some((g) => g.id === route.id && !g.deleted)) {
+    const g = garages.find((x) => x.id === route.id)!;
+    body = route.view === "garage"
+      ? <GarageDetail garage={g} onBack={() => go({ view: "garages" })} onEdit={() => go({ view: "garageEdit", id: g.id })} onDelete={() => setAskDeleteGarage(g.id)} />
+      : <GarageForm key={`garage-edit-${g.id}`} garage={g} all={garages} onCancel={() => go({ view: "garage", id: g.id })} onGoList={() => go({ view: "garages" })} onSave={(d) => persistGarage(d, g.id)} onNotify={notify} />;
+  } else if (route.view === "garage" || route.view === "garageEdit") {
+    body = (
+      <div className="p-8 max-md:px-4">
+        <EmptyState kind="search-not-found" title="ไม่พบอู่/ศูนย์บริการ" description="อู่/ศูนย์บริการนี้ถูกลบหรือไม่มีอยู่" action={<Button variant="secondary" onClick={() => go({ view: "garages" })}>กลับไปรายการอู่/ศูนย์บริการ</Button>} />
+      </div>
+    );
   } else {
     body = home(
       "plans",
@@ -674,7 +743,7 @@ export default function OverhaulPrototype() {
   return (
     <AppShell
       nav={mainNav(process.env.NEXT_PUBLIC_BASE_PATH || "")}
-      activeId={route.view === "dashboard" ? "overhaul-dashboard" : route.view === "agency" || route.view === "agencyJob" ? "overhaul-reply" : route.view === "approval" || route.view === "approvalJob" ? "overhaul-approval" : "overhaul"}
+      activeId={route.view === "garages" || route.view === "garageNew" || route.view === "garage" || route.view === "garageEdit" ? "overhaul-garage" : route.view === "dashboard" ? "overhaul-dashboard" : route.view === "agency" || route.view === "agencyJob" ? "overhaul-reply" : route.view === "approval" || route.view === "approvalJob" ? "overhaul-approval" : "overhaul"}
       notifications={
         <NotificationBell
           items={noti}
@@ -702,6 +771,28 @@ export default function OverhaulPrototype() {
         onClose={() => confirmEdit.current?.(false)}
         onConfirm={() => confirmEdit.current?.(true)}
       />
+      {(() => {
+        const g = garages.find((x) => x.id === askDeleteGarage);
+        const used = g ? pos.filter((x) => x.garageId === g.id).length : 0;
+        return (
+          <ConfirmDialog
+            open={!!g}
+            danger
+            icon="delete"
+            title="ลบอู่/ศูนย์บริการ"
+            description={g ? `ต้องการลบ ${g.name} หรือไม่ ?${used ? ` · มี Purchase Order ${used} ใบที่ใช้อู่นี้ ข้อมูลเดิมยังแสดงชื่ออู่ แต่จะเลือกอู่นี้ใน Purchase Order ใหม่ไม่ได้` : ""}` : ""}
+            confirmLabel="ลบ"
+            onClose={() => setAskDeleteGarage(null)}
+            onConfirm={() => {
+              if (!g) return;
+              setGarages((gs) => gs.map((x) => (x.id === g.id ? { ...x, deleted: true } : x)));
+              setAskDeleteGarage(null);
+              if (route.view !== "garages") go({ view: "garages" });
+              notify("ลบข้อมูลสำเร็จ");
+            }}
+          />
+        );
+      })()}
       <Toast message={toast?.msg ?? null} description={toast?.description} tone={toast?.tone} onClose={closeToast} />
     </AppShell>
   );

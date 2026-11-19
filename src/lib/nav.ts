@@ -26,6 +26,8 @@ export function mainNav(prototypeBase: string): NavGroup[] {
         { id: "overhaul-approval", label: "อนุมัติปิดงาน", href: `${prototypeBase}/prototypes/overhaul/#/approval` },
         /* เจ้าของงาน 17 พ.ย. 2569: เมนู Dashboard อยู่ใต้ จัดการยานพาหนะขนาดใหญ่ (ไม่ใช้เมนูภาพรวม Dashboard ระดับบน) */
         { id: "overhaul-dashboard", label: "Dashboard Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/dashboard` },
+        /* เจ้าของงาน 19 พ.ย. 2569: เมนู อู่/ศูนย์บริการ (รายการ · เพิ่ม · รายละเอียด · แก้ไข · ลบ) ใต้ จัดการยานพาหนะขนาดใหญ่ */
+        { id: "overhaul-garage", label: "อู่/ศูนย์บริการ", href: `${prototypeBase}/prototypes/overhaul/#/garages` },
         { id: "h2", label: "บำรุงรักษาตามวาระ" },
         { id: "h3", label: "แจ้งซ่อม" },
         { id: "h4", label: "ยืม-คืน" },

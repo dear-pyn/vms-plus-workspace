@@ -8,7 +8,19 @@ export interface Garage {
   id: string;
   name: string;
   phone: string;
+  /** ที่อยู่บรรทัดเดียว (สร้างจาก addr ด้วย formatAddress) — หน้าจอ PO/งานรายคันใช้ค่านี้ */
   address: string;
+  /** เมนู อู่/ศูนย์บริการ (19 พ.ย. 2569) — รหัสแสดงผล VND-xxx */
+  code?: string;
+  email?: string;
+  vehicleTypes?: string[];
+  brands?: string[];
+  addr?: import("../garage/types").GarageAddress;
+  lat?: string;
+  lng?: string;
+  docs?: PlanFile[];
+  /** ลบแบบ soft delete — ไม่แสดงในรายการ/ตัวเลือก แต่ PO เดิมยังแสดงชื่อ */
+  deleted?: boolean;
 }
 
 export interface PODocs {
