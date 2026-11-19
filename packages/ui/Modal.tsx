@@ -137,13 +137,16 @@ export interface ModalProps {
   mode?: "auto" | "sheet" | "dialog";
   /** สูงคงที่ + เนื้อหาไม่เลื่อนทั้งก้อน (ให้ลูกจัดส่วนที่เลื่อนเอง เช่นเลื่อนเฉพาะตาราง) */
   fill?: boolean;
+  /** `Modal footer` Alignment: right = ปุ่มพอดีข้อความชิดขวา (ค่าตั้งต้นตามเจ้าของงาน 14 พ.ย. 2569) ·
+   *  fill = 2 ปุ่มกว้างเท่ากัน 50/50 (design/figma-overhaul-ui/Modal footer.png · เจ้าของงาน 19 พ.ย. 2569 เริ่มใช้ที่หน้าอู่/ศูนย์บริการ) */
+  footerAlign?: "right" | "fill";
 }
 
 export function Modal(props: ModalProps) {
   const {
     open, onClose, variant = "form", size = "md", title, description, icon = "info", iconTone = "brand", children,
     cancelLabel = "ยกเลิก", onCancel, hideCancel, confirmLabel = "ยืนยัน", onConfirm, confirmVariant = "primary",
-    confirmLoading, confirmDisabled, footer, headerAction, mode = "auto", fill,
+    confirmLoading, confirmDisabled, footer, headerAction, mode = "auto", fill, footerAlign = "right",
   } = props;
   const mobile = useIsMobile();
   const tid = useId();
@@ -250,7 +253,7 @@ export function Modal(props: ModalProps) {
             {footer ? (
               <div className="flex flex-wrap items-center justify-between gap-3">{footer}</div>
             ) : (
-              <div className="flex min-h-10 flex-wrap items-center justify-end gap-3">
+              <div className={cx("flex min-h-10 items-center gap-3", footerAlign === "fill" ? "[&>*]:min-w-0 [&>*]:flex-1" : "flex-wrap justify-end")}>
                 {cancelBtn}
                 {confirmBtn}
               </div>
@@ -277,10 +280,11 @@ export interface ConfirmDialogProps {
   mode?: ModalProps["mode"];
   /** แจ้งอย่างเดียว ปุ่มเดียว (เช่น บันทึกไม่ได้เพราะยานพาหนะถูกนำออกจากแผน — FigJam Section 10) */
   hideCancel?: boolean;
+  footerAlign?: ModalProps["footerAlign"];
 }
 
 /** ทางลัดของ Modal variant="centered" — ยืนยัน / ยืนยันลบ / ยืนยันการออก */
-export function ConfirmDialog({ open, onClose, onConfirm, title, description, danger, confirmLabel = "ยืนยัน", cancelLabel = "ยกเลิก", icon = "info", loading, mode, hideCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, onClose, onConfirm, title, description, danger, confirmLabel = "ยืนยัน", cancelLabel = "ยกเลิก", icon = "info", loading, mode, hideCancel, footerAlign }: ConfirmDialogProps) {
   return (
     <Modal
       open={open}
@@ -296,6 +300,7 @@ export function ConfirmDialog({ open, onClose, onConfirm, title, description, da
       confirmLoading={loading}
       mode={mode}
       hideCancel={hideCancel}
+      footerAlign={footerAlign}
     />
   );
 }

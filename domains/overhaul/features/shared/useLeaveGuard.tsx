@@ -7,7 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "@ui/Modal";
 import { setLeaveGuard } from "./leaveGuard";
 
-export function useLeaveGuard(dirty: boolean, onCancel: () => void) {
+/** footerAlign: "fill" = ปุ่ม 50/50 แบบ modal ใหม่ (ใช้ที่ฟอร์มอู่ 19 พ.ย. 2569) · ฟอร์มอื่นคงชิดขวา */
+export function useLeaveGuard(dirty: boolean, onCancel: () => void, footerAlign: "right" | "fill" = "right") {
   const [ask, setAsk] = useState(false);
   const bypass = useRef(false);
   const pending = useRef<(() => void) | null>(null);
@@ -81,6 +82,7 @@ export function useLeaveGuard(dirty: boolean, onCancel: () => void) {
       icon="logout"
       title="คุณต้องการออกจากหน้านี้หรือไม่ ?"
       description="หากยืนยัน ข้อมูลที่ระบุจะหาย"
+      footerAlign={footerAlign}
     />
   );
   return { requestLeave, runSave, dialog };

@@ -773,14 +773,15 @@ export default function OverhaulPrototype() {
       />
       {(() => {
         const g = garages.find((x) => x.id === askDeleteGarage);
-        const used = g ? pos.filter((x) => x.garageId === g.id).length : 0;
+        /* เจ้าของงาน 19 พ.ย. 2569: ข้อความลบเหลือแค่ "ต้องการลบ {ชื่ออู่} หรือไม่ ?" (ไม่บอกจำนวน Purchase Order ที่ใช้อู่ — หน้านี้เป็น master) */
         return (
           <ConfirmDialog
             open={!!g}
             danger
             icon="delete"
             title="ลบอู่/ศูนย์บริการ"
-            description={g ? `ต้องการลบ ${g.name} หรือไม่ ?${used ? ` · มี Purchase Order ${used} ใบที่ใช้อู่นี้ ข้อมูลเดิมยังแสดงชื่ออู่ แต่จะเลือกอู่นี้ใน Purchase Order ใหม่ไม่ได้` : ""}` : ""}
+            description={g ? `ต้องการลบ ${g.name} หรือไม่ ?` : ""}
+            footerAlign="fill" /* modal แบบใหม่: 2 ปุ่ม 50/50 (design/figma-overhaul-ui/Modal footer.png) */
             confirmLabel="ลบ"
             onClose={() => setAskDeleteGarage(null)}
             onConfirm={() => {

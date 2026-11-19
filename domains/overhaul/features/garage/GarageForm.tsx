@@ -41,7 +41,7 @@ export function GarageForm({ garage, all, onCancel, onGoList, onSave, onNotify }
   const [fileError, setFileError] = useState("");
   const [saving, setSaving] = useState(false);
   const dirty = JSON.stringify(d) !== JSON.stringify(initial);
-  const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onCancel);
+  const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onCancel, "fill"); // modal แบบใหม่: ปุ่ม 50/50 (design/figma-overhaul-ui/Modal footer.png)
   const set = <K extends keyof GarageDraft>(k: K, v: GarageDraft[K]) => setD((x) => ({ ...x, [k]: v }));
 
   usePrototypeFill((mode) => {
