@@ -39,8 +39,8 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
   /** ช่องเลือกปีงบประมาณในแถวเครื่องมือ (A.5) */
   showYear?: boolean;
   toolbarExtra?: ReactNode;
-  /** ปุ่มต่อท้ายปุ่มตัวกรอง (เช่น "เพิ่มยานพาหนะ" ในฟอร์มแผน — T1) */
-  toolbarActions?: ReactNode;
+  /** ปุ่มต่อท้ายปุ่มตัวกรอง (เช่น "เพิ่มยานพาหนะ" ในฟอร์มแผน — T1) · ส่งเป็นฟังก์ชันเพื่อรู้จำนวนแถวหลังค้นหา/กรอง (MTD-248 AC-12) */
+  toolbarActions?: ReactNode | ((found: number) => ReactNode);
   /** ไม่มีคอลัมน์ความคืบหน้า (ฟอร์มแผน) */
   hideProgress?: boolean;
   /** คอลัมน์ แผน / Purchase Order (ค้นหาด้วยเลขแผน/PO ได้) */
@@ -118,7 +118,7 @@ export function VehicleBrowser<T extends VehicleRow & { fiscalYear?: number }>({
               ตัวกรอง
               {active.length > 0 && <CountPill className="ml-1">{active.length}</CountPill>}
             </Button>
-            {toolbarActions}
+            {typeof toolbarActions === "function" ? toolbarActions(rows.length) : toolbarActions}
           </div>
         </div>
       </div>

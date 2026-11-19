@@ -128,7 +128,8 @@ export function PlanList({ plans, onOpen, onEdit, onDelete, onCreate, onReport, 
             {active > 0 && <CountPill className="ml-1">{active}</CountPill>}
           </Button>
           {onReport && (
-            <Button variant="secondary" iconLeft="download" onClick={onReport}>
+            /* MTD-248 AC-12 (19 พ.ย. 2569): ค้นหา/กรองไม่พบแผน → ปุ่มรายงาน disabled · ไม่มีแผนเลยยังกดได้ (MTD-17 AC-13 · รอ OQ-05) */
+            <Button variant="secondary" iconLeft="download" onClick={onReport} disabled={plans.length > 0 && rows.length === 0}>
               รายงาน
             </Button>
           )}

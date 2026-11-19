@@ -29,14 +29,16 @@ export function vehicleRows(plans: Plan[], pos: PurchaseOrder[], jobs: VehicleJo
 }
 
 export function VehicleList({ plans, pos, jobs, onOpenVehicle, onReport }: { plans: Plan[]; pos: PurchaseOrder[]; jobs: VehicleJob[]; onOpenVehicle: (plate: string, tab: "info" | "repair") => void; onReport: () => void }) {
+  const rows = vehicleRows(plans, pos, jobs);
   return (
     <VehicleBrowser
-      rows={vehicleRows(plans, pos, jobs)}
+      rows={rows}
       label="ยานพาหนะที่ Overhaul"
       title={(n) => `ยานพาหนะที่ Overhaul (${n})`}
       showYear
       showPlan
-      toolbarActions={<Button variant="secondary" iconLeft="download" onClick={onReport}>รายงาน</Button>}
+      /* MTD-248 AC-12 (19 พ.ย. 2569): ค้นหา/กรองไม่พบยานพาหนะ → ปุ่มรายงาน disabled · ไม่มีข้อมูลเลยยังกดได้ (MTD-17 AC-13 · รอ OQ-05) */
+      toolbarActions={(found) => <Button variant="secondary" iconLeft="download" onClick={onReport} disabled={rows.length > 0 && found === 0}>รายงาน</Button>}
       planStatus={(v) => (v.code ? <Pill tone={JOB_STATUS[v.code].tone}>{JOB_STATUS[v.code].label}</Pill> : "—")}
       rowKey={(v) => `${v.plate}-${v.planNo}`}
       action={(v) => (
