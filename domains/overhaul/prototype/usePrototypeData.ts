@@ -89,6 +89,8 @@ function takeResetFlag(): boolean {
 
 export function usePrototypeData(seed: Data) {
   const [data, setData] = useState<Data>(seed);
+  /** โหลดข้อมูลจริงเสร็จแล้ว (DB กลาง หรือ localStorage) — ก่อนหน้านั้นหน้าจอไม่ควรวาดข้อมูลตั้งต้น (จอแว้บ 19 พ.ย. 2569) */
+  const [loaded, setLoaded] = useState(false);
   /** ข้อมูลกลาง (Supabase หรือ localStorage KEY เมื่อไม่มี DB) — ไม่รวม mock */
   const current = useRef(seed);
   /** ชุดเคสทดสอบ — localStorage เครื่องนี้เท่านั้น */
@@ -97,7 +99,8 @@ export function usePrototypeData(seed: Data) {
   const ready = useRef<Promise<boolean>>(Promise.resolve(false));
   const queue = useRef<Promise<void>>(Promise.resolve());
 
-  const show = useCallback((d: Data) => { current.current = d; setData(merge(d, mockRef.current)); writeLocal(d); }, []);
+  /* ใช้ DB กลาง → ไม่เก็บสำเนาใน localStorage (สำเนาเก่าทำให้จอแว้บของเดิมก่อนโหลด) · เก็บเฉพาะโหมดเบราว์เซอร์นี้ */
+  const show = useCallback((d: Data) => { current.current = d; setData(merge(d, mockRef.current)); if (mode === "local") writeLocal(d); }, []);
   const showMock = useCallback((m: Data) => { mockRef.current = m; writeMock(m); setData(merge(current.current, m)); }, []);
 
   useEffect(() => {
@@ -115,6 +118,7 @@ export function usePrototypeData(seed: Data) {
     const reset = takeResetFlag();
     if (!sb) {
       syncLocal();
+      setLoaded(true);
       return () => { window.removeEventListener("storage", receive); window.removeEventListener("focus", onFocus); };
     }
     let alive = true;
@@ -140,13 +144,15 @@ export function usePrototypeData(seed: Data) {
           const up = await sb.from(TABLE).update({ data: seed, version: row.version + 1, updated_at: new Date().toISOString() }).eq("id", DATASET).select("version,data").single();
           if (!up.error) row = up.data as Row;
         }
-        apply(row);
         setMode("remote");
+        try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
+        apply(row);
+        if (alive) setLoaded(true);
         return true;
       } catch (e) {
         console.warn("[prototype] ต่อฐานข้อมูลกลางไม่ได้ ใช้ข้อมูลในเบราว์เซอร์นี้แทน", e);
         setMode("local");
-        if (alive) syncLocal();
+        if (alive) { syncLocal(); setLoaded(true); }
         return false;
       }
     })();
@@ -218,7 +224,7 @@ export function usePrototypeData(seed: Data) {
   const setPlans = useCallback((action: SetStateAction<Plan[]>) => update("plans", action), [update]);
   const setPos = useCallback((action: SetStateAction<PurchaseOrder[]>) => update("pos", action), [update]);
   const setJobs = useCallback((action: SetStateAction<VehicleJob[]>) => update("jobs", action), [update]);
-  return { ...data, setPlans, setPos, setJobs, addMockSet, clearMock };
+  return { ...data, loaded, setPlans, setPos, setJobs, addMockSet, clearMock };
 }
 
 /** กลับเป็นข้อมูลตั้งต้น (รวมเคสทดสอบครบทุกสถานะ) แล้วโหลดหน้าใหม่ — ใช้จากหน้าสารบัญเคส / ปุ่ม Mock

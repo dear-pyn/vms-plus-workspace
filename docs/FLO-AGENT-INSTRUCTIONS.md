@@ -56,6 +56,7 @@ AC ห้ามทำเป็น subtask · subtask = งานที่คน�
 - ก่อนเขียน description ใหม่ทั้งก้อน → comment `**Backup description เดิม (DD/MM/25xx)**` · เก็บบรรทัด [attachment …] ไว้ที่เดิม
 - รอ: ไม่ว่าง → ต้องมี tag Open questions หรือ blocks หรือ hold_item
 - สร้าง story ใหม่ → เพิ่มแถวใน Coverage ของ epic
+- story ตกหล่น/เพิ่มหลังเริ่ม sprint → สร้างการ์ดใต้ epic ทันที (ไม่ยัดเป็น AC/subtask ของใบเดิม) + Coverage + Change log epic `CH-nn เพิ่ม MTD-xx (ตกหล่น)` + blocks ถ้ากระทบ · เข้า sprint นี้หรือไม่ PO ตัดสิน: เข้าได้เมื่อผ่าน gate To do และเอางานขนาดใกล้กันออก · comment `**เพิ่มเข้า sprint:**` · นอกขอบเขต JO = scope ใหม่ `[JO?]` ไม่ใช่งานตกหล่น
 - ทุกการเขียนส่ง actor {"model": "<model id>"} · ไม่ลงชื่อผู้เขียน
 
 ## Column และ gate

@@ -132,6 +132,24 @@ Coverage ของ epic นี้ = รายการเอกสารคร�
 - **ประกอบจาก UC** (Requirement Spec, FR + TS, UX/UI, Test Plan) — การ์ดเอกสารมีตาราง `UC | epic | story ที่ผ่าน Refinement | อยู่ในเอกสารแล้ว` เนื้อหามาจาก story ที่ผ่าน gate Refinement แล้ว การ์ดเอกสารทำแค่รวมเล่ม
 - **ทั้ง JO** (Low Level, Solution Architecture, Timeline, บุคลากร) — เป็นงานจริงของการ์ดนั้นเอง
 
+## 4.2 งานที่ตกหล่น / เพิ่มหลังเริ่ม sprint
+
+ตัวอย่าง: epic A มี 3 story เริ่ม sprint แล้วพบว่าต้องมี story ที่ 4
+
+1. **สร้างการ์ดทันที** ใต้ epic A (ไม่รอ sprint หน้า ไม่ยัดเป็น AC/subtask ของ story เดิม) → เข้า Discovery / Inbox ตามปกติ
+2. **บันทึกที่ epic** — แถวใหม่ใน Coverage · Change log `CH-nn เพิ่ม MTD-xx (ตกหล่น) — <เหตุผล>` · ถ้าเป็นข้อใหม่ใน "สิ่งที่ต้องการ" ให้เพิ่มข้อนั้นด้วย
+3. **ผูกความสัมพันธ์** — ถ้า story 1–3 ทำต่อไม่ได้หรือ AC ของ epic ผ่านไม่ได้ถ้าไม่มีใบนี้ → `add_related_item blocks`
+4. **PO ตัดสินว่าเข้า sprint นี้ไหม** (ห้าม agent ตัดสินเอง)
+
+| กรณี | ทำ |
+| --- | --- |
+| ไม่ block story ใน sprint | รอ sprint หน้า · อยู่บนสุดของ Ready for dev |
+| block และผ่าน gate To do แล้ว (AC ยืนยัน · contract ตกลง) | เอาเข้า sprint ได้ **ถ้าเอางานขนาดใกล้กันออก** · comment `**เพิ่มเข้า sprint:**` ที่ทั้งสองใบ |
+| block แต่ยังไม่มี AC ยืนยัน | ห้ามเข้า To do · เดิน Discovery ด่วน · story ที่ถูก block ใส่ `รอ: MTD-xx` |
+| อยู่นอกขอบเขตใบ JO | ไม่ใช่งานตกหล่น = scope ใหม่ · เปิด `[JO?]` + tag Open questions · PO ถามลูกค้า (กระทบ man-day) |
+
+5. **กันไม่ให้หลุดอีก** — ตอนสร้าง epic เขียน "สิ่งที่ต้องการ" ให้ครบก่อนแตก story · ทุกข้อมีแถว Coverage (ยังไม่มี story ก็ใส่ `ยังไม่มี`) · H7 จะจับข้อที่ไม่มี story · ก่อน sprint planning รัน health check
+
 ## 5. Tag (ชุดเดียว ห้ามสร้างเพิ่มเอง)
 
 | Tag | ใช้เมื่อ | เอาออกเมื่อ |
@@ -424,6 +442,7 @@ Type `Technical` · epic ไม่บังคับ
 | ตอบคำถาม | `**เคลียร์ OQ-nn:** <คำถาม>` | `→ **<คำตอบ>** (<ใคร>, DD/MM/25xx)` | ตาราง OQ · บล็อกสถานะ · Change log · tag `Open questions` |
 | เปลี่ยน AC/scope | `**เปลี่ยน AC:** <ID>` | เดิม → ใหม่ · เหตุผล · หลักฐาน | ตาราง AC · Change log |
 | แตก story | `**แตก story แล้ว**` | รายการ MTD-xx | Coverage ของ epic |
+| story ตกหล่น / เพิ่มกลาง sprint | `**เพิ่มเข้า sprint:** MTD-xx` | เหตุผล · ใบที่เอาออก · PO ที่อนุมัติ | Coverage + Change log ของ epic · `รอ:` ของ story ที่ถูก block |
 | ผลเทส local | `**ผลเทส local (ก่อนส่ง QA)**` | Backend / Frontend / ยังต้องทำบน UAT | AC Status · บล็อกสถานะ |
 | ผลตรวจ branch | ``## ผลตรวจ `<branch>` (<sha>) — DD/MM/25xx`` | ทำแล้ว / ยังขาด / ต้องให้เจ้าของงานตัดสิน | AC Status |
 | ก่อนเขียน description ใหม่ทั้งก้อน | `**Backup description เดิม (DD/MM/25xx)**` | description เดิมทั้งหมด | — |

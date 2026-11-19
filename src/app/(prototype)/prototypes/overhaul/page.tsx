@@ -146,7 +146,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
-  const { plans, pos, jobs, setPlans, setPos, setJobs, addMockSet, clearMock } = usePrototypeData(seed);
+  const { plans, pos, jobs, loaded, setPlans, setPos, setJobs, addMockSet, clearMock } = usePrototypeData(seed);
   /* 19 พ.ย. 2569 เจ้าของงาน: ชุดเคสทดสอบสร้างเพิ่มใน localStorage เครื่องนี้ · กดอะไรในชุดนั้นไม่ขึ้น Supabase */
   const plansRef = useRef(plans);
   plansRef.current = plans;
@@ -205,12 +205,12 @@ export default function OverhaulPrototype() {
   /* ชีต OH-Toast แถว 6 · 12: เปิดฟอร์มแก้ไขแผน / ฟอร์ม PO ของแผนที่ถูกลบไปแล้ว → toast ไม่พบแผน แล้วกลับหน้ารายการ */
   const missingPlanId = (route.view === "edit" || route.view === "poNew" || route.view === "poEdit") && !plan ? route.id : null;
   useEffect(() => {
-    if (!missingPlanId || !plans.length) return;
+    if (!loaded || !missingPlanId || !plans.length) return;
     const t = route.view === "edit" ? T.planNotFound(missingPlanId) : T.poPlanNotFound();
     notify(t.msg, "error");
     go({ view: "list" });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- แจ้งครั้งเดียวต่อการเปิดเส้นทางที่ไม่พบแผน
-  }, [missingPlanId]);
+  }, [missingPlanId, loaded]);
   const report = () => downloadPlanExcel(plans.flatMap((p) => p.vehicles));
   const home = (tab: "plans" | "vehicles", body: React.ReactNode) => (
     <OverhaulHome tab={tab} onTab={(t) => go(t === "plans" ? { view: "list" } : { view: "vehicles" })}>
@@ -686,10 +686,13 @@ export default function OverhaulPrototype() {
           onClearAll={() => setClearedIds(notiAll.map((n) => n.id))}
         />
       }
-      prototypeBar={prototypeBar}
+      prototypeBar={loaded ? prototypeBar : null}
     >
       {/* D-R1 เดิม: แถบ "ต้นแบบ: มุมมอง" — เอาออก 16 พ.ย. 2569 · มุมหน่วยงานเข้าจากเมนู "ตอบรับนัดหมาย" ใต้ Overhaul แทน */}
-      {body}
+      {/* 19 พ.ย. 2569: รอข้อมูลจริงก่อน ไม่วาดข้อมูลตั้งต้นแล้วสลับ (หน้าอนุมัติปิดงานแว้บ) */}
+      {loaded ? body : (
+        <div role="status" className="flex min-h-[50vh] items-center justify-center text-sm text-gray-600">กำลังโหลดข้อมูล…</div>
+      )}
       <MockTools />
       <ConfirmDialog
         open={askEdit}

@@ -58,3 +58,33 @@
 | 6 | **เทียบภาพ** | ต้นแบบ vs PNG ทีละจอ · รายงาน % ต่าง + จุดที่ต่างโดยตั้งใจ (ตามมติ refinement) | หลักฐานก่อนบอกว่าเสร็จ |
 
 ทำทีละ scenario (เช่น S2 = C.1–C.5) · จอที่เป็น state ของฟอร์มเดียวกันทำครั้งเดียว
+
+## แก้ต้นแบบแล้วส่งต่อให้ครบ: prototype → gh-pages → artifact → AC ในการ์ด (19 พ.ย. 2569)
+
+ทำตามลำดับนี้ทุกครั้งที่แก้ต้นแบบที่ลูกค้า/ทีมเห็นแล้ว · การ์ดอัปเดตเป็นขั้นสุดท้ายเพราะต้องอ้าง sha ที่ขึ้น gh-pages และภาพใน artifact ที่ตรงกัน
+
+```
+1 แก้ prototype (local) ──▶ 2 push main → Action deploy → gh-pages ──▶ 3 แคปภาพใหม่ → artifact เดิม ──▶ 4 AC + Sources + สถานะ ในการ์ด MTD
+```
+
+| # | ทำอะไร | ทำอย่างไร | เสร็จเมื่อ |
+|---|---|---|---|
+| 1 | **แก้ prototype** | แก้ใน `domains/<domain>/` + `src/app/(prototype)/…` · ข้อความใช้ `senior-ux-writing` · พฤติกรรมใหม่ผ่าน `senior-ux-review` / `senior-dev-review` ก่อน · รัน `npm test` `npm run check` `npm run typecheck` `npm run build` + `tests/browser/*.cjs` ที่เกี่ยว · ดูจริงที่ `npm run dev` (port 3020) | ผ่านทุก check และกดดูจอที่แก้แล้วบน local · จดสั้นๆ ว่าแก้อะไร (ใช้ต่อในขั้น 4) |
+| 2 | **sync gh-pages** | commit บน `main` (`type(scope): subject (MTD-<n>)`) → push **เมื่อเจ้าของงานสั่ง** → GitHub Action `Deploy to GitHub Pages` build แล้ว push ลง branch `gh-pages` เอง (ห้าม push gh-pages มือ) · ตาม: `gh run list --workflow pages.yml -L 1` / `gh run watch` · ยืนยัน: `git fetch && git log origin/gh-pages -1 --format=%s` ต้องเป็น `deploy <sha 7 ตัวของ commit>` | Action เขียว + เปิด https://dear-pyn.github.io/vms-plus-workspace/prototypes/overhaul/ เห็นการแก้ (hard refresh) · จด sha |
+| 3 | **update artifact** | ใช้ artifact **เดิม** ของ domain (Overhaul = "เคสต้นแบบ Overhaul" https://claude.ai/artifact/6aRbuXbrciV7KeZGDgvhPM) · `Artifact read` เอาไฟล์ล่าสุด → แคปใหม่ **เฉพาะเคสที่กระทบ** จากหน้า gh-pages (ไม่ใช่ local) เข้าทางสารบัญเคส `#/cases` → แทนภาพเดิม + ใส่วันที่และ sha ที่หัวหน้า → publish ทับ URL เดิม | ภาพในหน้าตรงกับ gh-pages sha เดียวกัน · ไม่สร้าง artifact ใหม่ · ไม่มีข้อมูลคนจริง |
+| 4 | **update AC ในการ์ด** | ตาม `docs/FLO-AGENT-INSTRUCTIONS.md`: comment `**เปลี่ยน AC:** <ID>` เดิม → ใหม่ · เหตุผล · หลักฐาน (sha + ลิงก์) ก่อน → แล้วแก้ description วันเดียวกัน: ตาราง AC/EC (ID เดิมไม่เปลี่ยนเลข · ตัดออกย้ายไป "ถอดออก") · Design (แถว CH) · Sources แถว Prototype = `DD/MM/25xx · <ลิงก์ gh-pages> · <sha>` + ลิงก์ artifact · บล็อกสถานะ · Change log | การ์ดบอกได้ว่า AC ไหนเปลี่ยนเพราะอะไร ดูภาพ/ต้นแบบได้จากลิงก์ในการ์ด |
+
+**แก้แค่ไหน ทำขั้นไหน**
+
+| ประเภทการแก้ | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| bug/หน้าตาแว้บ ไม่เปลี่ยนพฤติกรรม (เช่น โหลดแล้วจอแว้บ) | ✔ | ✔ | — (ภาพไม่เปลี่ยน) | Change log บรรทัดเดียว ไม่แตะ AC |
+| ข้อความ/ระยะ/สี เปลี่ยนที่เห็นได้ | ✔ | ✔ | ✔ เคสที่กระทบ | Design (CH) + Change log · AC ถ้าข้อความอยู่ใน AC |
+| พฤติกรรม/กฎ/สิทธิ์/ผลลัพธ์เปลี่ยน | ✔ | ✔ | ✔ | เปลี่ยน AC + OQ ถ้ายังไม่ชัด · ถ้าการ์ดผ่าน Customer confirm แล้ว → Stage กลับ Prototype ยืนยันเฉพาะส่วนที่เปลี่ยน |
+
+**ข้อห้าม/ข้อควรระวัง**
+
+- AC ที่แก้ตามต้นแบบเป็น **observed/pending** จนกว่าจะมีแถวใน Confirmation log · ห้ามเขียนว่า กฟภ. ยืนยันเพราะ "ขึ้น gh-pages แล้ว" หรือ "ลูกค้าเห็นภาพแล้ว"
+- ข้อมูลต้นแบบบน gh-pages อยู่ใน Supabase ชุดเดียวที่ทุกคนใช้ร่วมกัน · ถ้าเปลี่ยนโครงข้อมูลหรือ seed ต้อง "รีเซ็ตข้อมูลต้นแบบ" ซึ่งล้างข้อมูลที่คนอื่นกดไว้ → ถามเจ้าของงานก่อน · ชุดเคสทดสอบที่สร้างจากปุ่ม Mock อยู่เฉพาะเบราว์เซอร์นั้น ไม่ขึ้น gh-pages ของคนอื่น
+- push / ย้าย column / assign ทำเมื่อคนสั่งเท่านั้น · artifact เป็น private จนเจ้าของงานแชร์
+- ขั้นไหนค้าง (Action แดง · ยังไม่ได้แคป) → เขียนใน `รอ:` ของบล็อกสถานะ ไม่ข้ามไปอัปเดต AC ก่อน
