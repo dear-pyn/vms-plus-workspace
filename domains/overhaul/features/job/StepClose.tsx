@@ -47,7 +47,7 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
   const edit = !!onChange;
   return (
     /* เจ้าของงาน 17 พ.ย. 2569: fix ความกว้างคอลัมน์ ตารางตัวรถกับเครื่องมือกลจะได้ตรงกัน (ชื่ออะไหล่กว้างเท่ากันทุกตาราง) */
-    <DataTable label={label} striped cols={edit ? [240, 120, 190, 130, 100, 130, 130, 200, 64] : [240, 120, 120, 130, 100, 130, 130, 220]}>
+    <DataTable label={label} striped cols={edit ? [240, 120, 210, 130, 100, 130, 130, 200, 64] : [240, 120, 120, 130, 100, 130, 130, 220]}>
       <thead>
         <tr>
           <Th>ชื่ออะไหล่</Th>
@@ -72,10 +72,11 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
               </Td>
               <Td className="text-right tabular-nums">{currency(p.price)}</Td>
               <Td>
-                {/* เจ้าของงาน 16 พ.ย. 2569: หน่วยอยู่ข้างหลังช่อง Number input (นอกกล่อง) */}
+                {/* เจ้าของงาน 16 พ.ย. 2569: หน่วยอยู่ข้างหลังช่อง Number input (นอกกล่อง)
+                    20 พ.ย. 2569: ช่องกว้างไม่เท่ากันเพราะหน่วยยาวไม่เท่ากัน (เมตร/กล่อง) บีบช่อง ⇒ ช่องไม่หด + คอลัมน์ 190 → 210 */}
                 {edit ? (
                   <span className="flex items-center gap-2 whitespace-nowrap">
-                    <NumberInput label={`จำนวนที่ใช้ ${p.name}`} min={p.withdrawn != null ? 0 : 1} max={p.withdrawn} value={p.qty} onChange={(v) => onChange!(p.id, { qty: v })} />
+                    <NumberInput label={`จำนวนที่ใช้ ${p.name}`} min={p.withdrawn != null ? 0 : 1} max={p.withdrawn} value={p.qty} onChange={(v) => onChange!(p.id, { qty: v })} className="shrink-0" />
                     <span className="text-md text-gray-600">{p.unit}</span>
                   </span>
                 ) : (
