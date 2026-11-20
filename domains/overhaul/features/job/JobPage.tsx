@@ -178,7 +178,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     stock: [],
     labor: null,
     other: null,
-    warranty: { on: true, start: todayThai(), days: null },
+    warranty: { on: true, start: "" /* เจ้าของงาน 19 พ.ย. 2569: ไม่เติมวันเริ่มรับประกันให้ */, days: null },
   };
   async function closeJob(d: CloseDraft): Promise<boolean> {
     await wait(600);

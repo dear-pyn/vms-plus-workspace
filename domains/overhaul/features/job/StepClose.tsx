@@ -14,6 +14,7 @@ import { usePrototypeFill } from "../../prototype/MockTools";
 import { mockDate, mockPartForm, mockParts } from "../../prototype/fixtures";
 import { useMemo, useState, type ReactNode } from "react";
 import { currency } from "@rules/currency.mjs";
+import { Alert } from "@ui/Alert";
 import { Button } from "@ui/Button";
 import { DateField, parseThaiDate } from "@ui/DateField";
 import { EmptyState } from "@ui/EmptyState";
@@ -133,7 +134,7 @@ export function CostTable({ c }: { c: Pick<CloseOut, "body" | "tools" | "labor" 
 
 export function WarrantyRows({ w }: { w: CloseOut["warranty"] }) {
   return w.on ? (
-    <Row items={[["วันเริ่มรับประกัน", w.start], ["ระยะรับประกัน", w.days ? `${w.days} วัน` : ""], ["วันหมดอายุประกัน", warrantyEnd(w.start, w.days)], ["แจ้งเตือนก่อนหมด", "เจ้าของยานพาหนะ และ กบค. 30 วัน และ 15 วัน"]]} />
+    <Row items={[["วันเริ่มรับประกัน", w.start], ["จำนวนวันที่รับประกัน", w.days ? `${w.days} วัน` : ""], ["วันหมดอายุประกัน", warrantyEnd(w.start, w.days)], ["แจ้งเตือนก่อนหมด", "เจ้าของยานพาหนะ และ กบค. 30 วัน และ 15 วัน"]]} />
   ) : (
     <Row items={[["การรับประกันงานซ่อม", "ไม่มี"], ["แจ้งเตือนก่อนหมด", "ไม่แจ้งเตือน"]]} />
   );
@@ -265,13 +266,15 @@ export function StepClose({
     setModal(null);
   }
   const openEdit = (cat: Cat, p: PartUsed) => setModal({ id: p.id, cat, name: p.name, code: p.code ?? "", qty: String(p.qty), unit: p.unit, price: currency(p.price), oldQty: p.oldQty ? String(p.oldQty) : "", remark: p.remark ?? "" });
+  const daysError = () => (!d.warranty.on ? "" : !d.warranty.days ? "กรุณาระบุจำนวนวันที่รับประกัน" : d.warranty.days > WARRANTY_MAX_DAYS ? `จำนวนวันที่รับประกันต้องไม่เกิน ${WARRANTY_MAX_DAYS.toLocaleString()} วัน` : "");
   function validate(): boolean {
     const e: Record<string, string> = {
       parts: d.body.length + d.tools.length ? "" : "กรุณาระบุอะไหล่ที่ใช้อย่างน้อย 1 รายการ",
       labor: !labor.trim() ? "กรุณาระบุค่าแรง" : okNum(labor) ? "" : "กรุณาระบุจำนวนเงินเป็นตัวเลข",
       other: other.trim() && !okNum(other) ? "กรุณาระบุจำนวนเงินเป็นตัวเลข" : "",
       start: d.warranty.on && !parseThaiDate(d.warranty.start) ? "กรุณาเลือกวันเริ่มรับประกัน" : "",
-      days: !d.warranty.on ? "" : !d.warranty.days ? "กรุณาระบุระยะรับประกัน" : d.warranty.days > WARRANTY_MAX_DAYS ? `ระยะรับประกันต้องไม่เกิน ${WARRANTY_MAX_DAYS.toLocaleString()} วัน` : "",
+      /* เจ้าของงาน 20 พ.ย. 2569 "ขอแบบ uat": 0 วัน = ยังไม่ระบุ ขึ้นข้อความเดียวกับช่องว่าง (เลข 0 ค้างในช่อง) — EC-53 */
+      days: daysError(),
     };
     setErr((x) => ({ ...x, ...e }));
     return !Object.values(e).some(Boolean);
@@ -331,21 +334,27 @@ export function StepClose({
               <DateField label="วันเริ่มรับประกัน" placeholder="เลือกวันเริ่มรับประกัน" value={d.warranty.start} onChange={(v) => setD({ ...d, warranty: { ...d.warranty, start: v } })} error={err.start || undefined} />
               {/* เจ้าของงาน 16 พ.ย. 2569: กรอกตัวเลขได้เลย (เดิม Input dropdown 90/180/360/720 วัน) · Text input + หน่วย "วัน" ต่อท้าย */}
               <TextField
-                label="ระยะรับประกัน"
+                label="จำนวนวันที่รับประกัน" /* ชื่อช่อง/placeholder ตาม UAT 20 พ.ย. 2569 */
                 inputMode="numeric"
-                placeholder="ระบุจำนวนวัน"
+                placeholder="ระบุจำนวนวันที่รับประกัน"
                 suffix="วัน"
-                value={d.warranty.days ? String(d.warranty.days) : ""}
+                value={d.warranty.days != null ? String(d.warranty.days) : ""}
                 onChange={(e) => {
                   const n = e.target.value.replace(/\D/g, "").slice(0, 4);
                   setD({ ...d, warranty: { ...d.warranty, days: n ? Number(n) : null } });
                   setErr((x) => ({ ...x, days: "" }));
                 }}
+                /* เจ้าของงาน 20 พ.ย. 2569 "กรอก 0 แล้วไม่มี validate" ⇒ ตรวจตอนออกจากช่องแบบ UAT (เดิมตรวจเฉพาะตอนกดปิดงาน) */
+                onBlur={() => setErr((x) => ({ ...x, days: daysError() }))}
                 error={err.days || undefined}
               />
-              <TextField label="วันหมดอายุประกัน" autoFilled placeholder="คำนวณเมื่อระบุระยะรับประกัน" value={end} />
+              <TextField label="วันหมดอายุประกัน" autoFilled placeholder="คำนวณเมื่อระบุจำนวนวันที่รับประกัน" value={end} />
             </div>
-            {/* เจ้าของงาน 17 พ.ย. 2569: ไม่ใส่ Alert info (เดิมอธิบายการแจ้งเตือนก่อนประกันหมด 30/15 วัน) */}
+            {/* เจ้าของงาน 20 พ.ย. 2569 "เอาตาม uat แต่วันที่ไม่ prefill" ⇒ กลับมาใส่ Alert info แบบ UAT (แทนมติ 17 พ.ย. ที่ตัดออก)
+                ข้อความตาม UAT 20 พ.ย. 2569 ยกเว้นตัด "วันเริ่มตั้งต้นเป็นวันปิดงาน แก้ได้" เพราะต้นแบบไม่เติมวันเริ่มให้ */}
+            <Alert tone="info" title="ระบบจะแจ้งเตือนหน่วยงานเจ้าของรถ และ กบค. ก่อนประกันหมด 30 วัน และ 15 วัน แจ้งทางกระดิ่งในระบบ">
+              เพื่อให้หน่วยงานสำรวจความสมบูรณ์ของรถ และนำรถเข้าเก็บงานก่อนหมดประกัน วันหมดอายุ = วันเริ่ม + จำนวนวันที่รับประกัน
+            </Alert>
           </>
         ) : (
           <p className="text-md text-gray-600">งานนี้ไม่มีการรับประกัน ระบบจะไม่แจ้งเตือนก่อนหมดประกัน</p>
