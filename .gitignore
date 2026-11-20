@@ -12,3 +12,7 @@ tools/capture/.capture-profile/
 
 # HTML ที่แปลงจาก Figma dump — สร้างใหม่ได้ด้วย npm run render
 public/figma-render/
+
+# รายงานประจำสัปดาห์ — snapshot บอร์ดและ log เก็บเฉพาะเครื่อง
+tools/weekly-report/snapshots/
+tools/weekly-report/logs/

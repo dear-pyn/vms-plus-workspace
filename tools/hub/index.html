@@ -1,0 +1,1104 @@
+
+<title>PEA Maintain Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: VMS Plus look (packages/design-tokens/tokens.css) — gradient header band like the app topbar, white cards on gray-50, one column with tabs. Light only, as in the VMS Plus design system. */
+:root{
+  color-scheme:light;
+  --brand-950:#74045F; --brand-900:#A80689; --brand-800:#CF07AA; --brand-200:#FED8F6; --brand-100:#FEEBFB; --brand-50:#FFF5FD;
+  --gray-900:#161B26; --gray-700:#344054; --gray-600:#475467; --gray-500:#667085; --gray-300:#D0D5DD; --gray-200:#EAECF0; --gray-100:#F2F4F7; --gray-50:#F9FAFB;
+  --white:#FFFFFF;
+  --success-700:#067647; --success-200:#ABEFC6; --success-50:#ECFDF3;
+  --info-700:#3538CD; --info-600:#6172F3; --info-200:#C7D7FE; --info-50:#EEF4FF;
+  --warning-700:#B54708; --warning-600:#F79009; --warning-200:#FEDF89; --warning-50:#FFFAEB;
+  --error-600:#D92D20;
+  --shadow-xs:0 1px 2px rgba(10,13,18,.05);
+  --shadow-card:0 1px 2px rgba(16,24,40,.06),0 10px 30px rgba(16,24,40,.07);
+  --font:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+body{background:var(--gray-50);color:var(--gray-900);font-family:var(--font);font-size:15px;line-height:1.6}
+h1,h2,h3{margin:0;line-height:1.3;text-wrap:balance;font-weight:600}
+h1{font-size:26px;font-weight:700}
+h2{font-size:20px}
+h3{font-size:16px}
+a{color:var(--brand-900)}
+a:focus-visible{outline:2px solid var(--brand-900);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--gray-600)}
+.inner{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header band */
+.band{background:linear-gradient(100deg,var(--brand-950) 0%,var(--brand-900) 55%,var(--brand-800) 100%);color:var(--white)}
+.band .inner{padding-block:28px 64px;display:flex;flex-direction:column;gap:6px}
+.band .kicker{font-size:13px;opacity:.85}
+.band p{margin:0;opacity:.92;max-width:62ch}
+
+main.inner{display:flex;flex-direction:column;gap:24px;padding-block:0 56px;margin-top:-44px}
+
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-card);overflow:hidden}
+.status>div{padding:16px 20px;display:flex;flex-direction:column;gap:2px;min-width:0;border-right:1px solid var(--gray-200)}
+.status>div:last-child{border-right:0}
+.status .lab{font-size:13px;color:var(--gray-600);font-weight:500}
+.status .big{font-size:20px;font-weight:600}
+.weekbar{display:flex;gap:4px;margin-top:6px}
+.weekbar span{flex:1;height:6px;border-radius:3px;background:var(--gray-200)}
+.weekbar span.on{background:var(--brand-900)}
+@media (max-width:640px){.status>div{border-right:0;border-bottom:1px solid var(--gray-200)}.status>div:last-child{border-bottom:0}}
+
+/* tabs — VMS Plus underline tabs */
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--gray-200);position:sticky;top:env(safe-area-inset-top,0px);background:var(--gray-50);z-index:5;overflow-x:auto}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--gray-50)}
+nav.tabs a{padding:10px 14px;text-decoration:none;color:var(--gray-500);font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs a[aria-current="true"]{color:var(--brand-900);border-bottom-color:var(--brand-900)}
+
+section{display:flex;flex-direction:column;gap:16px}
+section[hidden]{display:none}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-xs)}
+
+/* how to review */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:12px;counter-increment:s;min-width:0}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand-900);color:var(--white);font-weight:600;font-size:13px;display:grid;place-items:center}
+.steps b{display:block;font-weight:600}
+.steps span{font-size:13.5px;color:var(--gray-600)}
+
+/* feature blocks */
+.feature{display:flex;flex-direction:column}
+.f-top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--gray-200)}
+.f-top .txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 320px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--brand-900);color:var(--white);box-shadow:var(--shadow-xs)}
+.btn-primary:hover{background:var(--brand-950)}
+.btn-secondary{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-300)}
+.btn-secondary:hover{background:var(--gray-50)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.doclist{display:flex;flex-direction:column}
+.doc{display:grid;grid-template-columns:132px 1fr auto;gap:14px;align-items:center;padding:12px 20px;text-decoration:none;color:inherit;border-top:1px solid var(--gray-200)}
+.doc:first-child{border-top:0}
+.doc:hover{background:var(--gray-50)}
+.doc .t{font-weight:600;color:var(--gray-900)}
+.doc .n{font-size:13.5px;color:var(--gray-600)}
+.doc .meta{font-size:12.5px;color:var(--gray-500);text-align:right;white-space:nowrap}
+@media (max-width:600px){.doc{grid-template-columns:1fr;gap:4px}.doc .meta{text-align:left}}
+
+/* pill outline (VMS Plus) */
+.pill{display:inline-flex;align-items:center;justify-self:start;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
+.pill.brand{background:var(--brand-50);border-color:var(--brand-200);color:var(--brand-900)}
+.pill.info{background:var(--info-50);border-color:var(--info-200);color:var(--info-700)}
+.pill.success{background:var(--success-50);border-color:var(--success-200);color:var(--success-700)}
+.pill.warning{background:var(--warning-50);border-color:var(--warning-200);color:var(--warning-700)}
+.pill.gray{background:var(--gray-50);border-color:var(--gray-200);color:var(--gray-700)}
+
+/* reports */
+.sprint-group{display:flex;flex-direction:column}
+.sprint-group+.sprint-group{border-top:1px solid var(--gray-200)}
+.sprint-group h3{padding:14px 20px 4px;font-size:14px;color:var(--gray-600)}
+.rrow{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;padding:10px 20px;text-decoration:none;color:inherit}
+.rrow:hover{background:var(--gray-50)}
+.rrow .t{min-width:0;color:var(--gray-900);font-weight:500}
+@media (max-width:520px){.rrow{grid-template-columns:1fr;gap:2px}}
+
+/* timeline */
+.tl-scroll{overflow-x:auto}
+.tl{position:relative;min-width:900px;padding:10px 20px 18px}
+.tl-row{display:grid;grid-template-columns:160px 1fr;align-items:center;min-height:40px}
+.tl-row .lab{font-size:13px;font-weight:600;padding-right:10px}
+.tl-row .lab small{display:block;font-weight:400;color:var(--gray-500);font-size:11.5px;line-height:1.35}
+.track{position:relative;height:30px}
+.months .track{height:22px;border-bottom:1px solid var(--gray-200)}
+.mlab{position:absolute;top:2px;font-size:11.5px;color:var(--gray-500);border-left:1px solid var(--gray-200);padding-left:4px;height:100%}
+.bar{position:absolute;top:6px;height:20px;border-radius:6px;color:var(--white);font-size:11.5px;font-weight:600;padding:0 8px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp{position:absolute;top:8px;height:14px;border-radius:3px;background:var(--gray-100);border:1px solid var(--gray-200);font-size:10px;line-height:12px;text-align:center;color:var(--gray-500);overflow:hidden}
+.sp.cur{background:var(--brand-900);border-color:var(--brand-900);color:var(--white)}
+.nowline{position:absolute;top:0;bottom:0;width:2px;background:var(--warning-600);pointer-events:none}
+.nowtag{position:absolute;top:-4px;transform:translateX(-50%);font-size:11px;font-weight:600;background:var(--warning-600);color:var(--white);padding:0 6px;border-radius:4px;white-space:nowrap}
+.note{font-size:13px;color:var(--gray-600);background:var(--warning-50);border:1px solid var(--warning-200);border-radius:8px;padding:8px 12px;margin:0}
+
+/* toolbar + buttons (small) */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--gray-200)}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sbtn{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid var(--gray-300);background:var(--white);color:var(--gray-700);cursor:pointer;white-space:nowrap}
+.sbtn:hover{background:var(--gray-50)}
+.sbtn[aria-pressed="true"]{background:var(--brand-50);border-color:var(--brand-200);color:var(--brand-900)}
+.sbtn:focus-visible,.dot:focus-visible,.chip:focus-visible{outline:2px solid var(--brand-900);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--gray-600)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+
+/* JO1 gantt — same structure as the "Project timeline" sheet */
+.gantt-wrap{overflow-x:auto}
+.gantt{min-width:max-content;font-size:12.5px}
+.g-row{display:grid;grid-template-columns:320px 56px 92px 84px repeat(var(--wk),24px);align-items:stretch;border-top:1px solid var(--gray-100)}
+.g-row>div{display:flex;align-items:center;min-width:0}
+.g-head{background:var(--gray-100);font-weight:600;color:var(--gray-700);border-top:0}
+.g-head.mon>div{justify-content:center;border-left:1px solid var(--gray-200);padding:4px 0}
+.g-head.wk>div{justify-content:center;font-size:11px;color:var(--gray-500);font-weight:500;padding:3px 0}
+.g-lab{position:sticky;left:0;background:var(--white);z-index:2;padding:7px 12px 7px 20px;flex-direction:column;align-items:flex-start!important;gap:1px;border-right:1px solid var(--gray-200)}
+.g-head .g-lab{background:var(--gray-100)}
+.g-lab .code{font-family:var(--mono);font-size:11.5px;color:var(--gray-500)}
+.g-lab .desc{color:var(--gray-900);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.g-md{justify-content:flex-end;padding-right:8px;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--gray-700)}
+.g-cov{padding:0 8px;cursor:pointer;background:none;border:0;font:inherit}
+.covbar{display:flex;width:76px;height:8px;border-radius:4px;overflow:hidden;background:var(--gray-100)}
+.covbar i{display:block;height:100%}
+.g-cell{justify-content:center;position:relative}
+.g-cell.mstart{border-left:1px solid var(--gray-200)}
+.g-cell.now{background:var(--warning-50)}
+.g-cell b{display:block;width:100%;height:16px;background:#A6A6A6}
+.g-cell b.test{background:#9CC3E6}
+.g-cell b.first{border-radius:4px 0 0 4px;margin-left:2px}
+.g-cell b.last{border-radius:0 4px 4px 0;margin-right:2px}
+.g-cell b.first.last{border-radius:4px}
+.g-cell .dia{font-size:15px;line-height:1;color:var(--gray-900)}
+.g-row.sum{background:var(--gray-50);font-weight:600}
+.g-row.sum .g-lab{background:var(--gray-50)}
+.g-row.edited .g-lab{box-shadow:inset 3px 0 0 var(--brand-900)}
+.g-edit{display:none;gap:6px;align-items:center;margin-top:4px;font-size:12px;color:var(--gray-600)}
+.editing .g-edit{display:flex}
+.g-edit input{width:46px;font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--gray-300);border-radius:6px}
+.g-foot{display:flex;flex-wrap:wrap;gap:8px 24px;padding:12px 20px;border-top:1px solid var(--gray-200);font-size:13px;color:var(--gray-600)}
+.g-foot b{color:var(--gray-900)}
+
+/* JO checklist — colors follow ใบสั่งงาน_JO1_checlist.docx */
+:root{--st-gray:#7A808A;--st-orange:#C4570A;--st-red:#D92D20;--st-black:#161B26;--sw-gray:#AEAAAA;--sw-orange:#ED7D31;--sw-red:#EE0000;--sw-black:#161B26}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border-bottom:1px solid var(--gray-200)}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;padding:14px 20px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--gray-200);border-top:3px solid transparent}
+.tile:last-child{border-right:0}
+.tile:hover{background:var(--gray-50)}
+.tile[aria-pressed="true"]{background:var(--gray-50)}
+.tile .n{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.tile .l{font-size:13px;color:var(--gray-600)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--gray-200)}
+.filters select,.filters input{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--gray-300);border-radius:8px;background:var(--white);color:var(--gray-900);min-width:0}
+.filters input{flex:1 1 180px}
+.cl{padding:8px 0 16px}
+.cl-h{padding:14px 20px 4px;font-weight:600;color:var(--gray-900);display:flex;gap:10px;align-items:baseline}
+.cl-h .r{font-family:var(--mono);font-size:12.5px;color:var(--brand-900);flex:none}
+.cl-h.h1{font-size:15.5px;border-top:1px solid var(--gray-200);margin-top:8px;padding-top:16px}
+.cl-h.h2{font-size:14.5px}
+.cl-h.h3{font-size:14px;color:var(--gray-700)}
+.cl-x{padding:2px 20px 2px 56px;font-size:13px;color:var(--gray-500)}
+.it{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:7px 20px 7px 28px;align-items:start}
+.it:hover{background:var(--gray-50)}
+.it.d1{padding-left:28px}.it.d2{padding-left:40px}.it.d3{padding-left:52px}
+.dot{all:unset;box-sizing:border-box;width:16px;height:16px;border-radius:50%;margin-top:4px;cursor:pointer;border:2px solid var(--white);box-shadow:0 0 0 1px var(--gray-300)}
+.it .tx{line-height:1.55}
+.it.s-gray .tx{color:var(--st-gray)}
+.it.s-orange .tx{color:var(--st-orange)}
+.it.s-red .tx{color:var(--st-red);font-weight:500}
+.it.s-black .tx{color:var(--st-black)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:12px}
+.chip{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;border:1px solid var(--gray-200);background:var(--white);color:var(--gray-700);text-decoration:none;font-family:var(--mono);font-size:11.5px}
+a.chip:hover{border-color:var(--brand-200);color:var(--brand-900)}
+.chip.uc{background:var(--info-50);border-color:var(--info-200);color:var(--info-700);cursor:pointer}
+.chip.ai{font-family:var(--font);border-style:dashed;color:var(--gray-600)}
+.chip.mine{font-family:var(--font);background:var(--brand-50);border-color:var(--brand-200);color:var(--brand-900)}
+.meta .nt{color:var(--gray-600);font-size:12.5px}
+.empty{padding:24px 20px;color:var(--gray-600);margin:0}
+.g-tc{padding:0 8px;font-size:11.5px;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--gray-600);flex-direction:column;align-items:flex-start!important;justify-content:center;gap:2px}
+.tcbar{display:flex;width:64px;height:5px;border-radius:3px;overflow:hidden;background:var(--gray-100)}
+.tcbar i{display:block;height:100%}
+.chip.tc{font-family:var(--font);background:var(--success-50);border-color:var(--success-200);color:var(--success-700)}
+.chip.tc.bad{background:#FEF3F2;border-color:#FECDCA;color:#B42318}
+.chip.tc.wait{background:var(--warning-50);border-color:var(--warning-200);color:var(--warning-700)}
+.tct{width:100%;border-collapse:collapse;font-size:13px}
+.tct th,.tct td{padding:8px 12px;border-top:1px solid var(--gray-200);text-align:left;vertical-align:top}
+.tct th{background:var(--gray-50);font-weight:600;color:var(--gray-700);font-size:12.5px;position:sticky;top:0}
+.tct td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.tct .ex{color:var(--gray-500);font-size:12px}
+.tct tr.unmapped td:first-child{box-shadow:inset 3px 0 0 var(--warning-600)}
+.tc-wrap{overflow-x:auto;max-height:560px;overflow-y:auto}
+/* close plan */
+.c-row{display:grid;grid-template-columns:44px 380px 66px 150px repeat(var(--nd),20px);align-items:stretch;border-top:1px solid var(--gray-100);font-size:12.5px}
+.c-row>div{display:flex;align-items:center;min-width:0}
+.c-row.head{background:var(--gray-100);font-weight:600;color:var(--gray-700);border-top:0}
+.c-row.head>div{justify-content:center;font-size:10.5px;padding:3px 0}
+.c-row.head .c-lab,.c-row.head .c-when{justify-content:flex-start;font-size:12px;padding-left:8px}
+.c-ord{flex-direction:column;justify-content:center;gap:0;position:sticky;left:0;background:var(--white);z-index:2}
+.c-ord button{all:unset;cursor:pointer;font-size:11px;line-height:1;padding:2px 6px;color:var(--gray-500)}
+.c-ord button:hover{color:var(--brand-900)}
+.c-ord button:focus-visible{outline:2px solid var(--brand-900)}
+.c-lab{position:sticky;left:44px;background:var(--white);z-index:2;padding:7px 10px 7px 4px;flex-direction:column;align-items:flex-start!important;gap:2px;border-right:1px solid var(--gray-200)}
+.c-row.head .c-ord,.c-row.head .c-lab{background:var(--gray-100)}
+.c-lab .t{color:var(--gray-900);line-height:1.4}
+.c-lab .m{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.c-lab .m .chip{font-size:10.5px;padding:0 6px}
+.c-md{justify-content:flex-end;padding-right:6px;font-family:var(--mono)}
+.c-md input{width:58px;font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--gray-300);border-radius:6px;text-align:right}
+.c-when{padding:0 8px;flex-direction:column;align-items:flex-start!important;justify-content:center;font-size:12px;line-height:1.35}
+.c-when .late{color:#B42318;font-weight:600}
+.c-cell{position:relative;justify-content:center}
+.c-cell.wk{border-left:1px solid var(--gray-200)}
+.c-cell.hol{background:var(--gray-50)}
+.c-cell.frz{box-shadow:inset -2px 0 0 #F79009}
+.c-cell.dl{box-shadow:inset -2px 0 0 #D92D20}
+.c-cell b{display:block;width:100%;height:14px}
+.c-cell b.over{background:repeating-linear-gradient(45deg,#FDA29B 0 3px,#FEF3F2 3px 6px)!important}
+.c-row.skip{opacity:.45}
+.c-row.skip .t{text-decoration:line-through}
+.c-skip{all:unset;cursor:pointer;font-size:11px;color:var(--gray-500);text-decoration:underline}
+.c-row.sprint>div{background:var(--gray-50)}
+/* budget */
+.b-blk-h{padding:14px 20px 0;font-weight:600;font-size:15px}
+.b-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;padding:6px 0 0}
+.b-tile{padding:10px 20px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.b-tile .l{font-size:13px;color:var(--gray-600)}
+.b-tile .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.b-tile .s{font-size:12.5px;color:var(--gray-500)}
+.b-tile .v.bad{color:#B42318}
+.b-tile .v.good{color:var(--success-700)}
+.b-meters{display:flex;flex-direction:column;gap:12px;padding:6px 20px 18px;border-top:1px solid var(--gray-100)}
+.b-m{display:grid;grid-template-columns:150px 1fr 150px;gap:12px;align-items:center;font-size:13px}
+.b-m .lab{color:var(--gray-700);font-weight:500}
+.b-m .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--gray-600)}
+.b-track{position:relative;height:10px;border-radius:5px;background:var(--gray-100);overflow:visible}
+.b-fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px 4px 4px 5px;background:var(--brand-900)}
+.b-fill.time{background:#667085}
+.b-fill.over{background:#D92D20}
+.b-tick{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--gray-900);border-radius:1px}
+@media (max-width:600px){.b-m{grid-template-columns:1fr;gap:4px}.b-m .val{text-align:left}}
+.b-chart{position:relative;padding:8px 12px 4px}
+.b-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.b-tip{position:absolute;pointer-events:none;background:var(--white);border:1px solid var(--gray-200);box-shadow:var(--shadow-card);border-radius:8px;padding:8px 10px;font-size:12.5px;white-space:nowrap;transform:translate(-50%,-100%);display:none;z-index:3}
+.b-tip b{font-variant-numeric:tabular-nums}
+.b-legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:0 20px 14px;font-size:12.5px;color:var(--gray-600)}
+.b-legend span{display:inline-flex;align-items:center;gap:6px}
+.b-legend i{display:inline-block;width:18px;height:0;border-top:2px solid}
+.b-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 16px;padding:14px 20px}
+.b-f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--gray-600)}
+.b-f input,.b-f textarea,.tct input{font:inherit;font-size:13.5px;color:var(--gray-900);padding:6px 10px;border:1px solid var(--gray-300);border-radius:8px;background:var(--white);min-width:0}
+.tct input{width:100%;max-width:120px;padding:4px 8px;text-align:right}
+.b-team-wrap{overflow-x:auto;border-top:1px solid var(--gray-200)}
+details.tc-box>summary{cursor:pointer;padding:14px 20px;font-weight:600;list-style-position:inside}
+details.tc-box[open]>summary{border-bottom:1px solid var(--gray-200)}
+@media (max-width:600px){.it,.it.d2,.it.d3{padding-left:16px;padding-right:16px}.cl-h{padding-left:16px;padding-right:16px}.toolbar,.filters{padding-inline:16px}}
+footer{font-size:12.5px;color:var(--gray-500)}
+@media (prefers-reduced-motion:no-preference){.btn,.doc,.rrow{transition:background .15s}}
+</style>
+
+<script id="hub-data" type="application/json">
+{
+  "updated": "2026-11-20",
+  "sprint": { "name": "Sprint 09", "start": "2026-11-16", "end": "2026-11-27", "lengthDays": 14, "number": 9 },
+  "features": [
+    {
+      "name": "Overhaul",
+      "summary": "กบค. วางแผนส่งยานพาหนะเข้าอู่เพื่อปรับปรุงสภาพครั้งใหญ่ ตั้งแต่สร้างแผน ออก PO นัดหมาย ติดตามผล จนถึงปิดงานและอนุมัติ",
+      "try": [
+        { "label": "ลองใช้ต้นแบบ", "url": "https://dear-pyn.github.io/vms-plus-workspace/prototypes/overhaul/", "primary": true },
+        { "label": "ต้นแบบ Dashboard", "url": "https://dear-pyn.github.io/vms-plus-workspace/prototypes/overhaul-dashboard/" }
+      ],
+      "docs": [
+        { "kind": "ภาพหน้าจอรายเคส", "tone": "brand", "title": "เคสต้นแบบ Overhaul", "note": "ภาพหน้าจอเรียงตามสถานการณ์ใช้งาน ดูได้โดยไม่ต้องกดเอง", "url": "https://claude.ai/artifact/6aRbuXbrciV7KeZGDgvhPM", "updated": "2026-11-19" },
+        { "kind": "ผลรีวิว", "tone": "warning", "title": "รีวิวต้นแบบ Overhaul", "note": "ประเด็นที่พบจากการรีวิวต้นแบบ และเรื่องที่รอตัดสินใจ", "url": "https://claude.ai/artifact/CyLjK7xrM81vhPx2DKQ19c", "updated": "2026-11-15" },
+        { "kind": "รายละเอียดหน้าจอ", "tone": "info", "title": "Acceptance Criteria รายหน้าจอ", "note": "เงื่อนไขการทำงานของแต่ละหน้าจอ จาก Refinement 29 ต.ค. 2569", "url": "https://claude.ai/artifact/1yDkoaCyTdXm43ubFpRdd6", "updated": "2026-10-27" },
+        { "kind": "การแจ้งเตือน", "tone": "gray", "title": "Notification Matrix", "note": "ใครได้รับแจ้งเตือนเมื่อไร ในแต่ละขั้นของงาน Overhaul", "url": "https://claude.ai/artifact/BP2RtZ621E5dnAUombovjJ", "updated": "2026-11-16" }
+      ]
+    },
+    {
+      "name": "งานซ่อม",
+      "summary": "แจ้งซ่อม ตรวจสภาพ เบิกอะไหล่ ซ่อม และปิดงาน ใช้งานบน UAT และ PEA Server แล้ว",
+      "try": [],
+      "docs": [
+        { "kind": "การแจ้งเตือน", "tone": "gray", "title": "จุดแจ้งเตือนงานซ่อม", "note": "จุดที่ระบบส่งแจ้งเตือนในแต่ละขั้นตอนของงานซ่อม", "url": "https://claude.ai/artifact/NHVrTarJVKFU6GUfejRzvm", "updated": "2026-09-17" }
+      ]
+    },
+    {
+      "name": "ภาพรวมระบบ",
+      "summary": "ขั้นตอนงานทั้งหมดของ VMS Plus หลังมีระบบ ใช้ดูว่าแต่ละโมดูลเชื่อมกันอย่างไร",
+      "try": [],
+      "docs": [
+        { "kind": "Flowchart", "tone": "gray", "title": "To-Be Flowchart ภาพรวมทั้งระบบ", "note": "ขั้นตอนงานหลังมีระบบ ตั้งแต่แจ้งซ่อมถึงปิดต้นทุน", "url": "https://claude.ai/artifact/DuHMeBxHQL5ACXJvR8SNFd", "updated": "2026-08-03" }
+      ]
+    }
+  ],
+  "reports": [
+    { "date": "2026-11-20", "sprint": "Sprint 08", "kind": "sprint", "title": "เรื่องราวที่ PEA Maintain — Sprint 08", "url": "https://claude.ai/artifact/7ryMnEcCsP6fyimF63t7BR#32a7197e-65c3" },
+    { "date": "2026-11-20", "sprint": "Sprint 07", "kind": "sprint", "title": "เรื่องราวที่ PEA Maintain — Sprint 07", "url": "https://claude.ai/artifact/7ryMnEcCsP6fyimF63t7BR#cb5b0364-9b2f" },
+    { "date": "2026-10-19", "sprint": "Sprint 06", "kind": "sprint", "title": "เรื่องราวที่ PEA Maintain — Sprint 06", "url": "https://claude.ai/artifact/7ryMnEcCsP6fyimF63t7BR#49758017-e7b9" }
+  ],
+  "timeline": {
+    "projectStart": "2026-08-03",
+    "projectWeeks": 65,
+    "source": "JO1 ตามใบสั่งงานเลขที่ จ.136/2569 (887 Man-days) · JO2–JO3 ยังเป็นแผนร่างจาก Project timeline · วันเริ่มโครงการเป็นสมมติฐาน (จันทร์แรกของ ส.ค. 2569)",
+    "jos": [
+      { "id": "JO1", "label": "ซ่อม · บำรุงรักษา · Overhaul · ข้อมูลเครื่องมือกล", "start": "2026-11-06", "weeks": 8, "color": "brand-900", "approved": true },
+      { "id": "JO2", "label": "การใช้งานรถ · ยืมรถ · โอนย้าย · จำหน่าย (ร่าง)", "start": "2027-02-01", "weeks": 18, "color": "info-600" },
+      { "id": "JO3", "label": "Fleet Card · Reconciliation (ร่าง)", "start": "2027-05-03", "weeks": 20, "color": "warning-700" }
+    ]
+  }
+}
+</script>
+
+<!-- แผน JO1 รายสัปดาห์ — แก้ตัวเลขที่นี่ได้เลย: s = สัปดาห์เริ่ม, e = สัปดาห์สิ้นสุด (สัปดาห์ 1 = 6 พ.ย. 69), md = [PM, UX/UI, BA, Sr.Dev, Dev, DevOps, QA], kind "test" = แถบสีฟ้า -->
+<script id="jo1-plan" type="application/json">
+{
+  "title": "ใบสั่งงาน (Job Order) ที่ 1 · จ.136/2569",
+  "start": "2026-11-06",
+  "end": "2027-05-13",
+  "gridWeeks": 28,
+  "source": "Project_Timeline_JO1.pdf (29 ต.ค. 69) แนบใบสั่งงาน JO1 ที่บริษัทลงนามแล้ว",
+  "rows": [
+    { "code": "MD-JO1-UC-03", "s": 1, "e": 5, "md": [3,4,5,7,24,1,2], "desc": "เจ้าหน้าที่สามารถบันทึกผลซ่อม ยืนยันงานเสร็จ บันทึกวันส่งมอบ/รับรถ และปิดสถานะงานซ่อมได้" },
+    { "code": "MD-JO1-UC-02", "s": 1, "e": 6, "md": [3,4,9,10,30,0,2], "desc": "เจ้าหน้าที่สามารถรับเรื่องแจ้งซ่อม ตรวจสอบอาการ ระบุแนวทางดำเนินการ และส่งต่อผู้รับผิดชอบได้" },
+    { "code": "MD-JO1-UC-01", "s": 1, "e": 8, "md": [4,7,10,12,43,1,2], "desc": "ผู้ใช้งานสามารถแจ้งซ่อมผ่านระบบ โดยเลือกยานพาหนะ ระบุอาการ/รายละเอียด และแนบข้อมูลประกอบที่จำเป็นได้" },
+    { "code": "MD-JO1-UC-04", "s": 5, "e": 13, "md": [5,7,10,15,55,1,2], "desc": "เจ้าหน้าที่สามารถบันทึกรายการซ่อม อะไหล่ที่ใช้จริง ค่าแรง ค่าเดินทาง/ที่พัก และค่าใช้จ่ายอื่นที่เกี่ยวข้องกับรถแต่ละคันได้" },
+    { "code": "MD-JO1-UC-15", "s": 6, "e": 9, "md": [0,1,4,3,26,0,2], "desc": "ผู้แจ้งซ่อม ผู้ดูแลรถ และผู้มีอำนาจ สามารถส่ง ตรวจ อนุมัติ ตีกลับ/ยกเลิก และแก้ไขคำขอซ่อมได้ พร้อมแจ้งเตือนกรณีค่าซ่อมเกิน 30%" },
+    { "code": "MD-JO1-UC-05", "s": 7, "e": 11, "md": [5,5,6,8,15,0,2], "desc": "ผู้ใช้งานสามารถค้นหารายการซ่อมของรถแต่ละคัน และเปิดดูรายละเอียดงานซ่อม ค่าใช้จ่าย อู่ และสถานะย้อนหลังได้" },
+    { "code": "MD-JO1-UC-16", "s": 10, "e": 13, "md": [0,2,4,4,34,1,3], "desc": "ผยค.กรย./กบค. สามารถวิเคราะห์อาการ แนะนำอะไหล่/อู่ เลือกซ่อมเองหรือส่งอู่ เบิกอะไหล่ และนัดหมายซ่อมได้" },
+    { "code": "MD-JO1-UC-23", "s": 11, "e": 13, "md": [0,2,2,1,17,0,1], "desc": "เจ้าหน้าที่สามารถสร้างแผน Overhaul คัดเลือกรถเข้าแผน และติดตามการใช้งานรถหลัง Overhaul ได้" },
+    { "code": "MD-JO1-UC-17", "s": 11, "e": 14, "md": [0,4,1,0,33,0,2], "desc": "เจ้าหน้าที่สามารถบันทึกตรวจสภาพก่อน-หลังซ่อม อาการเพิ่ม รับรถคืน ประเมิน รับประกัน และดู Dashboard/Export งานซ่อมได้" },
+    { "code": "MD-JO1-UC-24", "s": 12, "e": 15, "md": [0,2,2,0,33,0,2], "desc": "เจ้าหน้าที่สามารถบันทึกงาน Overhaul ตรวจหลังดำเนินการ ออกใบรับรอง เทียบค่าใช้จ่าย และออกรายงาน/Dashboard ได้" },
+    { "code": "MD-JO1-UC-06", "s": 13, "e": 17, "md": [3,5,6,7,22,0,1], "desc": "ผู้ใช้งานสามารถจัดเก็บข้อมูลอู่/ศูนย์บริการที่เคยซ่อม พร้อมข้อมูลติดต่อและอ้างอิงเอกสารที่เกี่ยวข้อง เช่น PO ได้" },
+    { "code": "MD-JO1-UC-25", "s": 15, "e": 16, "md": [0,1,1,0,10,0,1], "desc": "ผู้ใช้งานสามารถสร้างรายงาน/แบบฟอร์ม/PDF ตามรูปแบบที่ กฟภ. กำหนดได้" },
+    { "code": "MD-JO1-UC-18", "s": 17, "e": 18, "md": [0,0,0,0,10,0,1], "desc": "ผู้ใช้งานสามารถดูข้อมูลอู่ครบถ้วน นำทางด้วย Google Maps และเห็นคะแนนเฉลี่ยคุณภาพงานซ่อมได้" },
+    { "code": "MD-JO1-UC-19", "s": 17, "e": 20, "md": [0,3,2,2,27,0,2], "desc": "ผู้ดูแลสามารถบันทึกข้อมูลรถ เครื่องมือกล (หลายรายการ/คัน) ข้อมูลเทคนิค เอกสาร และมิเตอร์แยกส่วนได้" },
+    { "code": "MD-JO1-UC-07", "s": 17, "e": 20, "md": [3,5,6,8,30,1,2], "desc": "ผู้ใช้งานสามารถกำหนดรถ/เครื่องจักร รอบบำรุง ช่วงเวลา และข้อมูลแผนงานบำรุงรักษาที่เกี่ยวข้องได้" },
+    { "code": "MD-JO1-UC-20", "s": 19, "e": 21, "md": [0,1,3,2,22,0,1], "desc": "ผู้ดูแลสามารถตั้งเกณฑ์รอบบำรุงรักษา นำเข้าข้อมูลจำนวนมาก และดู Dashboard/Export ข้อมูลรถติดตั้งเครื่องมือกลได้" },
+    { "code": "MD-JO1-UC-08", "s": 20, "e": 22, "md": [2,4,5,6,24,0,1], "desc": "ผู้ใช้งานสามารถดูตาราง/ปฏิทินแผนบำรุงรักษา กรองตามหน่วยงาน รถ ช่วงเวลา และสถานะได้" },
+    { "code": "MD-JO1-UC-21", "s": 21, "e": 24, "md": [0,2,4,0,31,0,2], "desc": "กบค. สามารถวางแผนล่วงหน้า 2 ปี กำหนดรายการตรวจ/อะไหล่ ยืนยันแผนกับพื้นที่ และวางแผนเดินทางพร้อมเบิกอะไหล่ได้" },
+    { "code": "MD-JO1-UC-09", "s": 22, "e": 23, "md": [2,3,4,5,22,1,2], "desc": "ผู้รับผิดชอบสามารถรับแจ้งเตือนตามเงื่อนไขของแผนบำรุงรักษา และเปิดดูรายการที่ต้องดำเนินการได้" },
+    { "code": "MD-JO1-UC-22", "s": 23, "e": 25, "md": [0,4,2,0,37,0,2], "desc": "เจ้าหน้าที่สามารถบันทึกผลบำรุงรักษา ตรวจน้ำมันไฮดรอลิก Safety Inspection คืนอะไหล่ ให้คะแนน และออกรายงานได้" },
+    { "code": "MD-JO1-UC-PRE", "s": 24, "e": 25, "md": [1,0,2,2,7,0,5], "kind": "test", "desc": "Pre-deploy: Unit Test, SIT, UAT พร้อมรายงานผล และ Security Scan" },
+    { "code": "MD-JO1-UC-DEP", "s": 26, "e": 26, "md": [0,0,0,1,1,2,0], "kind": "test", "desc": "Deploy: ติดตั้งระบบขึ้น UAT และ Production ตามแผนการติดตั้ง (Installation Plan)" },
+    { "code": "MD-JO1-UC-POST", "s": 26, "e": 27, "md": [1,0,3,1,2,1,0], "kind": "test", "desc": "Post-deploy: คู่มือติดตั้ง, คู่มือผู้ใช้, Knowledge Transfer" }
+  ]
+}
+</script>
+
+<!-- เช็กลิสต์ใบสั่งงาน JO1 ส่วนที่ 2 ข้อ 7 — st: gray = มีการ์ดแล้ว · orange = มีแต่ยังไม่แน่ใจว่าครบ · black = ยังไม่มี · red = ยังไม่มีแต่ควรมี · by: owner = เจ้าของงานกำหนด (ข้อ 7.4 จาก ใบสั่งงาน_JO1_checlist.docx), ai = AI เสนอ รอยืนยัน -->
+<!-- วันหยุดที่ไม่นับเป็นวันทำงาน (ใช้กับแผนปิด JO1) · ตัวเลขงบประมาณย้ายไปหน้าส่วนตัวแยกแล้ว -->
+<script id="budget-data" type="application/json">
+{"holidays": ["2026-08-12", "2026-10-13", "2026-10-23", "2026-12-07", "2026-12-10", "2026-12-31", "2027-01-01", "2027-04-06", "2027-04-13", "2027-04-14", "2027-04-15", "2027-06-03", "2027-07-28", "2027-08-12", "2027-10-13", "2027-10-25"]}
+</script>
+
+<!-- แผนปิด JO1 — การ์ดที่ยังขาดเทียบใบสั่งงาน · md = ประมาณจาก MD ของ UC ในใบสั่งงาน (ข้อดำ/แดง = 1 ส่วน, ส้ม = 0.35 ส่วน) · tier 0 ด่วน 1 ตามแผน 2 ถ้ามีกำลัง 3 เสนอเลื่อน 9 ทดสอบ/ส่งมอบ (start/end ตายตัว) -->
+<script id="close-plan" type="application/json">
+{"deadline":"2026-12-31","freeze":"2026-12-18","from":"2026-11-23","mdPerDay":15,"maxPerCard":4,"cards":[{"id":"C01","uc":"UC-01","tier":0,"title":"พนักงาน กฟภ. เข้าสู่ระบบด้วย PEA SSO (Keycloak) และ ThaID","items":[141],"refs":["7.9"],"deps":[],"why":"ฐานของทุกหน้า ยังเข้าด้วย VMS+ main / login ปลอม","md":4.6,"flo":["MTD-171"],"st":{"orange":1}},{"id":"C02","uc":"UC-01","tier":0,"title":"ผู้ดูแลระบบผูกสิทธิ์ตาม role กับบัญชี PEA SSO","items":[138],"refs":["7.7"],"deps":["C01"],"why":"สิทธิ์ทำแล้วแต่ยังผูกกับ login ปลอม","md":4.6,"flo":["MTD-92"],"st":{"orange":1}},{"id":"C03","uc":"UC-01","tier":0,"title":"บุคคลภายนอกเข้าสู่ระบบด้วยเบอร์โทรศัพท์และ ThaID","items":[142],"refs":["7.9"],"deps":["C01"],"why":"ควรมีแล้ว (แดง) ยังไม่มีการ์ด","md":13.2,"flo":[],"st":{"red":1}},{"id":"C04","uc":"UC-01","tier":0,"title":"ผู้แจ้งซ่อมแนบภาพและเอกสารในใบแจ้งซ่อม","items":[22],"refs":["7.2.2"],"deps":[],"why":"ควรมีแล้ว (แดง) UC-01 เริ่มตั้งแต่สัปดาห์ 1","md":13.2,"flo":[],"st":{"red":1}},{"id":"C05","uc":"UC-01","tier":0,"title":"QA ปิด Fail และเคส Hold ของงานแจ้งซ่อม (1.1.8 · 1.1.10 · 1.2.15 · 1.4.3 · 1.3.2 · 1.2.7)","items":[20,24,27,64],"refs":["7.2.2","7.2.4.2"],"deps":[],"why":"มี Fail 13 ข้อในงานที่ส่งแล้ว ต้องปิดก่อนตรวจรับ","md":6,"flo":[],"st":{"orange":4}},{"id":"C06","uc":"UC-23","tier":0,"title":"กบค. ดูรายละเอียดยานพาหนะ ภาพ/เอกสาร และประวัติซ่อม ในแผน Overhaul","items":[110,111,112],"refs":["7.4.1"],"deps":[],"why":"ควรมีแล้ว (แดง) อยู่ในงาน Overhaul ที่กำลังทำ","md":7.7,"flo":["MTD-3"],"st":{"red":1,"orange":1,"black":1}},{"id":"C07","uc":"UC-24","tier":0,"title":"กบค. ออกรายงานผล Overhaul ตามแบบฟอร์ม กฟภ.","items":[125],"refs":["7.4.2"],"deps":[],"why":"ควรมีแล้ว (แดง)","md":3.0,"flo":[],"st":{"red":1}},{"id":"C21","uc":"UC-19","tier":1,"title":"กบค. บันทึกข้อมูลรถและเครื่องมือกล (หลายรายการต่อคัน) ข้อมูลเทคนิค เอกสาร มิเตอร์ และรหัสทรัพย์สิน","items":[2,3,4,5,6,7,8],"refs":["7.1"],"deps":[],"why":"งานบำรุงรักษาทั้งหมดต้องใช้ข้อมูลนี้","md":29.3,"flo":["MTD-247"],"st":{"orange":2,"black":5}},{"id":"C22","uc":"UC-07","tier":1,"title":"กบค. สร้าง แก้ไข ยกเลิกแผนบำรุงรักษา และจัดการรถในแผน","items":[71,72,73,75,76,77],"refs":["7.3.1","7.3.2"],"deps":["C21"],"why":"การ์ด MTD-222–228 รอบนบอร์ดบำรุงรักษา","md":37.1,"flo":["MTD-222","MTD-224","MTD-227","MTD-228"],"st":{"orange":3,"black":3}},{"id":"C08","uc":"UC-15","tier":1,"title":"ผู้อนุมัติ อนุมัติ ตีกลับ หรือยกเลิกคำขอซ่อม และผู้แจ้งแก้ไขแล้วส่งใหม่","items":[25,37,39,51],"refs":["7.2.2","7.2.3.1","7.2.3.2"],"deps":[],"why":"แผนเดิมเริ่มสัปดาห์ 6 · มีการ์ด MTD-194","md":4.6,"flo":["MTD-194"],"st":{"orange":4}},{"id":"C09","uc":"UC-15","tier":1,"title":"ผู้แจ้งซ่อม เลือก/เปลี่ยนผู้อนุมัติ และแก้เบอร์ติดต่อผู้อนุมัติ","items":[32,33],"refs":["7.2.3.1"],"deps":["C08"],"why":"ต่อจากการอนุมัติ","md":4.4,"flo":[],"st":{"orange":1,"black":1}},{"id":"C10","uc":"UC-15","tier":1,"title":"ผู้แจ้งซ่อมแนบใบเสนอราคา และระบบเตือนเมื่อค่าซ่อมเกิน 30% ของมูลค่าทรัพย์สิน","items":[31,35],"refs":["7.2.3.1"],"deps":["C08"],"why":"ต้องรู้มูลค่าทรัพย์สินจาก SAP","md":6.5,"flo":[],"st":{"black":2}},{"id":"C11","uc":"UC-15","tier":1,"title":"ผู้เกี่ยวข้องได้รับแจ้งเตือนทุกขั้นของงานซ่อม","items":[34,36,40,52,68],"refs":["7.2.3.1","7.2.3.2","7.2.4.2"],"deps":[],"why":"การ์ด MTD-5 กำลังทำ · test case 43 ข้อยังไม่รัน","md":11.7,"flo":["MTD-5"],"st":{"orange":5}},{"id":"C12","uc":"UC-02","tier":1,"title":"ผู้แจ้งซ่อมระบุอาการเสียส่วนตัวรถ/เครื่องมือกล ตามประเภทยานพาหนะ (เช่า · ซื้อ · ติดตั้งเครื่องมือกล)","items":[16,17,18,42],"refs":["7.2.1","7.2.3.2"],"deps":[],"why":"แผนเดิม UC-02 สัปดาห์ 1–6","md":27.8,"flo":[],"st":{"orange":1,"black":3}},{"id":"C13","uc":"UC-05","tier":1,"title":"ผู้ใช้งานดูประวัติซ่อมย้อนหลังจากใบแจ้งซ่อม","items":[23,38,50],"refs":["7.2.2","7.2.3.1","7.2.3.2"],"deps":[],"why":"แผนเดิมสัปดาห์ 7–11","md":10.8,"flo":[],"st":{"orange":3}},{"id":"C14","uc":"UC-04","tier":1,"title":"ช่างบันทึกข้อมูลการซ่อม เลขไมล์ ชั่วโมงทำงาน และค่าใช้จ่าย","items":[57],"refs":["7.2.4.1"],"deps":[],"why":"UC-04 ก้อนใหญ่ 95 MD ส่วนใหญ่ทำแล้วจากระยะก่อน","md":33.2,"flo":[],"st":{"orange":1}},{"id":"C15","uc":"UC-16","tier":1,"title":"กรย./กบค. วิเคราะห์อาการ เลือกซ่อมเองหรือส่งศูนย์ พร้อมอะไหล่แนะนำ","items":[21,44,45],"refs":["7.2.2","7.2.3.2"],"deps":["C12"],"why":"ต่อจากการแยกอาการเสีย","md":8.4,"flo":[],"st":{"orange":3}},{"id":"C16","uc":"UC-17","tier":1,"title":"ช่างบันทึกใบตรวจสภาพก่อนซ่อม ใบรับรถ และภาพ/เอกสาร","items":[55,56,58],"refs":["7.2.4.1"],"deps":[],"why":"มีจากระยะก่อน ต้องเติมใบรับรถ","md":4.2,"flo":[],"st":{"orange":3}},{"id":"C17","uc":"UC-23","tier":1,"title":"กบค. กำหนดรายการตรวจและสิ่งที่ต้องทำต่อคันในแผน Overhaul","items":[113],"refs":["7.4.1"],"deps":["C06"],"why":"Overhaul ส่วนที่เหลือ","md":1.1,"flo":[],"st":{"orange":1}},{"id":"C18","uc":"UC-24","tier":1,"title":"กบค. บันทึกประเมินสภาพก่อน Overhaul และงานซ่อมเครื่องมือกล","items":[116,117],"refs":["7.4.2"],"deps":[],"why":"Overhaul ส่วนที่เหลือ","md":4.0,"flo":[],"st":{"orange":1,"black":1}},{"id":"C19","uc":"UC-24","tier":1,"title":"กบค. ค้นหา กรอง และ Export งาน Overhaul","items":[127,128],"refs":["7.4.2"],"deps":[],"why":"Overhaul ส่วนที่เหลือ","md":6.0,"flo":[],"st":{"black":2}},{"id":"C20","uc":"UC-06","tier":1,"title":"กบค. จัดการข้อมูลอู่/ศูนย์บริการ","items":[130,131,132,134,135],"refs":["7.5"],"deps":[],"why":"การ์ด MTD-28 กำลังทำ","md":15.4,"flo":["MTD-28"],"st":{"orange":5}},{"id":"C23","uc":"UC-24","tier":2,"title":"กบค. เบิก/คืนอะไหล่งาน Overhaul (เตรียมเชื่อม Smart Inventory)","items":[123,124],"refs":["7.4.2"],"deps":[],"why":"รอ API Smart Inventory","md":6.0,"flo":[],"st":{"black":2}},{"id":"C24","uc":"UC-16","tier":2,"title":"กบค. เบิกอะไหล่ผ่าน Smart Inventory (ใช้ mock ก่อนได้ API)","items":[48],"refs":["7.2.3.2"],"deps":[],"why":"รอ API Smart Inventory","md":2.8,"flo":["MTD-211"],"st":{"orange":1}},{"id":"C25","uc":"UC-17","tier":2,"title":"ช่างแจ้งอาการเพิ่มระหว่างซ่อม และขออนุมัติเบิกอะไหล่ด่วน","items":[59,60,61],"refs":["7.2.4.1"],"deps":["C16"],"why":"แผนเดิมสัปดาห์ 11–14","md":12.0,"flo":[],"st":{"black":3}},{"id":"C26","uc":"UC-17","tier":2,"title":"กบค. กำหนดการรับประกันงานซ่อม","items":[66],"refs":["7.2.4.2"],"deps":[],"why":"การ์ด MTD-208 กำลังทำ","md":1.4,"flo":["MTD-208"],"st":{"orange":1}},{"id":"C27","uc":"UC-17","tier":2,"title":"ผู้บริหารดู Dashboard และ Export งานซ่อม","items":[26,28],"refs":["7.2.2"],"deps":[],"why":"แผนเดิมสัปดาห์ 11–14","md":5.4,"flo":[],"st":{"orange":1,"black":1}},{"id":"C28","uc":"UC-20","tier":2,"title":"กบค. ตั้งเกณฑ์รอบบำรุง นำเข้าข้อมูลจำนวนมาก ดู Dashboard ค้นหา และ Export รถติดตั้งเครื่องมือกล","items":[9,10,11,12,13],"refs":["7.1"],"deps":["C21"],"why":"ต่อจากข้อมูลเครื่องมือกล","md":29.0,"flo":[],"st":{"black":5}},{"id":"C29","uc":"UC-21","tier":2,"title":"กบค. วางแผนล่วงหน้า 2 ปี กำหนดรายการตรวจและอะไหล่ต่อคัน","items":[78,79,80,81],"refs":["7.3.2"],"deps":["C22"],"why":"ต่อจากแผนบำรุงรักษา","md":11.7,"flo":["MTD-223"],"st":{"orange":2,"black":2}},{"id":"C30","uc":"UC-21","tier":2,"title":"กบค. วางแผนเดินทาง เบิกอะไหล่ก่อนเดินทาง และแจ้งเตือนพื้นที่","items":[83,84,85,86],"refs":["7.3.2"],"deps":["C29"],"why":"การ์ด MTD-230–236","md":8.9,"flo":["MTD-211","MTD-230","MTD-231","MTD-232","MTD-233","MTD-234"],"st":{"orange":3,"black":1}},{"id":"C31","uc":"UC-22","tier":2,"title":"ช่างบันทึกผลบำรุงรักษา ตรวจน้ำมันไฮดรอลิก Safety Inspection และคืนอะไหล่","items":[88,89,90,91,93,94,95,102],"refs":["7.3.3"],"deps":["C22"],"why":"การ์ด MTD-237–243","md":19.0,"flo":["MTD-211","MTD-237","MTD-240","MTD-241","MTD-243"],"st":{"orange":4,"black":4}},{"id":"C32","uc":"UC-22","tier":2,"title":"เจ้าของรถและผู้บังคับบัญชาตรวจผลบำรุงรักษาและรับแจ้งเตือน","items":[92,96,97],"refs":["7.3.3"],"deps":["C31"],"why":"ต่อจากบันทึกผล","md":3.6,"flo":["MTD-239","MTD-240","MTD-242"],"st":{"orange":3}},{"id":"C33","uc":"UC-18","tier":3,"title":"ผู้ใช้งานนำทางไปอู่ด้วย Google Maps และให้คะแนนงานซ่อม","items":[65,133,136],"refs":["7.2.4.2","7.5"],"deps":["C20"],"why":"ต่อจากข้อมูลอู่","md":11.0,"flo":[],"st":{"black":3}},{"id":"C34","uc":"UC-22","tier":3,"title":"กบค. ดูรายงาน Dashboard และ Export งานบำรุงรักษา","items":[98,99,101],"refs":["7.3.3"],"deps":["C31"],"why":"การ์ด MTD-244–246","md":3.6,"flo":["MTD-238","MTD-244","MTD-245","MTD-246"],"st":{"orange":3}},{"id":"C35","uc":"UC-08","tier":3,"title":"ผู้ใช้งานดูปฏิทินแผนบำรุงรักษา กรองตามหน่วยงาน รถ และสถานะ","items":[100],"refs":["7.3.3"],"deps":["C22"],"why":"แผนเดิมสัปดาห์ 20–22","md":42.0,"flo":[],"st":{"black":1}},{"id":"C36","uc":"UC-09","tier":3,"title":"ผู้รับผิดชอบรับแจ้งเตือนให้ทบทวนแผนก่อนถึงรอบบำรุง","items":[82],"refs":["7.3.2"],"deps":["C22"],"why":"แผนเดิมสัปดาห์ 22–23","md":39.0,"flo":[],"st":{"black":1}},{"id":"C37","uc":"UC-25","tier":3,"title":"ผู้ใช้งานออกรายงาน/แบบฟอร์ม PDF ตามรูปแบบ กฟภ. และเชื่อมข้อมูล HR / PEA Life","items":[137,139],"refs":["7.6","7.8"],"deps":[],"why":"รอรูปแบบรายงานจาก กฟภ.","md":8.8,"flo":["MTD-17"],"st":{"orange":1,"black":1}},{"id":"C38","uc":"UC-PRE","tier":9,"title":"QA ทดสอบ SIT · UAT และ Security scan (Fortify SCA · Black Duck · WebInspect) พร้อมรายงานผล","items":[],"refs":[],"deps":[],"why":"ต้องผ่านก่อนตรวจรับ","md":17,"flo":[],"st":{},"start":"2026-12-21","end":"2026-12-25"},{"id":"C39","uc":"UC-DEP","tier":9,"title":"DevOps ติดตั้งระบบขึ้น UAT และ Production ตาม Installation Plan","items":[],"refs":[],"deps":["C38"],"why":"","md":4,"flo":[],"st":{},"start":"2026-12-28","end":"2026-12-28"},{"id":"C40","uc":"UC-POST","tier":9,"title":"BA ส่งมอบคู่มือติดตั้ง คู่มือผู้ดูแลระบบ คู่มือผู้ใช้ และเอกสาร Knowledge Transfer","items":[],"refs":[],"deps":["C39"],"why":"เอกสาร 4 ประเภทต่อ JO ตาม TOR","md":8,"flo":[],"st":{},"start":"2026-12-28","end":"2026-12-30"}]}
+</script>
+
+<!-- ผล Test case SIT ราย card จาก trello/Test case/Sprint 1–9 (n = ทั้งหมด, pass, fail, other = ยังไม่ได้รัน/Hold, sp = sprint) -->
+<script id="tc-data" type="application/json">
+[{"key":"PEA-01","sp":[1],"n":1,"pass":0,"fail":0,"other":1,"feat":["สร้างใบแจ้งซ่อม"],"ex":["ผู้ใช้สามารถสร้างใบแจ้งซ่อมได้สำเร็จ"]},{"key":"PEA-01.1","sp":[1],"n":2,"pass":2,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["Sidebar แสดงถูกต้องเมื่อเข้าเว็บไซต์มา","Sidebar ขยายออกมาเมื่อนำ Mouse Hover"]},{"key":"PEA-01.2","sp":[1],"n":7,"pass":2,"fail":1,"other":4,"feat":["สร้างใบแจ้งซ่อม"],"ex":["หน้าสร้างใบแจ้งซ่อมขั้นตอนการเลือกรถแสดงถูกต้อง","การ์ดของรถแสดงรายละเอียดถูกต้อง เมื่อมีรถในครอบครอง"]},{"key":"PEA-01.3","sp":[1],"n":5,"pass":5,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["หน้าแสดงผลของขั้นตอนการเลือกอาการเสียแสดงถูกต้อง","สามารถเลือก \"สถานะรถตอนนี้\" ได้สำเร็จ"]},{"key":"PEA-01.4","sp":[1],"n":5,"pass":5,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["หน้าแสดงผลของขั้นตอนการ กรอกข้อมูลติดต่อ/การตัดงบ แสดงถูกต้อง","รายการในฟิลด์ \"ประเภทงบประมาณ\" แสดงถูกต้อง"]},{"key":"PEA-01.5","sp":[1],"n":3,"pass":3,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["หน้าอะไหล่ที่แนะนำแสดงผลถูกต้อง","สามารถกด \"ย้อนกลับ\" ไปที่หน้า กรอกข้อมูลติดต่อ/การตัดงบ ได้สำเร็จ"]},{"key":"PEA-01.6","sp":[1],"n":3,"pass":3,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["ขั้นตอน ตัดสินใจ/สรุป แสดงรายละเอียดถูกต้อง","ฟิลด์ \"รายละเอียดการซ่อม\" แสดงขึ้นมาเมื่อเลือกตัวเลือก \"ซ่อมเอง\" ที่หัวข้อการตัด"]},{"key":"PEA-01.7","sp":[1],"n":2,"pass":0,"fail":0,"other":2,"feat":["สร้างใบแจ้งซ่อม"],"ex":["หน้ายืนยันส่งเรื่องแจ้งซ่อมสำเร็จแสดงถูกต้อง","ไปที่หน้าสร้างใบแจ้งซ่อมได้สำเร็จ เมื่อกด \"แจ้งซ่อมเรื่องใหม่\" ที่หน้ายืนยันเรื่"]},{"key":"PEA-02.1","sp":[1],"n":2,"pass":0,"fail":0,"other":2,"feat":["กบค.รับเรื่อง"],"ex":["หน้ารายการแจ้งซ่อมของกบค.แสดงผลถูกต้อง","รายละเอียดของรายการแจ้งซ่อมแสดงถูกต้อง"]},{"key":"PEA-02.2","sp":[1],"n":6,"pass":0,"fail":0,"other":6,"feat":["กบค.รับเรื่อง"],"ex":["หน้ารายการแจ้งซ่อมของกบค.แสดงผลถูกต้อง","ข้อมูลการแจ้งซ่อมแสดงรายละเอียดถูกต้อง"]},{"key":"PEA-02.3","sp":[1],"n":6,"pass":0,"fail":0,"other":6,"feat":["กบค.รับเรื่อง"],"ex":["modal เลือกวิธีการซ่อมแสดงถูกต้อง เมื่อกด \"รับซ่อม\"","ปิด modal เลือกวิธีการซ่อม ได้สำเร็จ"]},{"key":"PEA-1.2.1","sp":[2],"n":2,"pass":2,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม"],"ex":["สถานะใบแจ้งซ่อมแสดงถูกต้อง เมื่อผู้ใช้สร้างใบแจ้งซ่อมสำเร็จแล้ว","สถานะใบแจ้งซ่อมแสดงถูกต้อง เมื่อผู้ใช้สร้างใบแจ้งซ่อมสำเร็จแล้ว"]},{"key":"PEA-1.2.2","sp":[2],"n":27,"pass":27,"fail":0,"other":0,"feat":["กบค. รับเรื่อง"],"ex":["หน้าจัดการงานซ่อม แสดงรายละเอียดถูกต้อง เมื่อยังไม่มีใบแจ้งซ่อม","ตารางของหน้าจัดการงานซ่อม แสดงรายละเอียดครบถ้วน"]},{"key":"PEA-1.2.3","sp":[2],"n":22,"pass":22,"fail":0,"other":0,"feat":["กบค.รับเรื่อง"],"ex":["แสดงหน้ารายละเอียดของใบแจ้งซ่อมถูกต้อง","ข้อมูลการซ่อมแสดงข้อมูลถูกต้อง"]},{"key":"PEA-1.2.4","sp":[2],"n":3,"pass":3,"fail":0,"other":0,"feat":["กบค.รับซ่อม"],"ex":["Stepper ของแท็บกระบวนการซ่อม แสดงถูกต้อง","หน้ากระบวนการซ่อม แสดง Stepper ถูกต้อง"]},{"key":"PEA-1.2.5","sp":[2],"n":8,"pass":8,"fail":0,"other":0,"feat":["กบค.ซ่อมเอง"],"ex":["หน้า \"เบิกอะไหล่\" สำหรับ \"ซ่อมที่ กบค.\" แสดงถูกต้อง","ส่วนหัว ของหน้า \"เบิกอะไหล่\" แสดงถูกต้อง"]},{"key":"PEA-1.2.6","sp":[2],"n":27,"pass":27,"fail":0,"other":0,"feat":["กบค.ซ่อมเอง"],"ex":["เข้าหน้า \"นัดหมายวันซ่อม\" (Stepper 2) ได้ถูกต้อง เมื่อกดปุ่ม \"ถัดไป\" ที่หน้า \"เบ","ส่วนหัว ของหน้า \"นัดหมายวันซ่อม\" แสดงถูกต้อง"]},{"key":"PEA-1.2.7","sp":[2],"n":33,"pass":30,"fail":3,"other":0,"feat":["กบค.รับซ่อม"],"ex":["หน้าของขั้นตอน \"ตรวจสภาพก่อนซ่อม\" แสดงรายละเอียดถูกต้อง","สถานะใบแจ้งซ่อมแสดงถูกต้อง"]},{"key":"PEA-1.2.8","sp":[2],"n":8,"pass":8,"fail":0,"other":0,"feat":["กบค.รับเรื่อง"],"ex":["รูปแบบการซ่อม \"จัดซ่อมที่หน้างาน\"​ แสดงที่ขั้นตอน \"นัดหมายวันซ่อม\" ถูกต้อง","ฟิลด์การกรอกข้อมูลของตัวเลือก \"จัดซ่อมที่หน้างาน\" แสดงถูกต้อง"]},{"key":"PEA-1.2.9","sp":[2],"n":4,"pass":4,"fail":0,"other":0,"feat":["กบค.รับเรื่อง"],"ex":["แสดงหน้า รอตอบกลับจากหน่วยงาน เมื่อทำการนัดหมายวันแล้ว","ไปที่ขั้นตอนของการตรวจสภาพก่อนซ่อม เมื่อกด \"ตอบรับนัดหมาย\""]},{"key":"PEA-1.2.10","sp":[2],"n":12,"pass":12,"fail":0,"other":0,"feat":["กบค.รับเรื่อง"],"ex":["หน้าการตรวจสภาพก่อนซ่อมแสดงผลถูกต้อง เมื่อเลือกรูปแบบการซ่อม เป็น \"จัดซ่อมที่หน้","รายการในตารางของ รายละเอียดการตรวจสภาพก่อนซ่อม แสดงถูกต้อง เมื่อรถที่เข้ามาซ่อมเ"]},{"key":"PEA-1.3.1","sp":[2],"n":6,"pass":5,"fail":1,"other":0,"feat":["กบค. รับเรื่อง"],"ex":["หน้าดำเนินการซ่อม แสดงถูกต้องเมื่อกดตอบรับนัดจากขั้นตอนนัดหมายวันซ่อม","แสดงฟิลด์ถูกต้อง เมื่อเลือกตัวเลือก \"พบอาการเพิ่ม\""]},{"key":"PEA-1.3.2","sp":[2],"n":8,"pass":6,"fail":2,"other":0,"feat":["กบค. รับเรื่อง"],"ex":["หน้านัดหมายวันคืนรถ แสดงผลถูกต้อง","ฟิลด์สถานที่นัดคืนรถ แสดงข้อมูล Default ถูกต้อง"]},{"key":"PEA-1.3.3","sp":[3],"n":26,"pass":26,"fail":0,"other":0,"feat":["กบค.รับซ่อม","กบค.รับเรื่อง"],"ex":["หน้า​ของขั้นตอน \"ตรวจสภาพหลังซ่อม\" แสดงรายละเอียดถูกต้อง","ข้อมูลยานพาหนะ แสดงถูกต้อง เมื่อเป็นรถประเภท รถกระเช้าฮอทไลน์ หรือ รถกระเช้าแก้ไ"]},{"key":"PEA-1.3.4","sp":[3],"n":22,"pass":22,"fail":0,"other":0,"feat":["กบค. รับเรื่อง"],"ex":["ขั้นตอน รายงานปิดงาน แสดงผลถูกต้อง","ข้อมูลส่วนของ \"ข้อมูลเอกสาร\" ในขั้นตอน รายงานปิดงาน แสดงถูกต้อง"]},{"key":"PEA-1.5.1","sp":[3],"n":3,"pass":3,"fail":0,"other":0,"feat":["จัดการงานซ่อม"],"ex":["หน้าจัดการงานซ่อมแสดง Navigation bar ถูกต้อง","หน้าจัดการงานซ่อมแสดง Pagination ถูกต้อง"]},{"key":"PEA-1.1.9","sp":[3,5],"n":50,"pass":50,"fail":0,"other":0,"feat":["สร้างใบแจ้งซ่อม","แจ้งซ่อม"],"ex":["รายการใน Dropdown list ของงบที่ตัด แสดงถูกต้อง","งบที่ตัดดึงข้อมูลต้นสังกัดมาแสดงถูกต้อง เมื่อเลือกงบที่ตัดเป็น \"งบทำการ หน่วยงาน"]},{"key":"PEA-1.1.10","sp":[3,6],"n":56,"pass":48,"fail":0,"other":8,"feat":["แจ้งซ่อม"],"ex":["เข้าหน้า \"อาการเสียและรายละเอียดเหตุการณ์\" ได้ถูกต้อง เมื่อกดปุ่ม \"ต่อไป\" ที่หน้","ส่วนหัวของหน้า \"อาการเสียและรายละเอียดเหตุการณ์\" แสดงถูกต้อง"]},{"key":"PEA-1.1.11","sp":[3],"n":19,"pass":19,"fail":0,"other":0,"feat":["แจ้งซ่อม"],"ex":["เข้าหน้า \"อะไหล่ที่แนะนำ\" ได้ถูกต้อง เมื่อกดปุ่ม \"ต่อไป\" ที่หน้า \"อาการเสียและรา","ส่วนหัวของหน้า \"อะไหล่ที่แนะนำ\" แสดงถูกต้อง"]},{"key":"PEA-1.1.8","sp":[4],"n":45,"pass":43,"fail":2,"other":0,"feat":["จัดการงานซ่อม"],"ex":["หน้าจัดการงานซ่อม แสดงถูกต้อง เมื่อยังไม่มีใบแจ้งซ่อมในระบบ","หน้าจัดการงานซ่อม แสดงถูกต้อง เมื่อมีใบแจ้งซ่อมในระบบแล้ว"]},{"key":"PEA-1.4.4","sp":[4],"n":10,"pass":10,"fail":0,"other":0,"feat":["บำรุงรักษา","Overhaul"],"ex":["Path ของเมนู แสดงถูกต้อง เมื่อเข้าเมนู รายการแจ้งซ่อม","Path ของเมนู แสดงถูกต้อง เมื่อเข้าเมนู บำรุงรักษา"]},{"key":"PEA-1.4.1","sp":[4],"n":19,"pass":19,"fail":0,"other":0,"feat":["ใบแจ้งซ่อม"],"ex":["หน้ารายละเอียดใบแจ้งซ่อม แสดงแท็บของ ประวัติการซ่อม ถูกต้อง","หน้าจอของแท็บ ประวัติการซ่อม แสดงผลถูกต้อง เมื่อยังไม่มีประวัติการซ่อมเลย"]},{"key":"PEA-1.4.2","sp":[4],"n":6,"pass":5,"fail":1,"other":0,"feat":["ใบแจ้งซ่อม"],"ex":["รายละเอียดของประวัติการซ่อมแสดงขยายออกมาจากฝั่งขวาของหน้าจอถูกต้อง","ประวัติการซ่อมแสดงรายละเอียดภายในถูกต้อง"]},{"key":"PEA-1.4.3","sp":[4],"n":12,"pass":9,"fail":3,"other":0,"feat":["ใบแจ้งซ่อม"],"ex":["เมนูตัวกรอง แสดงออกมาจากฝั่งขวาของหน้าจอ เมื่อกดปุ่ม \"ตัวกรอง\"","เมนูตัวกรองแสดงรายละเอียดถูกต้อง"]},{"key":"PEA-1.4.0","sp":[4],"n":4,"pass":4,"fail":0,"other":0,"feat":["เลือกผู้ใช้งาน"],"ex":["เข้าหน้า \"เลือกชื่อผู้ใช้งาน\" ได้ถูกต้อง เมื่อเปิด URL เข้าสู่ระบบ","เลือกผู้ใช้งานแต่ละคนจากหน้า \"เลือกชื่อผู้ใช้งาน\" แล้วพาไปหน้า \"จัดการงานซ่อม\" พ"]},{"key":"PEA-1.5.2","sp":[4],"n":10,"pass":10,"fail":0,"other":0,"feat":["จัดการงานซ่อม"],"ex":["เข้าแท็บ \"ประวัติการดำเนินการ\" ได้ถูกต้อง","แสดงรายการประวัติการดำเนินการเริ่มต้นถูกต้อง เมื่อเพิ่งอนุมัติคำขอแจ้งซ่อมสำเร็จ"]},{"key":"PEA-1.0.4","sp":[5,6],"n":28,"pass":28,"fail":0,"other":0,"feat":["เลือกผู้ใช้งาน","จัดการงานซ่อม"],"ex":["ปุ่ม \"รับงานซ่อม\" จะไม่สามารถกดได้เมื่อยังไม่ได้เลือกรูปแบบการซ่อม","modal ส่งอนุมัติเพื่อเปิดงานซ่อม แสดงถูกต้อง"]},{"key":"PEA-1.5.4","sp":[5],"n":10,"pass":10,"fail":0,"other":0,"feat":["ประวัติการซ่อม"],"ex":["ปุ่ม \"รายงาน\" ที่หน้าประวัติการซ่อมแสดงเป็น Disable","modal ยืนยันการดาวน์โหลด แสดงถูกต้อง"]},{"key":"PEA-1.5.3","sp":[5],"n":7,"pass":7,"fail":0,"other":0,"feat":["ประวัติการซ่อม"],"ex":["สามารถดาวน์โหลด Excel จากหน้าประวัติการซ่อม ได้สำเร็จ","สามารถดาวน์โหลด Excel จากหน้ารายละเอียดประวัติการซ่อม ได้สำเร็จ"]},{"key":"PEA-1.2.14","sp":[5],"n":32,"pass":32,"fail":0,"other":0,"feat":["แจ้งซ่อม"],"ex":["เข้าหน้า \"ยืนยันการแจ้งซ่อม\" ได้ถูกต้อง เมื่อกดปุ่ม \"ต่อไป\" ที่หน้า \"อะไหล่ที่แน","ส่วนหัวของหน้า \"ยืนยันการแจ้งซ่อม\" แสดงถูกต้อง"]},{"key":"PEA-1.2.15","sp":[5],"n":36,"pass":34,"fail":2,"other":0,"feat":["จัดการงานซ่อม"],"ex":["เข้าหน้ารายละเอียดใบแจ้งซ่อม แท็บ \"ข้อมูลการซ่อม\" ได้ถูกต้อง เมื่อคลิกรายการใบแจ","ส่วนหัวของหน้ารายละเอียดใบแจ้งซ่อม แสดงถูกต้อง ใน default state"]},{"key":"PEA-1.0.6","sp":[6],"n":10,"pass":8,"fail":0,"other":2,"feat":["หน้าจัดการงานซ่อม"],"ex":["รายการใบแจ้งซ่อมแสดงถูกต้อง เมื่อ Login ด้วย Role Admin-super","รายการใบแจ้งซ่อมแสดงถูกต้อง เมื่อ Login ด้วย Role Admin-region"]},{"key":"PEA-1.0.7","sp":[6],"n":20,"pass":16,"fail":0,"other":4,"feat":["หน้าจัดการงานซ่อม"],"ex":["ค้นหาใบแจ้งซ่อมด้วย หมายเลขเหตุการณ์ หรือ เลขทะเบียน ได้สำเร็จ เมื่อ Login ด้วย ","ค้นหาใบแจ้งซ่อมด้วย หมายเลขเหตุการณ์ หรือ เลขทะเบียน ได้สำเร็จ เมื่อ Login ด้วย "]},{"key":"PEA-1.0.8","sp":[6],"n":14,"pass":14,"fail":0,"other":0,"feat":["แจ้งซ่อม"],"ex":["Dropdown \"ยานพาหนะ\" ที่หน้า Stepper 1 \"ข้อมูลยานพาหนะและผู้แจ้ง\" (default state)","Dropdown \"ยานพาหนะ\" ที่หน้า Stepper 1 \"ข้อมูลยานพาหนะและผู้แจ้ง\" (default state)"]},{"key":"PEA-1.0.9","sp":[6],"n":14,"pass":14,"fail":0,"other":0,"feat":["แจ้งซ่อม"],"ex":["ค้นหายานพาหนะด้วย เลขทะเบียน หรือ แบรนด์รถ หรือ รุ่นรถ ได้ถูกต้องตามสิทธิ์ ทั้งก","ค้นหายานพาหนะด้วย เลขทะเบียน หรือ แบรนด์รถ หรือ รุ่นรถ ได้ถูกต้องตามสิทธิ์ ทั้งก"]},{"key":"PEA-1.23.1","sp":[7],"n":28,"pass":28,"fail":0,"other":0,"feat":["จัดหารงาน Overhaul"],"ex":["แสดงหน้า Empty ถูกต้อง เมื่อไม่มีแผนในหน้าจัดการงาน Overhaul","แสดงหน้า Empty Search ถูกต้อง เมื่อค้นหาแผน Overhaul ไม่เจอ"]},{"key":"PEA-1.23.2","sp":[7],"n":11,"pass":11,"fail":0,"other":0,"feat":["จัดการงาน Overhaul"],"ex":["สามารถไปหน้าแก้ไขแผน Overhaul ได้สำเร็จ เมื่อกด \"แก้ไข\" ที่เมนูย่อย","ข้อมูลเก่าที่เคยกรอกไว้แสดงในหน้าแก้ไขแผนถูกต้อง"]},{"key":"PEA-1.23.3","sp":[7],"n":6,"pass":6,"fail":0,"other":0,"feat":["ลบแผน Overhaul"],"ex":["แสดง Modal ยืนยันการลบแผน เมื่อกด \"ลบ\" ที่เมนูย่อยในหน้าจัดการงาน Overhaul","สามารถปิด modal ยืนยันการลบแผน ที่หน้าจัดการงาน Overhaul ได้"]},{"key":"PEA-1.23.4","sp":[7],"n":20,"pass":20,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["ส่วนของ \"Purchase Order\" ของหน้า \"รายละเอียดแผนการดำเนินการ Overhaul\" แสดงถูกต้อ","ปุ่ม \"+ PO\" ของหน้า \"รายละเอียดแผนการดำเนินการ Overhaul\" สามารถเปิดหน้า \"เพิ่ม P"]},{"key":"PEA-1.23.5","sp":[7],"n":18,"pass":18,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["สามารถเปิดหน้า \"แก้ไข Purchase Order\" และแสดงข้อมูลที่บันทึกไว้ล่าสุดได้ถูกต้อง ","แก้ไขข้อมูล Column ใดๆ ที่หน้า \"แก้ไข Purchase Order\" แล้วกดปุ่ม \"ยกเลิก\" และ \"ย"]},{"key":"PEA-1.23.6","sp":[7],"n":8,"pass":8,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["กดลบ PO แล้วกดปุ่ม \"ยกเลิก\" และ \"ยืนยัน\" บน Modal ยืนยันการลบ PO ระบบทำงานถูกต้อ","ลบ PO รายการสุดท้ายของแผน Overhaul ได้สำเร็จ และส่วนของ \"Purchase Order\" กลับไปแ"]},{"key":"PEA-1.23.7","sp":[7],"n":14,"pass":14,"fail":0,"other":0,"feat":["ข้อมูลยานพาหนะ"],"ex":["หน้าจอขั้นตอน นัดเอารถเข้าอู่ แสดงผลถูกต้อง","ข้อมูลยานพาหนะในหน้านัดหมายแสดงถูกต้อง"]},{"key":"PEA-1.24.1","sp":[7],"n":11,"pass":11,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 2 \"ตรวจรับรถ\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดงถูกต้อง ใน def","Radio button \"มี\" และ \"ไม่มี\" ในส่วนของ \"รายการตรวจสอบก่อนซ่อม\" ของ Stepper 2 \"ต"]},{"key":"PEA-1.24.2","sp":[7,9],"n":24,"pass":12,"fail":0,"other":12,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 3 \"ติดตามงานซ่อม\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดงถูกต้อง ใน","ปุ่ม \"+ ความคืบหน้า\" ของ Stepper 3 \"ติดตามงานซ่อม\" สามารถเปิด Modal เพิ่มความคืบ"]},{"key":"PEA-1.24.3","sp":[7],"n":13,"pass":11,"fail":0,"other":2,"feat":["การดำเนินการ Overhaul"],"ex":["Modal แก้ไขความคืบหน้า แสดงถูกต้อง พร้อมข้อมูลเดิมที่บันทึกไว้ (Pre-fill) เมื่อก","ปุ่ม \"บันทึก\" ของ Modal แก้ไขความคืบหน้า แสดงเป็น Enable เมื่อเปิด Modal และเป็น"]},{"key":"PEA-1.24.4","sp":[7],"n":5,"pass":5,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["กดปุ่ม \"ลบ\" ของรายการความคืบหน้า แล้วกดปุ่ม \"ยกเลิก\" และ \"ยืนยัน\" บน Modal ยืนยั","ลบรายการความคืบหน้าสำเร็จ แล้วรายการที่ลบไม่แสดงอีก เมื่อไปดู Stepper ก่อนหน้าแล"]},{"key":"PEA-1.24.5","sp":[7,9],"n":21,"pass":10,"fail":0,"other":11,"feat":["การดำเนินการ Overhaul","ขั้นตอนตรวจสภาพ"],"ex":["หน้าของขั้นตอน \"ตรวจสภาพ\" แสดงผลถูกต้อง","จำนวนนับไฟล์แสดงจำนวนถูกต้องเมื่อเริ่มทำการแนบไฟล์เข้าระบบ"]},{"key":"PEA-1.23.8","sp":[8],"n":27,"pass":27,"fail":0,"other":0,"feat":["จัดการงาน Overhaul"],"ex":["หน้าจัดการงาน Overhaul แสดงตารางถูกต้อง","แสดงหน้า ยังไม่มีแผน Overhaul เมื่อยังไม่มีแผน Overhaul ในหน้าจัดการงาน Overhaul"]},{"key":"PEA-1.23.9","sp":[8],"n":36,"pass":36,"fail":0,"other":0,"feat":["สร้างแผน Overhaul"],"ex":["ประเภทงบประมาณ แสดงผลถูกต้องที่หน้าสร้างแผน Overhaul","ฟิลด์ ศูนย์ต้นทุน แสดงข้อมูลที่ pre-fill มาถูกต้อง เมื่อเลือก ประเภทงบประมาณ เป็"]},{"key":"PEA-1.23.10","sp":[8],"n":22,"pass":22,"fail":0,"other":0,"feat":["แก้ไขแผน Overhaul"],"ex":["เมนู \"...\" ของแผนในหน้าจัดการงาน Overhaul มีตัวเลือก \"แก้ไข\"","กด \"แก้ไข\" จากเมนู \"...\" แล้วไปหน้าแก้ไขแผน"]},{"key":"PEA-1.23.11","sp":[8],"n":10,"pass":10,"fail":0,"other":0,"feat":["ลบแผน Overhaul"],"ex":["เมนู \"...\" ของแผนในหน้าจัดการงาน Overhaul มีตัวเลือก \"ลบแผน\" สำหรับ role กบค. หร","หน้ารายละเอียดแผน Overhaul มีปุ่ม \"ลบแผน\" สำหรับ role กบค. หรือ admin-super"]},{"key":"PEA-1.23.12","sp":[8],"n":29,"pass":29,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["ปุ่ม \"+ สร้าง Purchase order\" ของหน้า \"รายละเอียดแผนการดำเนินการ Overhaul\" สามาร","ปุ่ม \"ย้อนกลับ\" และ \"บันทึก\" ของหน้า \"เพิ่ม Purchase order\" แสดงติดอยู่ที่ด้านล่"]},{"key":"PEA-1.23.13","sp":[8],"n":19,"pass":19,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["เมนู \"แก้ไข\" ของรายการ Purchase order ที่หน้า \"รายละเอียดแผนการดำเนินการ Overhau","แก้ไขชื่อ Purchase order และศูนย์บริการ/อู่ ที่หน้า \"แก้ไข Purchase order\" แล้วก"]},{"key":"PEA-1.23.15","sp":[8],"n":31,"pass":31,"fail":0,"other":0,"feat":["นัดหมายเข้าอู่ Overhaul"],"ex":["ผู้ใช้เห็นยี่ห้อ/รุ่น และประเภทของรถที่จะนัดหมายเข้าอู่ได้ถูกต้อง","ระบบแจ้งให้เลือกช่วงวันนำรถเข้า เมื่อผู้ใช้ข้ามฟิลด์ไปโดยไม่เลือก"]},{"key":"PEA-1.24.6","sp":[8],"n":5,"pass":5,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 2 \"ตรวจรับรถ\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดง Badge สถานะ \"","Dropdown ผู้ลงนาม Column \"ผู้ส่งมอบรถ\" ในส่วนของ \"ลงนามการรับมอบรถ\" ของ Stepper "]},{"key":"PEA-1.24.7","sp":[8],"n":8,"pass":8,"fail":0,"other":0,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 3 \"ติดตามงานซ่อม\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดง Badge สถา","กดปุ่ม \"บันทึก\" บน Modal เพิ่มความคืบหน้า แล้วบันทึกไม่สำเร็จ ระบบแสดง Toast \"บั"]},{"key":"PEA-1.24.8","sp":[8],"n":18,"pass":18,"fail":0,"other":0,"feat":["ตรวจสภาพ Overhaul"],"ex":["ผู้ใช้เห็นสถานะ \"อยู่ระหว่างตรวจ\" ของรถที่อยู่ในขั้นตอนตรวจสภาพ","ผู้ใช้แนบเอกสารผลตรวจสภาพที่เป็นไฟล์ PDF, PNG และ JPG ได้สำเร็จ"]},{"key":"PEA-1.24.9","sp":[8,9],"n":21,"pass":11,"fail":0,"other":10,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 5 \"นัดรับรถ\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดง Badge สถานะ \"ร","Column \"ช่วงวันนำรถเข้า\" ที่ Stepper 5 \"นัดรับรถ\" สามารถเลือกได้ทั้งแบบช่วงวันแล"]},{"key":"PEA-1.24.10","sp":[8],"n":32,"pass":28,"fail":0,"other":4,"feat":["ปิดงาน Overhaul"],"ex":["ผู้ใช้เห็นสถานะ \"รอปิดงาน\" ของรถที่อยู่ในขั้นตอนปิดงาน, toggle การรับประกันงานซ่","ผู้ใช้กดปุ่ม + เพิ่มอะไหล่ แล้วระบบแสดงแถวอะไหล่ใหม่โดยยังไม่แสดง validate messa"]},{"key":"PEA-1.24.11","sp":[8],"n":36,"pass":36,"fail":0,"other":0,"feat":["ยืนยันการส่งอนุมัติ"],"ex":["หน้าขั้นตอน ยืนยันการส่งอนุมัติ แสดงข้อมูลทั้งหมดในหน้าถูกต้อง","ส่วน ข้อมูลผู้ซ่อม แสดงข้อมูลศูนย์บริการ/อู่ ตรงกับ PO ของรถ"]},{"key":"MTD-21","sp":[9],"n":43,"pass":0,"fail":0,"other":43,"feat":["Notification"],"ex":["หัวหน้ากบค. ได้รับการแจ้งเตือนผ่านระบบ VMS+ Maintain-D เมื่อกบค.เลือกให้เป็นผู้อ","หัวหน้ากบค. กดที่การแจ้งเตือนแล้วพาไปที่หน้าอนุมัติปิดงาน Overhaul ของยานพาหนะคั"]},{"key":"MTD-29","sp":[9],"n":6,"pass":0,"fail":0,"other":6,"feat":["Login"],"ex":["ผู้ใช้สามารถเข้าสู่ระบบด้วย Role admin-super หรือ กบค. ได้สำเร็จ","ผู้ใช้สามารถเข้าสู่ระบบด้วย Role admin-region หรือ กรย. ได้สำเร็จ"]},{"key":"MTD-33","sp":[9],"n":42,"pass":0,"fail":0,"other":42,"feat":["Dashboard Overhaul"],"ex":["ตรวจสอบการแสดงผลค่าเริ่มต้นเมื่อเข้าหน้า Dashboard Overhaul (ระดับแผน)","ตรวจสอบการแสดงผลเมื่อกด \"เลือกทุกแผน\" ในปีงบประมาณ 2569"]},{"key":"MTD-18","sp":[9],"n":65,"pass":0,"fail":0,"other":65,"feat":["จัดการงาน Overhaul","สร้างแผน Overhaul"],"ex":["ตรวจสอบการดาวน์โหลดรายงานจากปุ่ม \"รายงาน\" หน้าจัดการงาน Overhaul","ตรวจสอบข้อมูลภายในไฟล์รายงาน"]},{"key":"MTD-19","sp":[9],"n":30,"pass":0,"fail":0,"other":30,"feat":["ปิดงาน Overhaul"],"ex":["ผู้ใช้เห็นขั้นตอน \"ปิดงาน\" และสถานะ \"อยู่ระหว่างปิดงาน\" ของรถที่ส่งมอบคืนแล้ว","ผู้ใช้เห็นอะไหล่ตัวรถที่เบิกไว้แสดงในตารางอัตโนมัติ โดยจำนวนที่ใช้เท่ากับจำนวนที"]},{"key":"MTD-20","sp":[9],"n":1,"pass":0,"fail":0,"other":1,"feat":[],"ex":[]},{"key":"MTD-22","sp":[9],"n":1,"pass":0,"fail":0,"other":1,"feat":[],"ex":[]},{"key":"MTD-23","sp":[9],"n":1,"pass":0,"fail":0,"other":1,"feat":[],"ex":[]},{"key":"PEA-1.14.4","sp":[9],"n":32,"pass":8,"fail":2,"other":22,"feat":["การดำเนินการ Overhaul"],"ex":["ปุ่ม \"+ สร้าง Purchase Order\" ของหน้า \"รายละเอียดแผนการดำเนินการ Overhaul\" สามาร","Column \"วันเริ่มสัญญา\" และ \"วันสิ้นสุดสัญญา\" ของหน้า \"เพิ่ม Purchase Order\" สามา"]},{"key":"PEA-1.24.14","sp":[9],"n":10,"pass":0,"fail":0,"other":10,"feat":["การดำเนินการ Overhaul"],"ex":["Stepper 1 \"นำยานพาหนะเข้าอู่\" ของหน้า \"งาน Overhaul - ข้อมูลยานพาหนะ\" แสดง Stepp","เลือก radio \"นัดหมาย\" ที่ Stepper 1 \"นำยานพาหนะเข้าอู่\" แล้ว Column \"ช่วงเวลาที่"]}]
+</script>
+
+<script id="jo1-check" type="application/json">
+[{"i":0,"h":0,"ref":"7","t":"ระบบต้องทำงานได้ตามฟังก์ชันการทำงานการบริหารจัดการงานระบบบริหารจัดการงานแจ้งซ่อม, การซ่อมแซมและบำรุงรักษายานพาหนะ (VMS Plus / SMSM) ของ กฟภ. ดังต่อไปนี้"},{"i":1,"h":1,"ref":"7.1","t":"สร้าง/แก้ไข/แสดง รายละเอียดของเครื่องมือกลหรือเครื่องจักรที่ติดตั้งไว้กับยานพาหนะ เพื่อให้ระบบรองรับการบริหารจัดการเครื่องมือกล ดังนี้"},{"i":2,"ref":"7.1","t":"ข้อมูลยานพาหนะที่ติดตั้ง : เลขทะเบียน, รหัสยานพาหนะ, ยี่ห้อ-รุ่น, สังกัดหน่วยงาน, ประเภทยานพาหนะ, ประเภทเชื้อเพลิง, หมายเลขตัวถัง, หมายเลขเครื่องยนต์, น้ำหนัก บรรทุก, วันที่จดทะเบียน, อายุยานพาหนะ, สถานะการใช้งานยานพาหนะ, รหัสทรัพย์สิน, รหัสทรัพย์สินย่อย, ประเภททรัพย์สิน, มูลค่าที่ได้มา เป็นต้น","st":"black","by":"ai","uc":"UC-19","cards":[],"note":"","tests":[]},{"i":3,"ref":"7.1","t":"ข้อมูลเครื่องมือกล : ประเภทเครื่องมือกล (เช่น เครน, กระเช้า, ปั้นจั่น, ขุดเจาะ, เครื่อง ฉีดน้ำแรงดันสูง เป็นต้น), ประเภทย่อยเครื่องมือกล (ถ้ามี) (เช่น เครนพับ, เครนแข็ง เป็นต้น), ยี่ห้อ-รุ่น, Serial Number, หมายเลขเครน/เครื่องมือกล, วันที่ติดตั้ง, สภาพหรือ สถานะการใช้งาน, รหัสทรัพย์สิน, รหัสทรัพย์สินย่อย, ประเภททรัพย์สิน, มูลค่าที่ได้มา เป็นต้น","st":"orange","by":"ai","uc":"UC-19","cards":["MTD-247"],"note":"การ์ด J4 จัดการเครื่องมือกล ยังไม่ขึ้นบอร์ด","tests":[]},{"i":4,"ref":"7.1","t":"ข้อมูลทางเทคนิคที่สำคัญ : เช่น น้ำหนักยกสูงสุด, ช่วงการยกสูงสุด, ระยะเอื้อมไฮดรอลิก สูงสุด น้ำหนักของเครื่องมือกล เป็นต้น","st":"black","by":"ai","uc":"UC-19","cards":[],"note":"","tests":[]},{"i":5,"ref":"7.1","t":"ข้อมูลภาพและเอกสาร : ภาพยานพาหนะและเครื่องมือกล หรือเอกสารที่เกี่ยวข้อง","st":"black","by":"ai","uc":"UC-19","cards":[],"note":"","tests":[]},{"i":6,"ref":"7.1","t":"รองรับการบันทึกชั่วโมงการทำงาน : บันทึกค่ามิเตอร์แยกส่วน เช่น ชั่วโมงเครื่องจักร, ชั่วโมงเครน เป็นต้น","st":"black","by":"ai","uc":"UC-19","cards":[],"note":"","tests":[]},{"i":7,"ref":"7.1","t":"รองรับการบันทึกเครื่องมือกลหรือเครื่องจักรได้มากกว่า 1 รายการ ที่ติดตั้งไว้กับ ยานพาหนะ","st":"orange","by":"ai","uc":"UC-19","cards":["MTD-247"],"note":"การ์ด J4 จัดการเครื่องมือกล ยังไม่ขึ้นบอร์ด","tests":[]},{"i":8,"ref":"7.1","t":"รองรับการกำหนดรหัสทรัพย์สินและรหัสทรัพย์สินย่อยของเครื่องมือกลหรือเครื่องจักร (รถยนต์บรรทุกและเครื่องจักรกลหนัก) เพื่อให้เกิดความยืดหยุ่นสำหรับการจัดการทรัพย์สิน ในอนาคต","st":"black","by":"ai","uc":"UC-19","cards":[],"note":"","tests":[]},{"i":9,"ref":"7.1","t":"รองรับการกำหนดตารางบำรุงรักษา เช่น มาตรฐานการวัดวาระบำรุงรักษา: วัดด้วย Odometer (กม.) หรือ Hour Meter (ชั่วโมงทำงาน) หรือ ระยะเวลา (เดือน,วัน) หรือใช้เกณฑ์มาตรฐานเทียบเคียง 1 ชั่วโมงทำงาน = 30 กิโลเมตร เพื่อคำนวณวาระ การบำรุงรักษาที่ครอบคลุมทั้งตัวรถและอุปกรณ์พิเศษ","st":"black","by":"ai","uc":"UC-20","cards":[],"note":"","tests":[]},{"i":10,"ref":"7.1","t":"รองรับการสร้างข้อมูลแบบปริมาณมากผ่าน Template หรือรูปแบบการบันทึกข้อมูลตามที่ กฟภ. กำหนด","st":"black","by":"ai","uc":"UC-20","cards":[],"note":"","tests":[]},{"i":11,"ref":"7.1","t":"สามารถแสดงภาพรวมหรือ Dashboard ยานพาหนะที่ติดตั้งเครื่องมือกลหรือเครื่องจักรได้","st":"black","by":"ai","uc":"UC-20","cards":[],"note":"","tests":[]},{"i":12,"ref":"7.1","t":"ค้นหาและกรอง (filter) ข้อมูลยานพาหนะได้ ตามที่ กฟภ.กำหนด เช่น เลขทะเบียน, รหัส ยานพาหนะ, รหัสยานทรัพย์สิน, ยี่ห้อ-รุ่น, ประเภทของยานพาหนะ, สังกัดหน่วยงาน, หมายเลขตัวถัง, ประเภทเครื่องมือกลหรือเครื่องจักร, ยี่ห้อ-รุ่นเครื่องมือกลหรือเครื่องจักร เป็นต้น","st":"black","by":"ai","uc":"UC-20","cards":[],"note":"","tests":[]},{"i":13,"ref":"7.1","t":"สามารถ Export ข้อมูลในรูปแบบไฟล์ Excel หรือ PDF ได้","st":"black","by":"ai","uc":"UC-20","cards":[],"note":"","tests":[]},{"i":14,"h":1,"ref":"7.2","t":"กระบวนการบริหารจัดการงานซ่อมแซมยานพาหนะ"},{"i":15,"h":2,"ref":"7.2.1","t":"การจัดประเภทยานพาหนะที่ซ่อมแซมและผู้ดำเนินการซ่อม"},{"i":16,"ref":"7.2.1","t":"ยานพาหนะที่อยู่ในสัญญาเช่า : บริษัทผู้ให้เช่ายานพาหนะในแต่ละสัญญาเป็น ผู้ดำเนินการ โดยประสานงานกับหน่วยงานผู้บริหารสัญญาและหน่วยงานเจ้าของ ยานพาหนะ","st":"black","by":"ai","uc":"UC-02","cards":[],"note":"เป็นข้อกำหนดการแยกประเภท ยังไม่มีการ์ดแยกตามประเภทยานพาหนะ","tests":[]},{"i":17,"ref":"7.2.1","t":"ยานพาหนะ(ซื้อ) ทั่วไป ที่ไม่ได้ติดตั้งเครื่องมือกล : หน่วยงานที่เจ้าของยานพาหนะ ดำเนินการจ้างศูนย์บริการหรืออู่ภายนอกเพื่อซ่อมแซม","st":"black","by":"ai","uc":"UC-02","cards":[],"note":"เป็นข้อกำหนดการแยกประเภท ยังไม่มีการ์ดแยกตามประเภทยานพาหนะ","tests":[]},{"i":18,"ref":"7.2.1","t":"ยานพาหนะ(ซื้อ) ติดตั้งเครื่องมือกล : หน่วยงานเจ้าของยานพาหนะสามารถจ้าง ศูนย์บริการหรืออู่ภายนอกเพื่อดำเนินการซ่อม หรือแจ้งซ่อมมาที่ แผนกยานพาหนะ และเครื่องมือกล กองก่อสร้างระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) หรือ กองบริหารจัดการงานเครื่องกล (กบค.) เพื่อดำเนินการซ่อมได้ ทั้งนี้หากไม่สามารถ ซ่อมเองได้ สามารถจ้างศูนย์บริการหรืออู่ภายนอกที่เชี่ยวชาญดำเนินการซ่อมให้ได้","st":"black","by":"ai","uc":"UC-02","cards":[],"note":"เป็นข้อกำหนดการแยกประเภท ยังไม่มีการ์ดแยกตามประเภทยานพาหนะ","tests":[]},{"i":19,"h":2,"ref":"7.2.2","t":"การเปิดงานซ่อมหรือแจ้งซ่อมยานพาหนะ มีรายละเอียด ดังนี้"},{"i":20,"ref":"7.2.2","t":"ข้อมูลการแจ้งซ่อม : วันที่แจ้งซ่อม, ทะเบียนยานพาหนะ, ประเภทยานพาหนะ, สังกัดหน่วยงาน, อาการชำรุด, ผู้แจ้งซ่อม, สถานที่หรือพิกัดที่รถเสีย, เลขไมล์, ชั่วโมงสะสมการทำงานของเครื่องจักร","st":"orange","by":"ai","uc":"UC-01","cards":["PEA-1.1.4","PEA-1.1.8","1.1.10","PEA-1.2.14"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-01.2","PEA-01.4","PEA-01.6","PEA-01.7","PEA-1.2.1","PEA-1.1.8","PEA-1.1.9","PEA-1.1.10","PEA-1.2.14"]},{"i":21,"ref":"7.2.2","t":"การวิเคราะห์อาการชำรุด : สรุปปัญหาที่แจ้งอาการเสีย, รายการอะไหล่แนะนำ ที่ต้องใช้ (ถ้ามี), แนะนำศูนย์บริการหรืออู่ภายนอกที่อยู่ในพื้นที่ใกล้เคียง (ถ้ามี)","st":"orange","by":"ai","uc":"UC-16","cards":["PEA-1.1.12","PEA-1.2.13"],"note":"แนะนำอะไหล่ยังอยู่ Backlog / POC","tests":["PEA-01.3","PEA-01.5","PEA-1.1.11"]},{"i":22,"ref":"7.2.2","t":"ข้อมูลภาพและเอกสาร : ภาพยานพาหนะหรือเครื่องมือกลที่เสียหรือชำรุด หรือ เอกสารที่เกี่ยวข้อง เช่น ใบประเมินหรือใบเสนอราคาซ่อม เป็นต้น","st":"red","by":"ai","uc":"UC-01","cards":[],"note":"UC-01 เริ่มแล้ว แต่ยังไม่มีการ์ดแนบภาพ/เอกสารใบแจ้งซ่อม","tests":[]},{"i":23,"ref":"7.2.2","t":"ประวัติการซ่อมย้อนหลัง : วันที่แจ้งซ่อม, หมายเลขงานซ่อม, วันซ่อมเสร็จ, อาการ ชำรุด, รายละเอียดงานซ่อม, อะไหล่ที่ใช้ (รหัส/ชื่อพัสดุ), และจำนวนเงิน ผู้ดำเนินการซ่อม เป็นต้น เพื่อใช้ตรวจสอบประวัติการอาการเสีย, ความถี่หรือ เพื่อป้องกันการซ่อมซ้ำซ้อน และมูลค่าซ่อมเดิมประกอบการพิจารณาอนุมัติ","st":"orange","by":"ai","uc":"UC-05","cards":["PEA-1.5.1","PEA-1.5.2","PEA-1.5.5","PEA-1.5.6"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.4.1","PEA-1.4.2","PEA-1.5.2"]},{"i":24,"ref":"7.2.2","t":"รองรับกระบวนการขั้นตอนการแจ้งซ่อมไปยังผู้เกี่ยวข้องตามที่ กฟภ.กำหนด","st":"orange","by":"ai","uc":"UC-01","cards":["PEA-1.2.15"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.2.2","PEA-1.2.3","PEA-1.2.15"]},{"i":25,"ref":"7.2.2","t":"สามารถแก้ไข/ยกเลิกการแจ้งซ่อมยานพาหนะได้ กรณีถูกตีกลับหรือไม่อนุมัติ","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-194","PEA-1.2.18"],"note":"","tests":[]},{"i":26,"ref":"7.2.2","t":"สามารถแสดงภาพรวมหรือ Dashboard ยานพาหนะที่ติดตั้งเครื่องมือกลหรือ เครื่องจักรได้","st":"black","by":"ai","uc":"UC-17","cards":[],"note":"","tests":[]},{"i":27,"ref":"7.2.2","t":"ค้นหาและกรอง (filter) ข้อมูลยานพาหนะได้ตามที่ กฟภ.กำหนด เช่น เลขทะเบียน, รหัสยานพาหนะ, รหัสยานทรัพย์สิน, ยี่ห้อ-รุ่น, ประเภทของยานพาหนะ, สังกัด หน่วยงาน, หมายเลขตัวถัง, ประเภทเครื่องมือกลหรือเครื่องจักร, ยี่ห้อ-รุ่นเครื่องมือ กลหรือเครื่องจักร เป็นต้น","st":"orange","by":"ai","uc":"UC-05","cards":["1.0.7","1.0.9"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.0.7","PEA-1.0.9","PEA-1.4.3"]},{"i":28,"ref":"7.2.2","t":"สามารถ Export ข้อมูลในรูปแบบไฟล์ Excel หรือ PDF ได้","st":"orange","by":"ai","uc":"UC-17","cards":["PEA-1.5.3","PEA-1.5.4"],"note":"มี Export ประวัติซ่อม ยังไม่ครอบคลุมรายการแจ้งซ่อม","tests":["PEA-1.5.3","PEA-1.5.4"]},{"i":29,"h":2,"ref":"7.2.3","t":"กระบวนการส่งซ่อม มีรายละเอียด ดังนี้"},{"i":30,"h":3,"ref":"7.2.3.1","t":"กรณียานพาหนะ(ซื้อ) ทั่วไป ที่ไม่ได้ติดตั้งเครื่องมือกล"},{"i":31,"ref":"7.2.3.1","t":"สามารถแนบเอกสารใบประเมินหรือใบเสนอราคาซ่อมของศูนย์บริการ หรืออู่ภายนอก เพื่อประเมินราคาซ่อมที่เหมาะสม","st":"black","by":"ai","uc":"UC-15","cards":[],"note":"","tests":[]},{"i":32,"ref":"7.2.3.1","t":"สามารถเลือกหรือเปลี่ยนผู้มีอำนาจอนุมัติงานซ่อมได้ โดยรองรับการ ผ่านความเห็นชอบจากผู้ดูแลยานพาหนะประจำหน่วยงาน","st":"orange","by":"ai","uc":"UC-15","cards":["PEA-1.0.3"],"note":"","tests":[]},{"i":33,"ref":"7.2.3.1","t":"สามารถแก้ไขข้อมูลของผู้มีอำนาจอนุมัติ เฉพาะ เบอร์ภายใน และ เบอร์โทรศัพท์","st":"black","by":"ai","uc":"UC-15","cards":[],"note":"","tests":[]},{"i":34,"ref":"7.2.3.1","t":"หลังจากที่สร้างใบงานแจ้งซ่อม สามารถส่งแจ้งเตือนไปยังผู้ดูแล หรือผู้ควบคุมยานพาหนะได้","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-5"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-21"]},{"i":35,"ref":"7.2.3.1","t":"หากประเมินค่าซ่อมเกิน 30% ของมูลค่าสินทรัพย์ ระบบต้องแจ้งเตือน เพื่อพิจารณาจำหน่ายทรัพย์สิน เนื่องจากไม่คุ้มค่ากับการซ่อมแซม","st":"black","by":"ai","uc":"UC-15","cards":[],"note":"","tests":[]},{"i":36,"ref":"7.2.3.1","t":"หลังจากที่ผ่านการยืนยันของผู้ดูแลหรือผู้ควบคุมยานพาหนะ สามารถ ส่งแจ้งเตือนไปยังผู้อำนาจอนุมัติงานซ่อมได้","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-5"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-21"]},{"i":37,"ref":"7.2.3.1","t":"รองรับการอนุมัติการขอซ่อม โดยผู้บังคับบัญชาของหน่วยงานผู้ครอบครอง ยานพาหนะหรือผู้บังคับบัญชาของหน่วยงานที่ยานพาหนะนั้นไปปฏิบัติงาน ในพื้นที่","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-194","PEA-1.2.18"],"note":"","tests":[]},{"i":38,"ref":"7.2.3.1","t":"สามารถตรวจสอบข้อมูลการแจ้งซ่อมย้อนหลังหรือประวัติงานซ่อม บำรุงรักษาของยานพาหนะได้","st":"orange","by":"ai","uc":"UC-05","cards":["PEA-1.5.5","PEA-1.5.6"],"note":"","tests":[]},{"i":39,"ref":"7.2.3.1","t":"ผู้ดูแลหรือผู้ควบคุมยานพาหนะ/ผู้อนุมัติ สามารถยกเลิก/ตีกลับการแจ้ง ซ่อมยานพาหนะที่รับผิดชอบและระบุเหตุผลได้","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-194","PEA-1.2.18"],"note":"","tests":[]},{"i":40,"ref":"7.2.3.1","t":"สามารถแจ้งเตือน (Notification) ไปยังผู้เกี่ยวข้องเพื่อดำเนินการต่อไป","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-5"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-21"]},{"i":41,"h":3,"ref":"7.2.3.2","t":"กรณียานพาหนะ (ซื้อ) ติดตั้งเครื่องมือกล"},{"i":42,"ref":"7.2.3.2","t":"สามารถระบุอาการเสียของยานพาหนะได้ว่าเป็นส่วนของตัวยานพาหนะ หรือส่วนของเครื่องมือกล เนื่องจากกระบวนการขั้นตอนส่งซ่อมแตกต่างกัน","st":"orange","by":"ai","uc":"UC-02","cards":["PEA-1.1.13"],"note":"","tests":[]},{"i":43,"ref":"7.2.3.2","t":"ผู้ดูแลยานพาหนะประจำหน่วยงาน/แผนกยานพาหนะและเครื่องมือกล กองก่อสร้างระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) /กองบริหารจัดการ งานเครื่องกล (กบค.) สามารถวิเคราะห์อาการเสีย, ระบุอาการเสีย, อะไหล่ ที่ต้องใช้เพิ่มเติมได้ หลังจากที่ได้รับแจ้ง","st":"gray","by":"ai","uc":"UC-02","cards":["PEA-1.2.15","PEA-1.3.2"],"note":"SIT ผ่านครบ","tests":["PEA-02.1","PEA-02.2","PEA-1.2.2","PEA-1.2.3"]},{"i":44,"ref":"7.2.3.2","t":"กรณีอาการเสียของตัวยานพาหนะ หน่วยงานเจ้าของยานพาหนะสามารถ ส่งศูนย์บริการหรืออู่ภายนอก เพื่อดำเนินการซ่อม จากการสืบราคา โดยแนบเอกสารประกอบเพิ่มเติมได้","st":"orange","by":"ai","uc":"UC-16","cards":["PEA-1.2.17"],"note":"","tests":[]},{"i":45,"ref":"7.2.3.2","t":"กรณีอาการเสียของเครื่องมือกล หน่วยงานที่เกี่ยวข้องสามารถระบุได้ว่า ต้องการซ่อมเองหรือส่งศูนย์บริการหรืออู่ภายนอกเพื่อดำเนินการซ่อม โดยแนบเอกสารประกอบเพิ่มเติมได้","st":"orange","by":"ai","uc":"UC-16","cards":["PEA-1.2.17"],"note":"","tests":[]},{"i":46,"ref":"7.2.3.2","t":"กรณีอาการเสียของเครื่องมือกล แผนกยานพาหนะและเครื่องมือกล/ กองก่อสร้างระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) /กองบริหารจัดการ งานเครื่องกล (กบค.) และสามารถระบุได้ว่าต้องการเบิกใช้อะไหล่จาก คลังอะไหล่ของ กบค. หรือต้องจัดซื้ออะไหล่เพิ่มเติม สำหรับงานซ่อม","st":"gray","by":"ai","uc":"UC-16","cards":["PEA-1.2.20"],"note":"SIT ผ่านครบ","tests":["PEA-02.3","PEA-1.2.4","PEA-1.0.4"]},{"i":47,"ref":"7.2.3.2","t":"รองรับการบันทึก วันรับงาน (วันที่ แผนกยานพาหนะและเครื่องมือกล/ กองก่อสร้างระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) /กองบริหารจัดการ งานเครื่องกล (กบค.) กดรับเรื่องการแจ้งซ่อม เพื่อดำเนินการต่อ)","st":"gray","by":"ai","uc":"UC-02","cards":["PEA-1.2.15","PEA-1.3.2"],"note":"SIT ผ่านครบ","tests":["PEA-1.2.2","PEA-1.2.3"]},{"i":48,"ref":"7.2.3.2","t":"รองรับการเชื่อมโยงกับระบบคลังอะไหล่อัจฉริยะ (Smart Inventory) (ถ้ามี)","st":"orange","by":"ai","uc":"UC-16","cards":["PEA-1.4.5","MTD-211"],"note":"ส่ง API spec ให้ Smart Inventory แล้ว (SP08)","tests":["PEA-1.2.5"]},{"i":49,"ref":"7.2.3.2","t":"สามารถนัดหมายเข้าซ่อมที่หน้างานหรือให้นำยานพาหนะมาซ่อมที่แผนก ยานพาหนะและเครื่องมือกล กองก่อสร้างระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) /กองบริหารจัดการงานเครื่องกล (กบค.) ได้","st":"gray","by":"ai","uc":"UC-16","cards":["MTD-27","MTD-204"],"note":"SIT ผ่านครบ","tests":["PEA-1.2.6","PEA-1.2.8","PEA-1.2.9"]},{"i":50,"ref":"7.2.3.2","t":"สามารถตรวจสอบข้อมูลการแจ้งซ่อมย้อนหลังหรือประวัติงาน ซ่อมบำรุงรักษาของยานพาหนะได้","st":"orange","by":"ai","uc":"UC-05","cards":["PEA-1.2.19"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.4.1","PEA-1.4.2"]},{"i":51,"ref":"7.2.3.2","t":"สามารถยกเลิก/ตีกลับการแจ้งซ่อมยานพาหนะและระบุเหตุผลได้","st":"orange","by":"ai","uc":"UC-15","cards":["MTD-194"],"note":"","tests":[]},{"i":52,"ref":"7.2.3.2","t":"สามารถแจ้งเตือน (Notification) ไปยังผู้เกี่ยวข้องเพื่อดำเนินการต่อไป","st":"orange","by":"ai","uc":"UC-02","cards":["MTD-5"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-21"]},{"i":53,"h":2,"ref":"7.2.4","t":"การบันทึกงานซ่อม มีรายละเอียดการดำเนินการซ่อม (Repair Execution) ดังนี้"},{"i":54,"h":3,"ref":"7.2.4.1","t":"การตรวจสภาพก่อนซ่อม"},{"i":55,"ref":"7.2.4.1","t":"1) รองรับการบันทึกใบตรวจสภาพก่อนซ่อม (กรณีซ่อมโดย ผยค. กรย./กบค.)","st":"orange","by":"ai","uc":"UC-17","cards":[],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.2.7","PEA-1.2.10"]},{"i":56,"ref":"7.2.4.1","t":"2) รองรับการบันทึกใบรับรถ (กรณีเข้าซ่อมที่สำนักงานใหญ่ กบค.) เช่น ทะเบียนยานพาหนะ, สภาพตัวถังและสี, ยาง, อุปกรณ์และเครื่องมือประจำ ยานพาหนะ, ระบบไฟ เป็นต้น และจุดที่ชำรุดไว้เป็นหลักฐานเพื่อป้องกัน ปัญหาทรัพย์สินสูญหายหรือข้อโต้แย้ง","st":"orange","by":"ai","uc":"UC-17","cards":[],"note":"มีจากระยะก่อน (ClickUp) ต้องเทียบ AC กับใบ JO ใหม่","tests":[]},{"i":57,"ref":"7.2.4.1","t":"3) ข้อมูลลการซ่อม : วันที่เริ่มต้น-สิ้นสุดการซ่อม, เลขไมล์, ชั่วโมงการทำงาน ของเครื่องจักร, รายละเอียดการซ่อม, รายการอะไหล่ที่ใช้, รายการอะไหล่ ที่ส่งคืนคลัง (ถ้ามี), ผู้ดำเนินการ, ค่าแรง, ค่าอะไหล่, ยอดรวมค่าใช้จ่าย, ศูนย์ต้นทุนหรือหมายเลขงาน เป็นต้น","st":"orange","by":"ai","uc":"UC-04","cards":[],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.3.1"]},{"i":58,"ref":"7.2.4.1","t":"4) ข้อมูลภาพและเอกสาร : ภาพยานพาหนะและเครื่องมือกล หรือเอกสาร ที่เกี่ยวข้อง","st":"orange","by":"ai","uc":"UC-17","cards":[],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.2.7"]},{"i":59,"ref":"7.2.4.1","t":"5) กรณีพบอาการเสียเพิ่มเติมระหว่างซ่อม","st":"black","by":"ai","uc":"UC-17","cards":[],"note":"","tests":[]},{"i":60,"ref":"7.2.4.1","t":"6) หากตรวจพบอาการชำรุดเพิ่มเติม ต้องรองรับการแจ้งหน่วยงานเจ้าของ ยานพาหนะให้รับทราบก่อนดำเนินการ","st":"black","by":"ai","uc":"UC-17","cards":[],"note":"","tests":[]},{"i":61,"ref":"7.2.4.1","t":"7) หากเป็นอาการวิกฤต สามารถขออนุมัติเบิกอะไหล่เพิ่มเพื่อซ่อมต่อทันที แต่หากยังใช้งานได้และต้องรออะไหล่ สามารถบันทึกโน้ตไว้เพื่อรอซ่อม ในรอบถัดไป","st":"black","by":"ai","uc":"UC-17","cards":[],"note":"","tests":[]},{"i":62,"h":3,"ref":"7.2.4.2","t":"การตรวจสภาพหลังซ่อมและการรับประกัน"},{"i":63,"ref":"7.2.4.2","t":"1) รองรับการบันทึกใบตรวจสภาพหลังซ่อม (กรณีซ่อมโดย ผยค. กรย./กบค.)","st":"gray","by":"ai","uc":"UC-17","cards":[],"note":"SIT ผ่านครบ","tests":["PEA-1.3.3"]},{"i":64,"ref":"7.2.4.2","t":"2) รองรับการนัดหมายรับยานพาหนะคืนหลังซ่อมเสร็จ (กรณี ผยค. กรย./ กบค. เป็นผู้รับผิดชอบดำเนินงาน)","st":"orange","by":"ai","uc":"UC-03","cards":["PEA-1.3.2"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.3.2"]},{"i":65,"ref":"7.2.4.2","t":"3) สามารถประเมินหรือให้คะแนนคุณภาพงานซ่อมได้","st":"black","by":"ai","uc":"UC-18","cards":[],"note":"","tests":[]},{"i":66,"ref":"7.2.4.2","t":"4) รองรับการกำหนดให้มีการรับประกันงานซ่อม(ถ้ามี) เช่น 180 วัน เป็นต้น","st":"orange","by":"ai","uc":"UC-17","cards":["MTD-208"],"note":"","tests":[]},{"i":67,"ref":"7.2.4.2","t":"5) รองรับการบันทึก วันเสร็จ(ปิด)งาน (หลังจากที่เจ้าของยานพาหนะกดยืนยัน รับยานพาหนะ จาก แผนกยานพาหนะและเครื่องมือกล/กองก่อสร้าง ระบบงานไฟฟ้าและงานโยธา (ผยค. กรย.) /กองบริหารจัดการงานเครื่องกล (กบค.))","st":"gray","by":"ai","uc":"UC-03","cards":[],"note":"SIT ผ่านครบ","tests":["PEA-1.3.4"]},{"i":68,"ref":"7.2.4.2","t":"6) สามารถแจ้งเตือน (Notification) ไปยังผู้เกี่ยวข้องเพื่อรับทราบหรือ ดำเนินการต่อไป","st":"orange","by":"ai","uc":"UC-03","cards":["MTD-5"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-21"]},{"i":69,"h":1,"ref":"7.3","t":"กระบวนการบริหารจัดการงานบำรุงรักษาเชิงป้องกันยานพาหนะและเครื่องมือกล"},{"i":70,"h":2,"ref":"7.3.1","t":"การจัดประเภทยานพาหนะที่บำรุงรักษาและผู้ดำเนินการบำรุงรักษา"},{"i":71,"ref":"7.3.1","t":"ยานพาหนะที่อยู่ในสัญญาเช่า : บริษัทผู้ให้เช่ายานพาหนะในแต่ละสัญญา เป็นผู้ดำเนินการ โดยประสานงานกับหน่วยงานผู้บริหารสัญญาและหน่วยงาน เจ้าของยานพาหนะ","st":"black","by":"ai","uc":"UC-07","cards":[],"note":"","tests":[]},{"i":72,"ref":"7.3.1","t":"ยานพาหนะ(ซื้อ) ทั่วไป ที่ไม่ได้ติดตั้งเครื่องมือกล : หน่วยงานที่เจ้าของยานพาหนะ ดำเนินการนำยานพาหนะไปที่ศูนย์บริการหรืออู่ภายนอกเพื่อบำรุงรักษาตามรอบ ระยะทางหรือระยะเวลาที่กำหนด","st":"black","by":"ai","uc":"UC-07","cards":[],"note":"","tests":[]},{"i":73,"ref":"7.3.1","t":"ยานพาหนะ(ซื้อ) ติดตั้งเครื่องมือกล : ในส่วนของยานพาหนะสามารถดำเนินการได้ เหมือนกรณียานพาหนะ(ซื้อ) ทั่วไป ส่วนของเครื่องมือกล กองบริหารจัดการงาน เครื่องกล (กบค.) เป็นผู้ดำเนินการวางแผนการบำรุงรักษาให้ โดยกำหนดรอบ - การบำรุงรักษาและสามารถดำเนินการเองหรือจ้างผู้ให้บริการภายนอก(Outsource) ดำเนินการตามแผนที่กำหนดไว้ได้","st":"black","by":"ai","uc":"UC-07","cards":[],"note":"","tests":[]},{"i":74,"h":2,"ref":"7.3.2","t":"การวางแผนการบำรุงรักษายานพาหนะที่ติดตั้งเครื่องมือกล โดยกองบริหารจัดการ งานเครื่องกล (กบค.)"},{"i":75,"ref":"7.3.2","t":"สามารถสร้าง/แก้ไข/ยกเลิก/แสดง แผนการบำรุงรักษาได้","st":"orange","by":"ai","uc":"UC-07","cards":["MTD-222","MTD-227","MTD-228"],"note":"","tests":[]},{"i":76,"ref":"7.3.2","t":"สามารถระบุ/เพิ่ม/แก้ไข/ลบ หรือตรวจสอบรายการยานพาหนะที่ต้องบำรุงรักษา ในแต่ละรอบได้","st":"orange","by":"ai","uc":"UC-07","cards":["MTD-224"],"note":"","tests":[]},{"i":77,"ref":"7.3.2","t":"สามารถแสดงหน้าจอรายละเอียดยานพาหนะที่ต้องการได้","st":"orange","by":"ai","uc":"UC-07","cards":["MTD-224"],"note":"","tests":[]},{"i":78,"ref":"7.3.2","t":"สามารถระบุสิ่งที่ต้องดำเนินการตามรอบหรือตามที่ต้องการของยานพาหนะ แต่ละรายการได้ รวมทั้งสามารถแสดงประวัติการซ่อมบำรุงก่อนหน้าของ ยานพาหนะได้","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-223"],"note":"","tests":[]},{"i":79,"ref":"7.3.2","t":"สามารถกำหนดรายการที่ต้องตรวจสอบหรือตรวจสภาพของยานพาหนะแต่ละ ประเภทที่แตกต่างกันได้","st":"black","by":"ai","uc":"UC-21","cards":[],"note":"","tests":[]},{"i":80,"ref":"7.3.2","t":"สามารถกำหนดหรือระบุอะไหล่หรือวัสดุที่ต้องใช้ของยานพาหนะแต่ละคันได้ ตามรอบการบำรุงรักษา","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-223"],"note":"","tests":[]},{"i":81,"ref":"7.3.2","t":"รองรับการวางแผนหรือการทำแผนล่วงหน้า 2 ปี เพื่อเตรียมความพร้อมด้านอะไหล่","st":"black","by":"ai","uc":"UC-21","cards":[],"note":"","tests":[]},{"i":82,"ref":"7.3.2","t":"รองรับการทบทวนแผนก่อนถึงกำหนดหรือใกล้ครบกำหนดการดำเนินการตามรอบ พร้อมระบบยืนยันแผนระหว่าง กบค. และหน่วยงานพื้นที่ เพื่อลดความซ้ำซ้อนและ เตรียมความพร้อมด้านอะไหล่","st":"black","by":"ai","uc":"UC-09","cards":[],"note":"","tests":[]},{"i":83,"ref":"7.3.2","t":"รองรับการวางแผนการเดินทางไปบำรุงรักษา สามารถกำหนดผู้ดำเนินการ (พนักงาน กฟภ./ผู้รับจ้าง), ช่วงวันที่ที่ต้องการดำเนินการ, ยานพาหนะ, สถานที่เข้าบำรุงรักษา เป็นต้น","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-230","MTD-231","MTD-232","MTD-234"],"note":"","tests":[]},{"i":84,"ref":"7.3.2","t":"สามารถแจ้งเตือน (Notification) ไปยังผู้เกี่ยวข้องเพื่อรับทราบหรือยืนยัน หรือดำเนินการในส่วนที่เกี่ยวข้อง","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-233"],"note":"","tests":[]},{"i":85,"ref":"7.3.2","t":"รองรับการเบิกอะไหล่จากคลัง ก่อนการเดินทางไปบำรุงรักษายานพาหนะที่กำหนด ไว้ตามรอบ","st":"black","by":"ai","uc":"UC-21","cards":[],"note":"","tests":[]},{"i":86,"ref":"7.3.2","t":"รองรับการเชื่อมต่อกับระบบคลังอะไหล่อัจฉริยะ (Smart Inventory)","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-211"],"note":"","tests":[]},{"i":87,"h":2,"ref":"7.3.3","t":"การบันทึกงานบำรุงรักษายานพาหนะที่ติดตั้งเครื่องมือกล มีรายละเอียด ดังนี้"},{"i":88,"ref":"7.3.3","t":"ข้อมูลการตรวจสภาพยานพาหนะ : วันที่ตรวจสภาพ, ทะเบียนยานพาหนะ, ประเภท ยานพาหนะ, สังกัดหน่วยงาน, ยี่ห้อเครื่องจักร, หมายเลขเครน/เครื่องมือกล, Serial number, เลขไมล์, ชั่วโมงสะสมการทำงานของเครื่องจักร, รายการตรวจสภาพ, ผลการตรวจ, ผู้ดำเนินการ เป็นต้น","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-237","MTD-240"],"note":"","tests":[]},{"i":89,"ref":"7.3.3","t":"ข้อมูลการบำรุงรักษา : วันที่บำรุงรักษา, ข้อมูลยานพาหนะ , สังกัดหน่วยงาน, อะไหล่ที่ใช้ (รหัส/ชื่อพัสดุ), ค่าแรง, ค่าอะไหล่, จำนวนเงินรวม, ผู้ดำเนินการซ่อม, อาการชำรุดเพิ่มเติม","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-237","MTD-243"],"note":"","tests":[]},{"i":90,"ref":"7.3.3","t":"ข้อมูลภาพและเอกสาร : ภาพยานพาหนะหรือเครื่องมือกล (ก่อน/หลัง) การบำรุงรักษา, เอกสารที่เกี่ยวข้อง","st":"black","by":"ai","uc":"UC-22","cards":[],"note":"","tests":[]},{"i":91,"ref":"7.3.3","t":"การตรวจค่าความเป็นฉนวนของน้ำมันไฮดรอลิก : ผลการตรวจ, คำเนะนำเพิ่มเติม กรณีผลตรวจไม่ผ่าน, วันที่ตรวจ/วันที่บันทึกผล เป็นต้น","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-241"],"note":"","tests":[]},{"i":92,"ref":"7.3.3","t":"สามารถแจ้งเตือน (Notification) ผลการบำรุงรักษาหรือผลการตรวจค่าความเป็น ฉนวนของน้ำมันไฮดรอลิก ไปยังผู้เกี่ยวข้องเพื่อรับทราบหรือยืนยันหรือดำเนินการ ในส่วนที่เกี่ยวข้อง","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-242"],"note":"","tests":[]},{"i":93,"ref":"7.3.3","t":"สามารถแก้ไข/ยกเลิกการบันทึกงานบำรุงรักษายานพาหนะได้","st":"black","by":"ai","uc":"UC-22","cards":[],"note":"","tests":[]},{"i":94,"ref":"7.3.3","t":"รองรับการคืนอะไหล่เข้าคลัง หลังจากการเดินทางกลับจากบำรุงรักษายานพาหนะ ที่กำหนดไว้ตามรอบ (สำหรับอะไหล่ที่ไม่มีรหัสพัสดุ : โอนเข้าสู่ คลังสำรอง)","st":"black","by":"ai","uc":"UC-22","cards":[],"note":"","tests":[]},{"i":95,"ref":"7.3.3","t":"รองรับการเชื่อมต่อกับระบบคลังอะไหล่อัจฉริยะ (Smart Inventory)","st":"orange","by":"ai","uc":"UC-21","cards":["MTD-211"],"note":"","tests":[]},{"i":96,"ref":"7.3.3","t":"หน่วยงานเจ้าของยานพาหนะสามารถตรวจสอบผลสภาพยานพาหนะ, ผลการ บำรุงรักษา, ประเมินหรือให้คะแนนคุณภาพงานบำรุงรักษาได้","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-242"],"note":"","tests":[]},{"i":97,"ref":"7.3.3","t":"ผู้บังคับบัญชาสามารถตรวจสอบความถูกต้องเรียบร้อยครบถ้วนของการดำเนินงาน บำรุงรักษาในแต่ละแผนงานได้","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-239","MTD-240"],"note":"","tests":[]},{"i":98,"ref":"7.3.3","t":"สามารถรายงานผลการบำรุงรักษาในรูปแบบรายงานหรือแบบฟอร์มที่ กฟภ. กำหนดได้","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-245"],"note":"","tests":[]},{"i":99,"ref":"7.3.3","t":"สามารถแสดงภาพรวมหรือ Dashboard งานบำรุงรักษายานพาหนะและเครื่องมือ กลได้","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-244","MTD-246"],"note":"","tests":[]},{"i":100,"ref":"7.3.3","t":"ค้นหาและกรอง (filter) ข้อมูลยานพาหนะได้ ตามที่ กฟภ.กำหนด เช่น เลขทะเบียน, รหัสยานพาหนะ, รหัสยานทรัพย์สิน, ยี่ห้อ-รุ่น, ประเภทของยานพาหนะ, สังกัด หน่วยงาน, หมายเลขตัวถัง, ประเภทเครื่องมือกลหรือเครื่องจักร, ยี่ห้อ-รุ่นเครื่องมือ กลหรือเครื่องจักร เป็นต้น","st":"black","by":"ai","uc":"UC-08","cards":[],"note":"","tests":[]},{"i":101,"ref":"7.3.3","t":"สามารถ Export ข้อมูลในรูปแบบไฟล์ Excel หรือ PDF ได้","st":"orange","by":"ai","uc":"UC-22","cards":["MTD-238","MTD-245"],"note":"","tests":[]},{"i":102,"ref":"7.3.3","t":"สามารถบันทึกการตรวจสอบความปลอดภัย (Safety Inspection) สำหรับ ยานพาหนะประเภทที่ติดตั้งเครนหรือกระเช้า ตามรอบปีหรือตามที่กฎหมายกำหนด","st":"black","by":"ai","uc":"UC-22","cards":[],"note":"","tests":[]},{"i":103,"h":1,"ref":"7.4","t":"กระบวนการบริหารจัดการงาน Overhaul (โอเวอร์ฮอล) ยานพาหนะและเครื่องมือกล คำอธิบายเพิ่มเติม : Overhaul (โอเวอร์ฮอล) คือ การซ่อมบำรุงครั้งใหญ่ หรือการยกเครื่อง โดยการถอดรื้อชิ้นส่วนทั้งหมดหรือบางส่วนออกมาตรวจสอบ ทำความสะอาด ซ่อมแซม และ เปลี่ยนอะไหล่ชิ้นส่วนที่สึกหลอหรือที่เสียหายให้กลับมาใช้งานได้ดี มีสภาพใกล้เคียงของเดิม หรือเหมือนใหม่มากที่สุด โดยคัดเลือกยานพาหนะที่มีโครงสร้างดี และสามารถจัดหาอะไหล่ ได้ง่าย เพื่อยืดอายุการใช้งาน 5-10 ปี เป็นการประหยัดงบประมาณแทนการจัดซื้อใหม่ ซึ่งการ ทำ Overhaul มีต้นทุนถูกว่าการจัดซื้อใหม่มากลักษณะสำคัญของการทำ Overhaul มีดังนี้"},{"i":104,"h":9,"ref":"7.4","t":"การรื้อถอดชิ้นส่วน : แยกชิ้นส่วนต่างๆ ออกมาดูอย่างละเอียด ไม่ใช่แค่วิเคราะห์ภายนอก"},{"i":105,"h":9,"ref":"7.4","t":"การเปลี่ยนอะไหล่เสื่อมสภาพ : เปลี่ยนชิ้นส่วนที่หมดอายุหรือชำรุด แต่ยังคงโครงสร้างหลัก เดิมไว้"},{"i":106,"h":9,"ref":"7.4","t":"การฟื้นฟูสมรรถนะ : ทำให้เครื่องยนต์หรือเครื่องมือกลกลับมามีประสิทธิภาพสูงเพียงพอ และ ปลอดภัยในการใช้งานต่อไป"},{"i":107,"h":2,"ref":"7.4.1","t":"การวางแผน Overhaul ยานพาหนะที่ติดตั้งเครื่องมือกล มีรายละเอียด ดังนี้"},{"i":108,"ref":"7.4.1","t":"สามารถสร้าง/แก้ไข/ยกเลิก/แสดง แผน Overhaul ตามรอบปีหรือรอบที่กำหนดได้ โดยประกอบด้วยชื่อแผนงาน, ปีแผนงาน, งบประมาณ","st":"gray","by":"owner","uc":"UC-23","cards":["MTD-24","PEA-1.23.9","PEA-1.23.10","PEA-1.23.11"],"note":"","tests":["PEA-1.23.1","PEA-1.23.2","PEA-1.23.3","PEA-1.23.8","PEA-1.23.9","PEA-1.23.10","PEA-1.23.11","MTD-18"]},{"i":109,"ref":"7.4.1","t":"สามารถสร้าง/แก้ไข/แสดง รายการยานพาหนะที่อยู่ในแผนได้ โดยระบุยานพาหนะ ที่ผ่านการคัดเลือกยานพาหนะที่มีโครงสร้างดี ไม่ผุหรือบิดเบี้ยวจนเสียรูปทรง ยี่ห้อที่ มีความทนทาน นิยมใช้งาน อายุการใช้งานสูง และสามารถจัดหาอะไหล่ได้ง่าย","st":"gray","by":"owner","uc":"UC-23","cards":["MTD-24","MTD-248"],"note":"","tests":["PEA-1.23.9","MTD-18"]},{"i":110,"ref":"7.4.1","t":"สามารถแสดงข้อมูลรายละเอียดยานพาหนะได้ เช่น ทะเบียนยานพาหนะ, อายุ, ประเภทยานพาหนะ, สังกัดหน่วยงาน, ยี่ห้อเครื่องมือกล, หมายเลขเครน/เครื่องมือ กล, Serial number, เลขไมล์, ชั่วโมงสะสมการทำงานของเครื่องมือกล เป็นต้น","st":"red","by":"owner","uc":"UC-23","cards":[],"note":"","tests":[]},{"i":111,"ref":"7.4.1","t":"ข้อมูลภาพและเอกสาร : ภาพยานพาหนะและเครื่องมือกล, เอกสารที่เกี่ยวข้อง","st":"black","by":"owner","uc":"UC-23","cards":[],"note":"","tests":[]},{"i":112,"ref":"7.4.1","t":"สามารถแสดงประวัติการซ่อมบำรุงของยานพาหนะได้","st":"orange","by":"owner","uc":"UC-23","cards":["MTD-3"],"note":"","tests":[]},{"i":113,"ref":"7.4.1","t":"สามารถกำหนดรายการที่ต้องตรวจสอบหรือสิ่งที่ต้องดำเนินการของยานพาหนะ แต่ละรายการได้","st":"orange","by":"owner","uc":"UC-23","cards":["PEA-1.24.6"],"note":"","tests":[]},{"i":114,"ref":"7.4.1","t":"สามารถติดตามการใช้งานของยานพาหนะได้หลังจากที่ดำเนินการ Overhaul เรียบร้อยแล้ว","st":"gray","by":"owner","uc":"UC-23","cards":["MTD-91","PEA-1.24.7"],"note":"","tests":["PEA-1.24.2","PEA-1.24.3","PEA-1.24.4","PEA-1.24.7"]},{"i":115,"h":2,"ref":"7.4.2","t":"การดำเนินการ Overhaul ยานพาหนะที่ติดตั้งเครื่องมือกล มีรายละเอียดดังนี้"},{"i":116,"ref":"7.4.2","t":"สามารถบันทึกการประเมินสภาพและวิเคราะห์อาการ/รายการตรวจสอบสภาพก่อน ดำเนินการได้","st":"orange","by":"owner","uc":"UC-24","cards":["PEA-1.24.6"],"note":"","tests":["PEA-1.24.1","PEA-1.24.6","PEA-1.24.14"]},{"i":117,"ref":"7.4.2","t":"สามารถบันทึกรายการซ่อมบำรุงเครื่องมือกล รายการอะไหล่ที่ใช้, ค่าแรง, ค่าอะไหล่, ผู้ดำเนินการ, วันที่เริ่มต้น-สิ้นสุดการดำเนินการ ตามที่ กฟภ.กำหนดได้ ตัวอย่างเช่น ระบบไฮดรอลิกและอุปกรณ์พิเศษ (Crane/Hydraulic Overhaul) : เปลี่ยนชุด เครน/กระเช้า/บูม, เปลี่ยนซีลไฮดรอลิกทั้งหมด เป็นต้น","st":"black","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":118,"ref":"7.4.2","t":"สามารถบันทึกรายการซ่อมบำรุงยานพาหนะ รายการอะไหล่ที่ใช้, ค่าแรง, ค่าอะไหล่, ผู้ดำเนินการ, วันที่เริ่มต้น-สิ้นสุดการดำเนินการ ตามที่ กฟภ.กำหนดได้ ตัวอย่างเช่น การซ่อมบำรุงระบบขับเคลื่อนและตัวถัง : Overhaul เครื่องยนต์, ระบบส่งกำลัง (เกียร์), ระบบเบรก, งานทำสีตัวถัง เป็นต้น","st":"gray","by":"owner","uc":"UC-24","cards":["MTD-74","MTD-76"],"note":"","tests":["PEA-1.24.10","MTD-19"]},{"i":119,"ref":"7.4.2","t":"สามารถบันทึกรายการตรวจสภาพยานพาหนะหลังดำเนินการ Overhaul/ การทดสอบมาตรฐานความปลอดภัย ตามมาตรฐานวิศวกรรมหรือกฎหมายหรือ กฟภ. กำหนด รองรับการออกใบรับรองความปลอดภัย และเริ่มนับระยะเวลา รับประกันงานซ่อม 180 วัน","st":"gray","by":"owner","uc":"UC-24","cards":["PEA-1.24.8","MTD-93"],"note":"","tests":["PEA-1.24.5","PEA-1.24.8"]},{"i":120,"ref":"7.4.2","t":"ข้อมูลภาพและเอกสาร : ภาพยานพาหนะหรือเครื่องมือกล (ก่อน/หลัง) การทำ Overhaul , เอกสารที่เกี่ยวข้อง","st":"gray","by":"owner","uc":"UC-24","cards":["PEA-1.24.8","MTD-93"],"note":"","tests":["PEA-1.24.5","PEA-1.24.8"]},{"i":121,"ref":"7.4.2","t":"สามารถแสดงค่าใช้จ่ายในการดำเนินการเปรียบเทียบกับราคาของยานพาหนะแต่ละ รายการได้","st":"gray","by":"owner","uc":"UC-24","cards":["MTD-77"],"note":"","tests":["PEA-1.24.10","MTD-19"]},{"i":122,"ref":"7.4.2","t":"สามารถแจ้งเตือน (Notification) ไปยังผู้เกี่ยวข้องเพื่อรับทราบหรือยืนยันหรือ ดำเนินการในส่วนที่เกี่ยวข้อง","st":"gray","by":"owner","uc":"UC-24","cards":["MTD-5"],"note":"","tests":["MTD-21"]},{"i":123,"ref":"7.4.2","t":"รองรับการเบิก/คืนอะไหล่จากคลัง","st":"black","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":124,"ref":"7.4.2","t":"รองรับการเชื่อมต่อกับระบบคลังอะไหล่อัจฉริยะ (Smart Inventory)","st":"black","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":125,"ref":"7.4.2","t":"สามารถรายงานผลการดำเนินการในรูปแบบรายงานหรือแบบฟอร์มที่ กฟภ. กำหนดได้","st":"red","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":126,"ref":"7.4.2","t":"สามารถแสดงภาพรวมหรือ Dashboard งาน Overhaul ยานพาหนะและเครื่องมือกล ได้","st":"gray","by":"owner","uc":"UC-24","cards":["MTD-33","MTD-34","MTD-35"],"note":"","tests":["MTD-33"]},{"i":127,"ref":"7.4.2","t":"ค้นหาและกรอง (filter) ข้อมูลยานพาหนะได้ ตามที่ กฟภ.กำหนด เช่น เลขทะเบียน, รหัสยานพาหนะ, รหัสยานทรัพย์สิน, ยี่ห้อ-รุ่น, ประเภทของยานพาหนะ, สังกัด หน่วยงาน, หมายเลขตัวถัง, ประเภทเครื่องมือกลหรือเครื่องจักร, ยี่ห้อ – รุ่นเครื่องมือ กลหรือเครื่องจักร เป็นต้น","st":"black","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":128,"ref":"7.4.2","t":"สามารถ Export ข้อมูลในรูปแบบไฟล์ Excel หรือ PDF ได้","st":"black","by":"owner","uc":"UC-24","cards":[],"note":"","tests":[]},{"i":129,"h":1,"ref":"7.5","t":"การสร้าง/แก้ไข/แสดง ข้อมูลศูนย์บริการหรืออู่ สำหรับที่ติดตั้งเครื่องมือกล มีรายละเอียดดังนี้"},{"i":130,"ref":"7.5","t":"ชื่ออู่/ศูนย์บริการ : ชื่อทางการค้าหรือชื่อจดทะเบียน","st":"orange","by":"ai","uc":"UC-06","cards":["MTD-28","PEA-1.6.1","PEA-1.6.2","PEA-1.6.3"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-23"]},{"i":131,"ref":"7.5","t":"ประเภทตัวเลือกการซ่อมที่รองรับ : ประเภทหรือยี่ห้อรถ, ประเภทหรือยี่ห้อเครื่องมือกล เป็นต้น","st":"orange","by":"ai","uc":"UC-06","cards":["MTD-28","PEA-1.6.1","PEA-1.6.2","PEA-1.6.3"],"note":"","tests":[]},{"i":132,"ref":"7.5","t":"ที่ตั้ง : เลขที่, ซอย, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, และรหัสไปรษณีย์","st":"orange","by":"ai","uc":"UC-06","cards":["MTD-28","PEA-1.6.1","PEA-1.6.2","PEA-1.6.3"],"note":"","tests":[]},{"i":133,"ref":"7.5","t":"พิกัดแผนที่ (Latitude / Longitude) : รองรับการเชื่อมต่อกับ Google Maps เพื่อให้ กดนำทางมาที่อู่หรือศูนย์บริการได้สะดวก","st":"black","by":"ai","uc":"UC-18","cards":[],"note":"","tests":[]},{"i":134,"ref":"7.5","t":"เบอร์โทรศัพท์ติดต่อ : เบอร์หลักของอู่หรือศูนย์บริการ","st":"orange","by":"ai","uc":"UC-06","cards":["MTD-28","PEA-1.6.1","PEA-1.6.2","PEA-1.6.3"],"note":"","tests":[]},{"i":135,"ref":"7.5","t":"อีเมล (Email Address) : สำหรับรับส่งเอกสารใบนัดหมายหรือผลการประเมินราคาซ่อม","st":"orange","by":"ai","uc":"UC-06","cards":["MTD-28","PEA-1.6.1","PEA-1.6.2","PEA-1.6.3"],"note":"","tests":[]},{"i":136,"ref":"7.5","t":"คะแนนเฉลี่ยของการประเมินคุณภาพงานซ่อม : คำนวณจากประวัติการให้คะแนนหรือ การประเมินคุณภาพงานซ่อม (ถ้ามี)","st":"black","by":"ai","uc":"UC-18","cards":[],"note":"","tests":[]},{"i":137,"h":1,"ref":"7.6","t":"สามารถบริหารจัดการรายงาน แบบฟอร์ม และเอกสารต่าง ๆ ตามรูปแบบที่ กฟภ.กำหนดได้","st":"orange","by":"ai","uc":"UC-25","cards":["MTD-17"],"note":"","tests":[]},{"i":138,"h":1,"ref":"7.7","t":"รองรับการจัดการสิทธิ์การเข้าถึง (User Roles & Permissions)","st":"orange","by":"ai","uc":"UC-01","cards":["1.0.5","1.0.6","1.0.8","MTD-92"],"note":"SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["PEA-1.4.0","PEA-1.0.4","PEA-1.0.6","PEA-1.0.7","PEA-1.0.8","PEA-1.0.9"]},{"i":139,"h":1,"ref":"7.8","t":"สามารถเชื่อมโยงข้อมูลหรือรับ-ส่งข้อมูลจากระบบต่างๆ ได้ เช่น HR Data Platform, PEA Life หรือระบบงานอื่น ๆ ที่จำเป็น","st":"black","by":"ai","uc":"UC-25","cards":[],"note":"","tests":[]},{"i":140,"h":1,"ref":"7.9","t":"สามารถเข้าถึงรูปแบบการเข้าสู่ระบบ (Authentication)"},{"i":141,"ref":"7.9","t":"สำหรับพนักงานและลูกจ้าง กฟภ. ใช้ PEA SSO (Keycloak) และ ThaID ในการเข้าสู่ ระบบ ทั้งนี้ เป็นไปตามมาตรฐานที่ กฟภ. กำหนด","st":"orange","by":"ai","uc":"UC-01","cards":["MTD-171","PEA-1.0.10"],"note":"มี Login ผ่าน VMS+ main ยังไม่มี ThaID · SIT ยังมี Fail หรือยังไม่ได้รัน","tests":["MTD-29"]},{"i":142,"ref":"7.9","t":"สำหรับบุคคลภายนอก ใช้เบอร์โทรศัพท์ และ ThaID ในการเข้าสู่ระบบ","st":"red","by":"ai","uc":"UC-01","cards":[],"note":"Login เป็นฐานของ UC-01 แต่ยังไม่มีการ์ดบุคคลภายนอก (เบอร์โทร + ThaID)","tests":[]}]
+</script>
+
+<div class="band">
+  <div class="inner">
+    <span class="kicker">VMS Plus · PEA Work D Super App ระยะที่ 4</span>
+    <h1>PEA Maintain Hub</h1>
+    <p>ต้นแบบหน้าจอ รายงานความคืบหน้า และแผนงานของระบบ Maintain-D รวมไว้ที่นี่ที่เดียว</p>
+  </div>
+</div>
+
+<main class="inner">
+  <div class="status" id="status"></div>
+
+  <nav class="tabs" aria-label="ส่วนของหน้า">
+    <a href="#prototype" data-tab="prototype">ต้นแบบหน้าจอ</a>
+    <a href="#reports" data-tab="reports">รายงาน</a>
+    <a href="#timeline" data-tab="timeline">Timeline</a>
+    <a href="#jo" data-tab="jo">ใบสั่งงาน JO1</a>
+    <a href="#close" data-tab="close">แผนปิด JO1</a>
+  </nav>
+
+  <section data-sec="prototype">
+    <ol class="steps" aria-label="ดูต้นแบบตามลำดับนี้">
+      <li><div><b>ลองใช้ต้นแบบ</b><span>กดปุ่มสีม่วง เปิดหน้าจอที่คลิกใช้งานได้เหมือนระบบจริง</span></div></li>
+      <li><div><b>ดูภาพหน้าจอรายเคส</b><span>ไม่อยากกดเอง ดูภาพเรียงตามสถานการณ์ใช้งานได้</span></div></li>
+      <li><div><b>อ่านรายละเอียด</b><span>เงื่อนไขของแต่ละหน้าจอ และการแจ้งเตือน</span></div></li>
+    </ol>
+    <div id="features" style="display:flex;flex-direction:column;gap:16px"></div>
+  </section>
+
+  <section data-sec="reports">
+    <div class="sec-head"><h2>รายงาน</h2><span class="muted">รายงานประจำสัปดาห์ออกทุกวันศุกร์ช่วงเย็น</span></div>
+    <div class="card" id="reportlist"></div>
+  </section>
+
+  <section data-sec="timeline">
+    <div class="sec-head"><h2>Timeline โครงการ</h2><span class="muted">Sprint ละ 2 สัปดาห์ · 15 เดือน</span></div>
+    <div class="card tl-scroll"><div class="tl" id="tl"></div></div>
+    <p class="note" id="tl-note"></p>
+
+    <div class="sec-head" style="margin-top:8px"><h2>JO1 — แผนรายสัปดาห์</h2><span class="muted" id="g-range"></span></div>
+    <div class="card" id="g-card">
+      <div class="toolbar">
+        <div class="legend">
+          <span><i class="sw" style="background:#A6A6A6"></i>ฟังก์ชันหลัก</span>
+          <span><i class="sw" style="background:#9CC3E6"></i>ทดสอบ / ติดตั้ง / ส่งมอบ</span>
+          <span><span aria-hidden="true">◆</span>วันสิ้นสุดที่เสนอ</span>
+          <span><i class="sw" style="background:var(--warning-50);border:1px solid var(--warning-200)"></i>สัปดาห์นี้</span>
+          <span><i class="sw" style="background:linear-gradient(90deg,var(--sw-gray) 25%,var(--sw-orange) 25% 50%,var(--sw-red) 50% 75%,var(--sw-black) 75%)"></i>ข้อในใบสั่งงาน (กดดูได้)</span>
+        </div>
+        <div class="grp">
+          <button class="sbtn" id="g-edit" aria-pressed="false">แก้ไขแผน</button>
+          <button class="sbtn" id="g-copy" hidden>คัดลอก JSON</button>
+          <button class="sbtn" id="g-reset" hidden>คืนค่าตามใบสั่งงาน</button>
+        </div>
+      </div>
+      <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
+      <div class="g-foot" id="g-foot"></div>
+    </div>
+  </section>
+
+  <section data-sec="jo">
+    <div class="sec-head"><h2>ใบสั่งงาน JO1 เทียบการ์ด</h2><span class="muted">ส่วนที่ 2 ข้อ 7 · ใบสั่งงานเลขที่ จ.136/2569</span></div>
+    <div class="card">
+      <div class="tiles" id="jo-tiles"></div>
+      <div class="filters">
+        <select id="jo-uc" aria-label="กรองตาม UC"><option value="">ทุก UC</option></select>
+        <select id="jo-by" aria-label="กรองตามผู้กำหนดสี">
+          <option value="">ทุกผู้กำหนดสี</option>
+          <option value="owner">เจ้าของงานกำหนด</option>
+          <option value="ai">AI เสนอ · รอยืนยัน</option>
+        </select>
+        <input id="jo-q" type="search" placeholder="ค้นหาข้อความหรือเลขการ์ด" aria-label="ค้นหา">
+        <button class="sbtn" id="jo-copy">คัดลอกสถานะ (JSON)</button>
+        <button class="sbtn" id="jo-reset">ล้างที่แก้ในเครื่องนี้</button>
+      </div>
+      <div class="cl" id="jo-list"></div>
+    </div>
+    <p class="note">กดวงกลมหน้าข้อเพื่อเปลี่ยนสี (เทา → ส้ม → แดง → ดำ) · ที่แก้จะจำไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น กด “คัดลอกสถานะ” แล้วส่งให้ Claude อัปเดตเข้าหน้านี้ให้ทุกคนเห็น · ข้อ 7.4 สีตาม ใบสั่งงาน_JO1_checlist.docx · ข้ออื่นเป็นสีที่ AI จับคู่จากการ์ด FLO, Trello และผล Test case SIT Sprint 1–9 ยังไม่ได้ยืนยัน · ข้อที่มี Test case: AI ให้เทาเมื่อผ่านครบ ส้มเมื่อยังมี Fail หรือยังไม่ได้รัน (ไม่นับ Sprint 1 ที่ใช้เลขชุดเก่า)</p>
+
+    <details class="card tc-box" id="tc-box">
+      <summary id="tc-sum">ผล Test case SIT ทุก Sprint</summary>
+      <div class="tc-wrap"><table class="tct" id="tc-table"></table></div>
+    </details>
+  </section>
+
+  <section data-sec="close">
+    <div class="sec-head"><h2>แผนปิด JO1 ภายใน 31 ธ.ค. 69</h2><span class="muted" id="c-sub"></span></div>
+    <div class="card">
+      <div class="b-tiles" id="c-tiles"></div>
+      <div class="filters" id="c-ctl"></div>
+    </div>
+    <div class="card">
+      <div class="toolbar">
+        <div class="legend">
+          <span><i class="sw" style="background:#D92D20"></i>ด่วน · ควรมีแล้ว</span>
+          <span><i class="sw" style="background:var(--brand-900)"></i>ตามลำดับแผน JO1</span>
+          <span><i class="sw" style="background:#6172F3"></i>ถ้ามีกำลังเหลือ</span>
+          <span><i class="sw" style="background:#98A2B3"></i>เสนอเลื่อน</span>
+          <span><i class="sw" style="background:#9CC3E6"></i>ทดสอบ · ติดตั้ง · ส่งมอบ</span>
+          <span><i class="sw" style="background:repeating-linear-gradient(45deg,#FDA29B 0 3px,#FEF3F2 3px 6px)"></i>เลยวัน code freeze</span>
+        </div>
+        <div class="grp"><button class="sbtn" id="c-copy">คัดลอกแผน (JSON)</button><button class="sbtn" id="c-reset">คืนค่าเริ่มต้น</button></div>
+      </div>
+      <div class="gantt-wrap"><div class="gantt" id="c-gantt"></div></div>
+    </div>
+    <p class="note">ลำดับ: ① ข้อที่ควรมีแล้วและ Fail ที่ค้าง ② พื้นฐานที่งานอื่นรอ (Login · ข้อมูลเครื่องมือกล · แผนบำรุงรักษา) ③ ตามลำดับในแผน JO1 ที่ลงนาม · กำลังคน = Man-days ต่อวันทำงานของทั้งทีม แบ่งให้การ์ดตามลำดับ การ์ดหนึ่งใช้ได้ไม่เกิน “คนต่อการ์ด” และเริ่มได้เมื่อการ์ดที่ต้องรอเสร็จแล้ว · MD ของการ์ดประมาณจาก MD ของ UC ในใบสั่งงาน ยังไม่ได้ให้ทีมประเมิน · กด ▲▼ เพื่อเลื่อนลำดับ กด “ข้าม” เพื่อเอาออกจาก JO1 · ที่แก้จำไว้ในเครื่องนี้</p>
+  </section>
+
+
+  <footer id="foot"></footer>
+</main>
+
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById('hub-data').textContent);
+  const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const DAY = 86400000;
+  const d = s => { const [y,m,dd] = s.split('-').map(Number); return new Date(y, m-1, dd); };
+  const fmt = (dt, yr=true) => dt.getDate()+' '+TH_M[dt.getMonth()]+(yr?' '+String(dt.getFullYear()+543).slice(-2):'');
+  const addDays = (dt,n) => new Date(dt.getTime()+n*DAY);
+  const el = (tag, attrs={}, kids=[]) => { const e=document.createElement(tag); for (const k in attrs){ if(k==='text') e.textContent=attrs[k]; else if(k==='class') e.className=attrs[k]; else e.setAttribute(k,attrs[k]); } [].concat(kids).forEach(c=>c&&e.appendChild(c)); return e; };
+  const ext = {target:'_blank',rel:'noopener'};
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // sprint math
+  const S = D.sprint, sStart = d(S.start), len = S.lengthDays || 14;
+  const idx = Math.floor((today - sStart)/(len*DAY));
+  const curNo = S.number + idx, curStart = addDays(sStart, idx*len), curEnd = addDays(curStart, len-3);
+  const week = Math.max(1, Math.min(2, Math.floor((today-curStart)/(7*DAY))+1));
+  const sprintName = n => 'Sprint '+String(n).padStart(2,'0');
+
+  // status
+  const latest = [...D.reports].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const st = document.getElementById('status');
+  const cell = (lab, big, extra) => el('div',{},[el('span',{class:'lab',text:lab}), el('span',{class:'big',text:big}), extra||null]);
+  st.appendChild(cell('Sprint ปัจจุบัน', sprintName(curNo), el('span',{class:'muted',text: fmt(curStart,false)+' – '+fmt(curEnd)})));
+  st.appendChild(cell('สัปดาห์ที่', week+' จาก 2', el('div',{class:'weekbar','aria-hidden':'true'},[el('span',{class:week>=1?'on':''}), el('span',{class:week>=2?'on':''})])));
+  st.appendChild(cell('รายงานล่าสุด', latest ? fmt(d(latest.date)) : '—', latest ? el('a',Object.assign({href:latest.url,text:latest.title},ext)) : null));
+
+  // features
+  const fw = document.getElementById('features');
+  D.features.forEach(f=>{
+    const btns = el('div',{class:'btns'}, f.try.map(t=>el('a',Object.assign({class:'btn '+(t.primary?'btn-primary':'btn-secondary'),href:t.url,text:t.label+(t.primary?' →':'')},ext))));
+    const top = el('div',{class:'f-top'},[
+      el('div',{class:'txt'},[el('h2',{text:f.name}), el('span',{class:'muted',text:f.summary})]),
+      f.try.length ? btns : el('span',{class:'pill gray',text:'ยังไม่มีต้นแบบให้ลองกด'})
+    ]);
+    const list = el('div',{class:'doclist'}, f.docs.map(x=>el('a',Object.assign({class:'doc',href:x.url},ext),[
+      el('span',{class:'pill '+(x.tone||'gray'),text:x.kind}),
+      el('div',{style:'min-width:0'},[el('div',{class:'t',text:x.title}), el('div',{class:'n',text:x.note})]),
+      el('span',{class:'meta',text:'อัปเดต '+fmt(d(x.updated))})
+    ])));
+    fw.appendChild(el('div',{class:'card feature'},[top, list]));
+  });
+
+  // reports
+  const rl = document.getElementById('reportlist');
+  const groups = {};
+  D.reports.forEach(r=>{ (groups[r.sprint] = groups[r.sprint]||[]).push(r); });
+  const maxDate = g => groups[g].reduce((m,r)=>r.date>m?r.date:m,'');
+  const order = Object.keys(groups).sort((a,b)=>maxDate(b).localeCompare(maxDate(a)));
+  const KIND = { sprint:['สรุปปิด Sprint','brand'], week1:['สัปดาห์ 1','info'], week2:['สัปดาห์ 2 · ปิด Sprint','brand'] };
+  if (!order.length) rl.appendChild(el('p',{class:'muted',style:'padding:16px 20px;margin:0',text:'ยังไม่มีรายงาน รายงานฉบับแรกจะขึ้นที่นี่วันศุกร์นี้'}));
+  order.forEach(g=>{
+    const box = el('div',{class:'sprint-group'},[el('h3',{text:g})]);
+    groups[g].sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
+      const k = KIND[r.kind] || [r.kind,'gray'];
+      box.appendChild(el('a',Object.assign({class:'rrow',href:r.url},ext),[
+        el('span',{class:'mono muted',text:fmt(d(r.date))}),
+        el('span',{class:'t',text:r.title}),
+        el('span',{class:'pill '+k[1],text:k[0]})
+      ]));
+    });
+    rl.appendChild(box);
+  });
+
+  // timeline
+  const T = D.timeline, pStart = d(T.projectStart);
+  const firstSprintStart = addDays(sStart, -(S.number-1)*len);
+  const t0 = new Date(Math.min(pStart, firstSprintStart)), t1 = addDays(pStart, T.projectWeeks*7), span = t1 - t0;
+  const pct = dt => (dt - t0)/span*100;
+  const tl = document.getElementById('tl');
+  const row = (labKids, trackKids, cls) => el('div',{class:'tl-row'+(cls?' '+cls:'')},[el('div',{class:'lab'},labKids), el('div',{class:'track'},trackKids)]);
+  const months = [];
+  for (let m = new Date(t0.getFullYear(), t0.getMonth()+1, 1); m < t1; m = new Date(m.getFullYear(), m.getMonth()+1, 1)) {
+    const lab = TH_M[m.getMonth()] + (m.getMonth()===0 || months.length===0 ? ' '+String(m.getFullYear()+543).slice(-2) : '');
+    months.push(el('span',{class:'mlab',style:'left:'+pct(m)+'%',text:lab}));
+  }
+  tl.appendChild(row([], months, 'months'));
+  const sps = [];
+  for (let n=1;;n++){
+    const a = addDays(firstSprintStart,(n-1)*len); if (a >= t1) break;
+    const b = addDays(a,len);
+    sps.push(el('span',{class:'sp'+(n===curNo?' cur':''),style:'left:'+pct(a)+'%;width:calc('+(pct(b)-pct(a))+'% - 2px)',title:sprintName(n)+' · '+fmt(a,false)+' – '+fmt(addDays(b,-3)),text:String(n)}));
+  }
+  tl.appendChild(row([document.createTextNode('Sprint'), el('small',{text:'ทุก 2 สัปดาห์'})], sps));
+  T.jos.forEach(j=>{
+    const a = j.start ? d(j.start) : addDays(pStart,(j.startWeek-1)*7), b = addDays(a, j.weeks*7);
+    tl.appendChild(row([document.createTextNode(j.id+(j.approved?' ✓':'')), el('small',{text:j.label+(j.approved?' · อนุมัติแล้ว':'')})], [
+      el('span',{class:'bar',style:'left:'+pct(a)+'%;width:'+(pct(b)-pct(a))+'%;background:var(--'+j.color+')',title:j.id+' · '+fmt(a)+' – '+fmt(addDays(b,-3)),text:fmt(a,false)+' – '+fmt(addDays(b,-3))})
+    ]));
+  });
+  if (today>=t0 && today<=t1){
+    const p = pct(today)+'%';
+    const line = el('div',{class:'nowline',style:'left:'+p}), tag = el('span',{class:'nowtag',style:'left:'+p,text:'วันนี้'});
+    tl.appendChild(el('div',{style:'position:absolute;top:10px;bottom:18px;left:180px;right:20px;pointer-events:none'},[line, tag]));
+  }
+  document.getElementById('tl-note').textContent = T.source;
+  document.getElementById('foot').textContent = 'อัปเดตข้อมูลหน้านี้ล่าสุด ' + fmt(d(D.updated));
+
+  // ---------- shared helpers ----------
+  const ls = {
+    get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+    set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+    del(k){ try { localStorage.removeItem(k); } catch(e){} }
+  };
+  function copy(txt, btn){
+    const done = ()=>{ const o = btn.textContent; btn.textContent = 'คัดลอกแล้ว'; setTimeout(()=>{ btn.textContent = o; }, 1500); };
+    const fallback = ()=>{ const ta = el('textarea'); ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch(e){} ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+  }
+  const P = JSON.parse(document.getElementById('jo1-plan').textContent);
+  const C = JSON.parse(document.getElementById('jo1-check').textContent);
+  const PK = 'hub.jo1plan.v1', CK = 'hub.jo1check.v1';
+  let planEdits = ls.get(PK) || {};   // code -> {s,e}
+  let checkEdits = ls.get(CK) || {};  // item index -> status
+  const ST = { gray:['มีการ์ดแล้ว','var(--sw-gray)'], orange:['มีแต่ยังไม่แน่ใจว่าครบ','var(--sw-orange)'], red:['ยังไม่มีแต่ควรมี','var(--sw-red)'], black:['ยังไม่มี','var(--sw-black)'] };
+  const ORDER = ['gray','orange','red','black'];
+  const leaves = C.filter(it=>it.st);
+  const stOf = it => checkEdits[it.i] || it.st;
+  const byOf = it => checkEdits[it.i] ? 'local' : it.by;
+  const ucOf = code => code.replace('MD-JO1-','');
+  const cov = uc => { const c = {gray:0,orange:0,red:0,black:0}; leaves.forEach(it=>{ if (it.uc===uc) c[stOf(it)]++; }); return c; };
+  const TC = JSON.parse(document.getElementById('tc-data').textContent);
+  const tcBy = Object.fromEntries(TC.map(t=>[t.key,t]));
+  const tcSum = keys => { const r = {n:0,pass:0,fail:0,other:0}; [...new Set(keys)].forEach(k=>{ const t = tcBy[k]; if (t) ['n','pass','fail','other'].forEach(f=>{ r[f] += t[f]; }); }); return r; };
+  const tcOfUC = uc => tcSum(leaves.filter(it=>it.uc===uc).flatMap(it=>it.tests||[]));
+  const tcText = s => 'ผ่าน '+s.pass+'/'+s.n+(s.fail?' · Fail '+s.fail:'')+(s.other?' · ยังไม่รัน '+s.other:'');
+  const tcBar = s => el('span',{class:'tcbar'}, [['pass','#17B26A'],['fail','#D92D20'],['other','#FDB022']].filter(([k])=>s[k]).map(([k,c])=>{ const i = el('i'); i.style.width = (s[k]/s.n*100)+'%'; i.style.background = c; return i; }));
+
+  // ---------- JO1 weekly gantt (same layout as the "Project timeline" sheet) ----------
+  const p1 = d(P.start), W = P.gridWeeks;
+  const wkStart = n => addDays(p1,(n-1)*7);
+  const curWk = Math.floor((today - p1)/(7*DAY)) + 1;
+  const mw = n => 'เดือน '+(Math.floor((n-1)/4)+1)+' W'+(((n-1)%4)+1);
+  const baht = n => n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const gantt = document.getElementById('gantt'), gCard = document.getElementById('g-card');
+  document.getElementById('g-range').textContent = fmt(p1)+' – '+fmt(d(P.end))+' · '+P.title;
+  const cellCls = k => 'g-cell'+((k-1)%4===0?' mstart':'')+(k===curWk?' now':'');
+  function renderGantt(){
+    gantt.textContent = '';
+    gantt.style.setProperty('--wk', W);
+    const mh = el('div',{class:'g-row g-head mon'},[el('div',{class:'g-lab',text:'รหัส / สิ่งที่ผู้ใช้งานสามารถทำได้'}), el('div',{class:'g-md',text:'MD'}), el('div',{style:'padding-left:8px',text:'ข้อใน JO'}), el('div',{style:'padding-left:8px',text:'ผล Test'})]);
+    for (let m=0; m<W/4; m++){ const c = el('div',{text:'เดือน '+(m+1)}); c.style.gridColumn = 'span 4'; mh.appendChild(c); }
+    gantt.appendChild(mh);
+    const wh = el('div',{class:'g-row g-head wk'},[el('div',{class:'g-lab'}), el('div'), el('div'), el('div')]);
+    for (let n=1; n<=W; n++) wh.appendChild(el('div',{text:'W'+(((n-1)%4)+1), title:'สัปดาห์ที่ '+n+' · เริ่ม '+fmt(wkStart(n))}));
+    gantt.appendChild(wh);
+    const tot = [0,0,0,0,0,0,0]; let cost = 0, maxE = 0;
+    P.rows.forEach(r=>{
+      const ed = planEdits[r.code], s = ed ? ed.s : r.s, e = ed ? ed.e : r.e;
+      maxE = Math.max(maxE, e);
+      r.md.forEach((v,i)=>{ tot[i] += v; });
+      const md = r.md.reduce((a,b)=>a+b,0);
+      const uc = ucOf(r.code), c = cov(uc), n = c.gray+c.orange+c.red+c.black;
+      const inS = el('input',{type:'number',min:'1',max:String(W),value:String(s),'aria-label':'สัปดาห์เริ่ม '+r.code});
+      const inE = el('input',{type:'number',min:'1',max:String(W),value:String(e),'aria-label':'สัปดาห์สิ้นสุด '+r.code});
+      const upd = ()=>{
+        const a = +inS.value, b = +inE.value;
+        if (!(a>=1 && b>=a && b<=W)) { inS.value = s; inE.value = e; return; }
+        if (a===r.s && b===r.e) delete planEdits[r.code]; else planEdits[r.code] = {s:a, e:b};
+        ls.set(PK, planEdits); renderGantt();
+      };
+      inS.addEventListener('change', upd); inE.addEventListener('change', upd);
+      const lab = el('div',{class:'g-lab'},[
+        el('span',{class:'code',text:r.code+' · '+mw(s)+' – '+mw(e)}),
+        el('span',{class:'desc',text:r.desc,title:r.desc}),
+        el('span',{class:'g-edit'},[document.createTextNode('เริ่ม W'), inS, document.createTextNode('ถึง W'), inE])
+      ]);
+      let covEl;
+      if (n) {
+        covEl = el('button',{class:'g-cov',title:uc+' · ข้อในใบสั่งงาน '+n+' ข้อ — เทา '+c.gray+' · ส้ม '+c.orange+' · แดง '+c.red+' · ดำ '+c.black,'aria-label':'ดูข้อในใบสั่งงานของ '+uc},
+          [el('span',{class:'covbar'}, ORDER.filter(k=>c[k]).map(k=>{ const i = el('i'); i.style.width = (c[k]/n*100)+'%'; i.style.background = ST[k][1]; return i; }))]);
+        covEl.addEventListener('click', ()=>{ joUC.value = uc; stFilter = ''; renderJo(); location.hash = 'jo'; });
+      } else covEl = el('div',{class:'g-cov muted',text:'—'});
+      const ts = tcOfUC(uc);
+      const tcEl = ts.n ? el('div',{class:'g-tc',title:uc+' · Test case SIT '+tcText(ts)},[el('span',{text:ts.pass+'/'+ts.n}), tcBar(ts)]) : el('div',{class:'g-tc muted',text:'—'});
+      const rowEl = el('div',{class:'g-row'+(ed?' edited':''),title:r.code+' · '+fmt(wkStart(s))+' – '+fmt(addDays(wkStart(e),6))},[lab, el('div',{class:'g-md',text:String(md)}), covEl, tcEl]);
+      for (let k=1; k<=W; k++){
+        const cell = el('div',{class:cellCls(k)});
+        if (k>=s && k<=e) cell.appendChild(el('b',{class:(r.kind==='test'?'test ':'')+(k===s?'first ':'')+(k===e?'last':'')}));
+        rowEl.appendChild(cell);
+      }
+      gantt.appendChild(rowEl);
+    });
+    const tmd = tot.reduce((a,b)=>a+b,0);
+    const sum = el('div',{class:'g-row sum'},[el('div',{class:'g-lab'},[el('span',{class:'code',text:'รวม JO1 · '+mw(1)+' – '+mw(maxE)}), el('span',{class:'desc',text:'ซ่อม · บำรุงรักษา · Overhaul · ข้อมูลเครื่องมือกล'})]), el('div',{class:'g-md',text:String(tmd)}), el('div'), el('div')]);
+    for (let k=1; k<=W; k++){ const cell = el('div',{class:cellCls(k)}); if (k===maxE) cell.appendChild(el('span',{class:'dia',text:'◆',title:'วันสิ้นสุดที่เสนอ'})); sum.appendChild(cell); }
+    gantt.appendChild(sum);
+    const ROLES = ['PM','UX/UI','BA','Sr.Dev','Dev','DevOps','QA'];
+    const foot = document.getElementById('g-foot'); foot.textContent = '';
+    foot.appendChild(el('span',{},[document.createTextNode('รวม '), el('b',{text:tmd+' Man-days'})]));
+    foot.appendChild(el('span',{text:ROLES.map((r,i)=>r+' '+tot[i]).join(' · ')}));
+    foot.appendChild(el('span',{text: curWk>=1 && curWk<=W ? 'วันนี้อยู่สัปดาห์ที่ '+curWk+' ('+mw(curWk)+')' : 'วันนี้อยู่นอกช่วง JO1'}));
+    const nEd = Object.keys(planEdits).length;
+    if (nEd) foot.appendChild(el('span',{style:'color:var(--brand-900);font-weight:600',text:'แก้ในเครื่องนี้ '+nEd+' แถว — ยังไม่ใช่แผนตามใบสั่งงาน'}));
+  }
+  const gEdit = document.getElementById('g-edit'), gCopy = document.getElementById('g-copy'), gReset = document.getElementById('g-reset');
+  gEdit.addEventListener('click', ()=>{ const on = gEdit.getAttribute('aria-pressed')!=='true'; gEdit.setAttribute('aria-pressed', String(on)); gCard.classList.toggle('editing', on); gCopy.hidden = gReset.hidden = !on; });
+  gCopy.addEventListener('click', ()=>copy(JSON.stringify(P.rows.map(r=>{ const e = planEdits[r.code]; return {code:r.code, s:e?e.s:r.s, e:e?e.e:r.e}; })), gCopy));
+  gReset.addEventListener('click', ()=>{ planEdits = {}; ls.del(PK); renderGantt(); });
+
+  // ---------- JO1 checklist vs cards ----------
+  const joUC = document.getElementById('jo-uc'), joBy = document.getElementById('jo-by'), joQ = document.getElementById('jo-q');
+  const tilesEl = document.getElementById('jo-tiles'), listEl = document.getElementById('jo-list');
+  let stFilter = '';
+  const ucOrder = P.rows.map(r=>ucOf(r.code));
+  [...new Set(leaves.map(it=>it.uc).filter(Boolean))].sort((a,b)=>ucOrder.indexOf(a)-ucOrder.indexOf(b)).forEach(uc=>{
+    const r = P.rows.find(x=>ucOf(x.code)===uc);
+    joUC.appendChild(el('option',{value:uc,text:uc+(r?' · '+r.desc.slice(0,38)+'…':'')}));
+  });
+  const floUrl = k => /^MTD-\d+$/.test(k) ? 'https://flo.odt.co.th/products/205/items/'+k.slice(4) : null;
+  const depth = ref => Math.min(3, ref.split('.').length-1);
+  const passes = (it, ignoreSt) => {
+    if (!ignoreSt && stFilter && stOf(it)!==stFilter) return false;
+    if (joUC.value && it.uc!==joUC.value) return false;
+    if (joBy.value==='owner' && byOf(it)==='ai') return false;
+    if (joBy.value==='ai' && byOf(it)!=='ai') return false;
+    const q = joQ.value.trim().toLowerCase();
+    if (q && !(it.t.toLowerCase().includes(q) || (it.cards||[]).concat(it.tests||[]).some(c=>c.toLowerCase().includes(q)) || (it.uc||'').toLowerCase().includes(q) || it.ref.includes(q))) return false;
+    return true;
+  };
+  function renderTiles(){
+    tilesEl.textContent = '';
+    const pool = leaves.filter(it=>passes(it,true));
+    ORDER.forEach(k=>{
+      const n = pool.filter(it=>stOf(it)===k).length;
+      const t = el('button',{class:'tile','aria-pressed':String(stFilter===k)},[el('span',{class:'n',text:String(n)}), el('span',{class:'l',text:ST[k][0]})]);
+      t.style.borderTopColor = ST[k][1];
+      t.querySelector('.n').style.color = k==='gray' ? 'var(--st-gray)' : k==='orange' ? 'var(--st-orange)' : k==='red' ? 'var(--st-red)' : 'var(--st-black)';
+      t.addEventListener('click', ()=>{ stFilter = stFilter===k ? '' : k; renderJo(); });
+      tilesEl.appendChild(t);
+    });
+  }
+  function renderList(focusI){
+    listEl.textContent = '';
+    const anyFilter = stFilter || joUC.value || joBy.value || joQ.value.trim();
+    const show = C.map(it=> it.st ? passes(it) : false);
+    // a heading shows when any leaf under it shows (or when nothing is filtered)
+    C.forEach((it,idx)=>{
+      if (it.st) return;
+      if (!anyFilter) { show[idx] = true; return; }
+      if (it.h===9) return;
+      for (let j=idx+1; j<C.length; j++){
+        const nx = C[j];
+        if (!nx.st && nx.h!==9 && nx.h<=it.h) break;
+        if (show[j] && nx.st) { show[idx] = true; break; }
+      }
+    });
+    let count = 0;
+    C.forEach((it,idx)=>{
+      if (!show[idx]) return;
+      if (!it.st) {
+        if (it.h===9) { listEl.appendChild(el('div',{class:'cl-x',text:it.t})); return; }
+        listEl.appendChild(el('div',{class:'cl-h h'+Math.max(1,it.h)},[el('span',{class:'r',text:it.ref}), el('span',{text:it.t})]));
+        return;
+      }
+      count++;
+      const st = stOf(it), by = byOf(it);
+      const dot = el('button',{class:'dot','data-i':String(it.i),'aria-label':'สถานะ '+ST[st][0]+' — กดเพื่อเปลี่ยน',title:ST[st][0]+' · กดเพื่อเปลี่ยน'});
+      dot.style.background = ST[st][1];
+      dot.addEventListener('click', ()=>{
+        const nx = ORDER[(ORDER.indexOf(st)+1)%ORDER.length];
+        if (nx===it.st) delete checkEdits[it.i]; else checkEdits[it.i] = nx;
+        ls.set(CK, checkEdits); renderJo(it.i); renderGantt();
+      });
+      const meta = el('div',{class:'meta'});
+      if (it.uc) { const u = el('button',{class:'chip uc',text:it.uc,title:'กรองเฉพาะ '+it.uc}); u.addEventListener('click',()=>{ joUC.value = it.uc; renderJo(); }); meta.appendChild(u); }
+      (it.cards||[]).forEach(k=>{ const url = floUrl(k); meta.appendChild(url ? el('a',Object.assign({class:'chip',href:url,text:k,title:'เปิดใน FLO'},ext)) : el('span',{class:'chip',text:k,title:'การ์ด Trello / ClickUp'})); });
+      if ((it.tests||[]).length) {
+        const ts = tcSum(it.tests);
+        meta.appendChild(el('span',{class:'chip tc'+(ts.fail?' bad':ts.other?' wait':''),text:'SIT '+tcText(ts),title:'Test case: '+it.tests.map(k=>{ const t = tcBy[k]; return k+' (S'+t.sp.join(',S')+') '+t.pass+'/'+t.n; }).join(' · ')}));
+      }
+      meta.appendChild(el('span',{class:'chip '+(by==='ai'?'ai':'mine'),text: by==='ai' ? 'AI เสนอ · รอยืนยัน' : by==='local' ? 'แก้ในเครื่องนี้' : 'เจ้าของงานกำหนด'}));
+      if (it.note) meta.appendChild(el('span',{class:'nt',text:it.note}));
+      const isHeadLeaf = typeof it.h==='number';
+      const tx = el('div',{class:'tx'},[isHeadLeaf ? el('b',{text:it.ref+' '}) : null, document.createTextNode(it.t), meta]);
+      listEl.appendChild(el('div',{class:'it s-'+st+' d'+(isHeadLeaf?1:depth(it.ref))},[dot, tx]));
+    });
+    if (!count) listEl.appendChild(el('p',{class:'empty',text:'ไม่มีข้อที่ตรงกับตัวกรอง ลองล้างตัวกรองหรือคำค้นหา'}));
+    if (focusI!=null) { const f = listEl.querySelector('.dot[data-i="'+focusI+'"]'); if (f) f.focus({preventScroll:true}); }
+  }
+  function renderJo(focusI){ renderTiles(); renderList(focusI); }
+  [joUC, joBy].forEach(x=>x.addEventListener('change', ()=>renderJo()));
+  joQ.addEventListener('input', ()=>renderJo());
+  document.getElementById('jo-copy').addEventListener('click', e=>copy(JSON.stringify(leaves.filter(it=>checkEdits[it.i]).map(it=>({i:it.i, ref:it.ref, t:it.t.slice(0,50), st:checkEdits[it.i]})), null, 1), e.currentTarget));
+  document.getElementById('jo-reset').addEventListener('click', ()=>{ checkEdits = {}; ls.del(CK); renderJo(); renderGantt(); });
+  // test case table — every card's SIT result, with the ใบสั่งงาน items it supports
+  (function renderTC(){
+    const refsOf = k => [...new Set(leaves.filter(it=>(it.tests||[]).includes(k)).map(it=>it.ref))];
+    const all = tcSum(TC.map(t=>t.key)), unm = TC.filter(t=>!refsOf(t.key).length);
+    document.getElementById('tc-sum').textContent = 'ผล Test case SIT ทุก Sprint · '+TC.length+' การ์ด · '+tcText(all)+' · ยังไม่ผูกกับข้อในใบสั่งงาน '+unm.length+' การ์ด';
+    const tb = document.getElementById('tc-table');
+    tb.appendChild(el('thead',{},[el('tr',{},['การ์ด','Sprint','ฟีเจอร์ / ตัวอย่าง Test case','ข้อใน JO','ผ่าน','Fail','ยังไม่รัน'].map(h=>el('th',{text:h})))]));
+    const body = el('tbody');
+    [...TC].sort((a,b)=>b.sp[b.sp.length-1]-a.sp[a.sp.length-1]).forEach(t=>{
+      const refs = refsOf(t.key), url = floUrl(t.key);
+      body.appendChild(el('tr',{class:refs.length?'':'unmapped'},[
+        el('td',{},[url ? el('a',Object.assign({class:'chip',href:url,text:t.key},ext)) : el('span',{class:'chip',text:t.key})]),
+        el('td',{class:'num',text:t.sp.map(n=>'S'+n).join(', ')}),
+        el('td',{},[el('div',{text:t.feat.join(' · ')||'—'}), el('div',{class:'ex',text:t.ex[0]||''})]),
+        el('td',{text: refs.length ? refs.join(', ') : 'ยังไม่ผูก'}),
+        el('td',{class:'num',text:t.pass+'/'+t.n}),
+        el('td',{class:'num',text:String(t.fail),style:t.fail?'color:var(--error-600);font-weight:600':''}),
+        el('td',{class:'num',text:String(t.other)})
+      ]));
+    });
+    tb.appendChild(body);
+  })();
+  renderGantt(); renderJo();
+
+  // ---------- budget: days used, money used, against budget after deduction ----------
+  const BK = 'hub.budget.v1';
+  const B0 = JSON.parse(document.getElementById('budget-data').textContent);
+  let B = Object.assign(JSON.parse(JSON.stringify(B0)), ls.get(BK) || {});
+  const iso = dt => dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+  const money = n => (n<0?'−':'')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const moneyShort = n => (n<0?'−':'')+(Math.abs(n)>=1e6 ? (Math.abs(n)/1e6).toFixed(2)+' ล้าน' : Math.round(Math.abs(n)/1000).toLocaleString('en-US')+' พัน');
+  const intf = n => Math.round(n).toLocaleString('en-US');
+  const addMonths = (dt,m) => { const x = new Date(dt.getFullYear(), dt.getMonth()+m, dt.getDate()); return x; };
+  function isWork(dt, hol){ const w = dt.getDay(); return w!==0 && w!==6 && !hol.has(iso(dt)); }
+  function workdays(a, b, hol){ let n = 0; for (let x = new Date(a); x <= b; x = addDays(x,1)) if (isWork(x,hol)) n++; return n; }
+  function addWorkdays(from, n, hol){ let x = new Date(from), k = 0; while (k < n) { x = addDays(x,1); if (isWork(x,hol)) k++; } return x; }
+  const calDays = (a,b) => Math.round((b-a)/DAY)+1;
+
+  const bTile = (l, v, s, cls) => el('div',{class:'b-tile'},[el('span',{class:'l',text:l}), el('span',{class:'v'+(cls?' '+cls:''),text:v}), s ? el('span',{class:'s',text:s}) : null]);
+  function meter(lab, frac, valText, kind, tickFrac, tickTitle){
+    const f = Math.max(0, Math.min(1, frac));
+    const tr = el('div',{class:'b-track',role:'img','aria-label':lab+' '+valText});
+    const fill = el('div',{class:'b-fill '+kind}); fill.style.width = (f*100)+'%'; tr.appendChild(fill);
+    if (tickFrac!=null) { const t = el('div',{class:'b-tick',title:tickTitle||''}); t.style.left = 'calc('+(Math.max(0,Math.min(1,tickFrac))*100)+'% - 1px)'; tr.appendChild(t); }
+    return el('div',{class:'b-m'},[el('span',{class:'lab',text:lab}), tr, el('span',{class:'val',text:valText})]);
+  }
+
+  function renderBudget(){
+    const hol = new Set(B.holidays);
+    const ded = (B.deductPct||0)/100;
+    const daily = B.team.reduce((s,t)=>s + t.n*t.rate*(t.load/100), 0);
+    const mdPerDay = B.team.reduce((s,t)=>s + t.n*(t.load/100), 0);
+    const pS = d(B.projectStart), pE = addDays(addMonths(pS, B.contractMonths), -1);
+    const jS = d(B.jo1Start), jE = d(B.jo1End);
+    const asOf = today;
+    document.getElementById('b-asof').textContent = 'ณ วันนี้ '+fmt(asOf)+' · ค่าใช้จ่ายคิดเฉพาะวันทำงาน (จ.–ศ. ไม่รวมวันหยุด)';
+    document.getElementById('b-pct-h').textContent = B.deductPct+'%';
+
+    // project
+    const pCal = Math.max(0, calDays(pS, asOf)), pTot = calDays(pS, pE);
+    const pWd = asOf>=pS ? workdays(pS, asOf, hol) : 0, pWdTot = workdays(pS, pE, hol);
+    const pSpent = pWd*daily, pNet = B.budgetTotal*(1-ded), pLeft = pNet - pSpent;
+    const pRun = daily>0 ? Math.floor(pLeft/daily) : 0, pRunOut = addWorkdays(asOf, Math.max(0,pRun), hol);
+    const pProj = pWdTot*daily, pMD = pWd*mdPerDay;
+    const P1 = document.getElementById('b-proj'); P1.textContent = '';
+    P1.appendChild(bTile('ทำโครงการมาแล้ว', intf(pCal)+' วัน', intf(pWd)+' วันทำงาน · เริ่ม '+fmt(pS)+' · จาก '+intf(pTot)+' วัน (ถึง '+fmt(pE)+')'));
+    P1.appendChild(bTile('ค่าใช้จ่ายต่อวันทำงาน', money(daily), 'ทีม '+intf(mdPerDay)+' คน·วัน ต่อวัน · เดือนละราว '+moneyShort(daily*21.5)));
+    P1.appendChild(bTile('ใช้เงินไปแล้ว', money(pSpent), intf(pMD)+' Man-days จาก '+intf(B.contractMD)+' MD ในสัญญา'));
+    P1.appendChild(bTile('งบหลังหัก '+B.deductPct+'%', money(pNet), 'จากวงเงิน '+money(B.budgetTotal)));
+    P1.appendChild(bTile('เหลือ', money(pLeft), pLeft>=0 ? 'พอจ่ายอีก '+intf(pRun)+' วันทำงาน · ถึง '+fmt(pRunOut) : 'เกินงบแล้ว', pLeft<0?'bad':''));
+    P1.appendChild(bTile('ถ้าจ้างทีมนี้จนจบสัญญา', money(pProj), (pProj>pNet?'เกินงบ ':'ต่ำกว่างบ ')+money(Math.abs(pProj-pNet)), pProj>pNet?'bad':'good'));
+    const PM = document.getElementById('b-proj-m'); PM.textContent = '';
+    PM.appendChild(meter('เวลาที่ผ่านไป', pCal/pTot, Math.round(pCal/pTot*100)+'% ของ '+B.contractMonths+' เดือน', 'time'));
+    PM.appendChild(meter('เงินที่ใช้ไป', pSpent/pNet, Math.round(pSpent/pNet*100)+'% ของงบหลังหัก', pSpent>pNet?'over':'', pCal/pTot, 'ขีดดำ = สัดส่วนเวลาที่ผ่านไป'));
+    PM.appendChild(meter('Man-days ที่ใช้ไป', pMD/B.contractMD, intf(pMD)+' / '+intf(B.contractMD)+' MD', pMD>B.contractMD?'over':'', pCal/pTot, 'ขีดดำ = สัดส่วนเวลาที่ผ่านไป'));
+
+    // JO1
+    const jCal = asOf>=jS ? Math.min(calDays(jS, asOf), calDays(jS,jE)) : 0, jTot = calDays(jS, jE);
+    const jEnd = asOf<jE ? asOf : jE;
+    const jWd = asOf>=jS ? workdays(jS, jEnd, hol) : 0, jWdTot = workdays(jS, jE, hol);
+    const jSpent = jWd*daily, jNet = B.budgetJO1*(1-ded), jLeft = jNet - jSpent;
+    const jRun = daily>0 ? Math.floor(jLeft/daily) : 0, jRunOut = addWorkdays(asOf, Math.max(0,jRun), hol);
+    const jProj = jWdTot*daily, jMD = jWd*mdPerDay;
+    const J1 = document.getElementById('b-jo1'); J1.textContent = '';
+    J1.appendChild(bTile('JO1 ใช้ไป', intf(jCal)+' วัน', intf(jWd)+' วันทำงาน · จาก '+intf(jTot)+' วัน ('+fmt(jS)+' – '+fmt(jE)+')'));
+    J1.appendChild(bTile('ใช้เงินใน JO1 ไปแล้ว', money(jSpent), intf(jMD)+' Man-days จาก '+intf(B.jo1MD)+' MD'));
+    J1.appendChild(bTile('งบ JO1 หลังหัก '+B.deductPct+'%', money(jNet), 'จากมูลค่า JO1 '+money(B.budgetJO1)));
+    J1.appendChild(bTile('เหลือใน JO1', money(jLeft), jLeft>=0 ? 'พอจ่ายอีก '+intf(jRun)+' วันทำงาน · ถึง '+fmt(jRunOut) : 'เกินงบ JO1 แล้ว', jLeft<0?'bad':''));
+    J1.appendChild(bTile('ถ้าทีมนี้ทำจนจบ JO1', money(jProj), (jProj>jNet?'เกินงบ JO1 ':'ต่ำกว่างบ JO1 ')+money(Math.abs(jProj-jNet))+(jRunOut<jE&&jProj>jNet?' · เงินหมดก่อนจบ JO1 '+Math.max(0,workdays(addDays(jRunOut,1),jE,hol))+' วันทำงาน':''), jProj>jNet?'bad':'good'));
+    const JM = document.getElementById('b-jo1-m'); JM.textContent = '';
+    JM.appendChild(meter('เวลาของ JO1', jCal/jTot, Math.round(jCal/jTot*100)+'% ของ '+jTot+' วัน', 'time'));
+    JM.appendChild(meter('เงินของ JO1', jSpent/jNet, Math.round(jSpent/jNet*100)+'% ของงบหลังหัก', jSpent>jNet?'over':'', jCal/jTot, 'ขีดดำ = สัดส่วนเวลาที่ผ่านไป'));
+
+    // chart: cumulative spend per week (actual to today, projected after) vs net budget
+    const pts = [];
+    let cum = 0;
+    for (let x = new Date(pS); x <= pE; x = addDays(x,1)) {
+      if (isWork(x,hol)) cum += daily;
+      if (x.getDay()===5 || iso(x)===iso(pE) || iso(x)===iso(asOf)) pts.push({dt:new Date(x), v:cum});
+    }
+    renderChart(pts, pS, pE, pNet, jS, jE, asOf, pLeft>=0 && pRunOut<=pE ? pRunOut : null);
+    document.getElementById('b-note').textContent = 'ค่าใช้จ่ายรายวันคิดจากอัตราต่อคนต่อวันในตารางทีม × จำนวนคน × % เวลา (ค่าเริ่มต้นใช้อัตราใน Breakdown 2,090 MD ซึ่งเป็นราคาที่เสนอ กฟภ. ไม่ใช่ต้นทุนจริง ใส่ต้นทุนจริงได้ในตาราง) · งบหลังหัก = วงเงิน × (1 − '+B.deductPct+'%) · วันเริ่มโครงการตั้งตาม Sprint 1 (17 ส.ค. 69) แก้ได้ · ที่แก้จำไว้ในเครื่องนี้ กด “คัดลอก JSON” ส่งให้ Claude อัปเดตเป็นค่าเริ่มต้น';
+  }
+
+  function renderChart(pts, pS, pE, net, jS, jE, asOf, runOut){
+    const box = document.getElementById('b-chart'); box.textContent = '';
+    const W = 960, H = 300, L = 70, R = 16, T = 14, Bm = 30;
+    const maxV = Math.max(net, pts[pts.length-1].v) * 1.08;
+    const x = dt => L + (dt - pS)/(pE - pS)*(W-L-R);
+    const y = v => T + (1 - v/maxV)*(H-T-Bm);
+    const NS = 'http://www.w3.org/2000/svg';
+    const s = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+    const svg = s('svg',{viewBox:'0 0 '+W+' '+H, role:'img','aria-label':'เงินที่ใช้สะสมเทียบงบหลังหัก'});
+    // grid + y labels
+    for (let i=0;i<=4;i++){ const v = maxV*i/4, yy = y(v);
+      svg.appendChild(s('line',{x1:L,x2:W-R,y1:yy,y2:yy,stroke:'#EAECF0','stroke-width':1}));
+      const t = s('text',{x:L-8,y:yy+4,'text-anchor':'end','font-size':11,fill:'#667085'}); t.textContent = v ? moneyShort(v) : '0'; svg.appendChild(t); }
+    // month ticks
+    for (let m = new Date(pS.getFullYear(), pS.getMonth()+1, 1); m <= pE; m = new Date(m.getFullYear(), m.getMonth()+1, 1)) {
+      const t = s('text',{x:x(m),y:H-10,'text-anchor':'middle','font-size':11,fill:'#667085'}); t.textContent = TH_M[m.getMonth()]+(m.getMonth()===0?' '+String(m.getFullYear()+543).slice(-2):''); svg.appendChild(t);
+    }
+    // JO1 band
+    svg.appendChild(s('rect',{x:x(jS),y:T,width:Math.max(0,x(jE)-x(jS)),height:H-T-Bm,fill:'#A80689','fill-opacity':0.05}));
+    const jl = s('text',{x:x(jS)+6,y:T+14,'font-size':11,fill:'#A80689'}); jl.textContent = 'JO1'; svg.appendChild(jl);
+    // budget line
+    svg.appendChild(s('line',{x1:L,x2:W-R,y1:y(net),y2:y(net),stroke:'#161B26','stroke-width':1.5,'stroke-dasharray':'6 4'}));
+    const bl = s('text',{x:W-R,y:y(net)-6,'text-anchor':'end','font-size':11.5,fill:'#161B26','font-weight':600}); bl.textContent = 'งบหลังหัก '+moneyShort(net); svg.appendChild(bl);
+    // spend line: actual (solid) + projected (dashed)
+    const act = pts.filter(p=>p.dt<=asOf), proj = pts.filter(p=>p.dt>=asOf);
+    const path = arr => arr.map((p,i)=>(i?'L':'M')+x(p.dt).toFixed(1)+' '+y(p.v).toFixed(1)).join(' ');
+    if (proj.length>1) svg.appendChild(s('path',{d:path(proj),fill:'none',stroke:'#A80689','stroke-width':2,'stroke-dasharray':'4 4','stroke-opacity':0.6}));
+    if (act.length>1) svg.appendChild(s('path',{d:path(act),fill:'none',stroke:'#A80689','stroke-width':2}));
+    // today
+    if (asOf>=pS && asOf<=pE){
+      svg.appendChild(s('line',{x1:x(asOf),x2:x(asOf),y1:T,y2:H-Bm,stroke:'#F79009','stroke-width':2}));
+      const tl = s('text',{x:x(asOf)+5,y:H-Bm-6,'font-size':11,fill:'#B54708','font-weight':600}); tl.textContent = 'วันนี้'; svg.appendChild(tl);
+      const last = act[act.length-1]; if (last) svg.appendChild(s('circle',{cx:x(last.dt),cy:y(last.v),r:4.5,fill:'#A80689',stroke:'#fff','stroke-width':2}));
+    }
+    // crosses budget?
+    if (runOut) { svg.appendChild(s('circle',{cx:x(runOut),cy:y(net),r:5,fill:'#D92D20',stroke:'#fff','stroke-width':2}));
+      const ct = s('text',{x:x(runOut),y:y(net)+18,'text-anchor':'middle','font-size':11,fill:'#B42318','font-weight':600}); ct.textContent = 'เงินหมด '+fmt(runOut); svg.appendChild(ct); }
+    // hover
+    const cross2 = s('line',{y1:T,y2:H-Bm,stroke:'#98A2B3','stroke-width':1,visibility:'hidden'}), dot = s('circle',{r:4,fill:'#A80689',stroke:'#fff','stroke-width':2,visibility:'hidden'});
+    svg.appendChild(cross2); svg.appendChild(dot);
+    const hit = s('rect',{x:L,y:T,width:W-L-R,height:H-T-Bm,fill:'transparent'}); svg.appendChild(hit);
+    box.appendChild(svg);
+    const tip = el('div',{class:'b-tip'}); box.appendChild(tip);
+    const move = ev => {
+      const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left)/r.width*W;
+      let best = pts[0]; for (const p of pts) if (Math.abs(x(p.dt)-px) < Math.abs(x(best.dt)-px)) best = p;
+      const cx = x(best.dt), cy = y(best.v);
+      cross2.setAttribute('x1',cx); cross2.setAttribute('x2',cx); cross2.setAttribute('visibility','visible');
+      dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('visibility','visible');
+      tip.textContent = '';
+      tip.appendChild(el('div',{text:fmt(best.dt)+(best.dt>asOf?' · คาดการณ์':'')}));
+      tip.appendChild(el('div',{},[document.createTextNode('ใช้สะสม '), el('b',{text:money(best.v)})]));
+      tip.appendChild(el('div',{text:(net-best.v>=0?'เหลือ ':'เกินงบ ')+money(Math.abs(net-best.v))}));
+      tip.style.left = (cx/W*r.width + 12)+'px'; tip.style.top = (cy/H*r.height + 2)+'px'; tip.style.display = 'block';
+    };
+    hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move);
+    hit.addEventListener('pointerleave', ()=>{ tip.style.display='none'; cross2.setAttribute('visibility','hidden'); dot.setAttribute('visibility','hidden'); });
+    const lg = document.getElementById('b-legend'); lg.textContent = '';
+    [['#A80689','solid','ใช้จริงถึงวันนี้'],['#A80689','dashed','คาดการณ์ถ้าทีมเท่าเดิม'],['#161B26','dashed','งบหลังหัก'],['#F79009','solid','วันนี้']].forEach(([c,st,t])=>{ const i = el('i'); i.style.borderTopColor = c; i.style.borderTopStyle = st; lg.appendChild(el('span',{},[i, document.createTextNode(t)])); });
+  }
+
+  // assumptions form
+  function renderBudgetForm(){
+    const f = document.getElementById('b-form'); f.textContent = '';
+    const field = (label, key, type, step) => {
+      const inp = el('input',{type:type||'number',value:String(B[key])}); if (step) inp.setAttribute('step',step);
+      inp.addEventListener('change', ()=>{ B[key] = type==='date' ? inp.value : +inp.value; ls.set(BK,B); renderBudget(); });
+      f.appendChild(el('label',{class:'b-f'},[el('span',{text:label}), inp]));
+    };
+    field('วันเริ่มโครงการ','projectStart','date'); field('ระยะสัญญา (เดือน)','contractMonths'); field('วงเงินโครงการ (บาท รวม VAT)','budgetTotal','number','0.01'); field('Man-days ในสัญญา','contractMD');
+    field('วันเริ่ม JO1','jo1Start','date'); field('วันสิ้นสุด JO1','jo1End','date'); field('มูลค่า JO1 (บาท รวม VAT)','budgetJO1','number','0.01'); field('หักจากงบ (%)','deductPct','number','0.1');
+    const tb = document.getElementById('b-team'); tb.textContent = '';
+    tb.appendChild(el('thead',{},[el('tr',{},['ตำแหน่ง','จำนวนคน','บาท/คน/วัน','% เวลา','ต่อวัน (บาท)'].map(h=>el('th',{text:h})))]));
+    const body = el('tbody');
+    B.team.forEach((t,i)=>{
+      const num = (k, step) => { const inp = el('input',{type:'number',value:String(t[k]),step:step||'1','aria-label':t.role+' '+k}); inp.addEventListener('change',()=>{ B.team[i][k] = +inp.value; ls.set(BK,B); renderBudget(); renderBudgetForm(); }); return el('td',{},[inp]); };
+      body.appendChild(el('tr',{},[el('td',{text:t.role}), num('n'), num('rate','0.01'), num('load'), el('td',{class:'num',text:money(t.n*t.rate*t.load/100)})]));
+    });
+    const tot = B.team.reduce((s,t)=>s+t.n*t.rate*t.load/100,0);
+    body.appendChild(el('tr',{},[el('td',{},[el('b',{text:'รวม'})]), el('td',{class:'num',text:String(B.team.reduce((s,t)=>s+t.n,0))+' คน'}), el('td'), el('td'), el('td',{class:'num'},[el('b',{text:money(tot)})])]));
+    tb.appendChild(body);
+    const h = document.getElementById('b-hol'); h.value = B.holidays.join(', ');
+    h.onchange = ()=>{ B.holidays = h.value.split(/[\s,]+/).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)); ls.set(BK,B); renderBudget(); };
+  }
+  document.getElementById('b-proj') && document.getElementById('b-copy').addEventListener('click', e=>copy(JSON.stringify(B,null,1), e.currentTarget));
+  document.getElementById('b-proj') && document.getElementById('b-reset').addEventListener('click', ()=>{ B = JSON.parse(JSON.stringify(B0)); ls.del(BK); renderBudgetForm(); renderBudget(); });
+  if (document.getElementById('b-proj')) { renderBudgetForm(); renderBudget(); }
+
+  // ---------- close plan: which card goes in which day, before 31 Dec ----------
+  const CPK = 'hub.closeplan.v1';
+  const CP0 = JSON.parse(document.getElementById('close-plan').textContent);
+  const cpLoad = ()=>{ const sv = ls.get(CPK) || {}; const c = JSON.parse(JSON.stringify(CP0)); ['deadline','freeze','from','mdPerDay','maxPerCard'].forEach(k=>{ if (sv[k]!=null) c[k] = sv[k]; });
+    if (sv.order) { const by = Object.fromEntries(c.cards.map(x=>[x.id,x])); const ord = sv.order.filter(id=>by[id]); c.cards.forEach(x=>{ if (!ord.includes(x.id)) ord.push(x.id); }); c.cards = ord.map(id=>by[id]); }
+    (c.cards).forEach(x=>{ if (sv.md && sv.md[x.id]!=null) x.md = sv.md[x.id]; x.skip = !!(sv.skip && sv.skip[x.id]); }); return c; };
+  let CP = cpLoad();
+  const cpSave = ()=>ls.set(CPK,{deadline:CP.deadline,freeze:CP.freeze,from:CP.from,mdPerDay:CP.mdPerDay,maxPerCard:CP.maxPerCard,order:CP.cards.map(c=>c.id),md:Object.fromEntries(CP.cards.filter(c=>{ const o = CP0.cards.find(x=>x.id===c.id); return o && o.md!==c.md; }).map(c=>[c.id,c.md])),skip:Object.fromEntries(CP.cards.filter(c=>c.skip).map(c=>[c.id,1]))});
+  const TIERC = {0:'#D92D20',1:'#A80689',2:'#6172F3',3:'#98A2B3',9:'#9CC3E6'};
+  const TIERL = {0:'ด่วน',1:'ตามแผน',2:'ถ้ามีกำลัง',3:'เสนอเลื่อน',9:'ส่งมอบ'};
+  const sprintOf = dt => { const n = S.number + Math.floor((dt - sStart)/(len*DAY)); return n; };
+
+  function schedule(){
+    const hol = new Set(B.holidays);
+    const from = d(CP.from), freeze = d(CP.freeze), dl = d(CP.deadline);
+    const days = []; for (let x = new Date(from); x <= dl; x = addDays(x,1)) days.push(new Date(x));
+    const wdays = days.filter(x=>isWork(x,hol));
+    const res = {}; CP.cards.forEach(c=>{ res[c.id] = {left:c.md, start:null, end:null, perDay:{}}; });
+    // fixed cards (test / deploy / handover) take capacity on their own dates
+    const fixedUse = {};
+    CP.cards.filter(c=>c.tier===9 && !c.skip).forEach(c=>{
+      const ds = wdays.filter(x=>x>=d(c.start) && x<=d(c.end)); const per = c.md/Math.max(1,ds.length);
+      ds.forEach(x=>{ const k = iso(x); fixedUse[k] = (fixedUse[k]||0)+per; res[c.id].perDay[k] = per; });
+      res[c.id].start = ds[0]||d(c.start); res[c.id].end = ds[ds.length-1]||d(c.end); res[c.id].left = 0;
+    });
+    const dev = CP.cards.filter(c=>c.tier!==9 && !c.skip);
+    // simulate day by day until all done (allow running past deadline to show overflow)
+    let x = new Date(from), guard = 0;
+    while (dev.some(c=>res[c.id].left>1e-6) && guard++ < 400) {
+      if (isWork(x,hol)) {
+        const k = iso(x); let cap = Math.max(0, CP.mdPerDay - (fixedUse[k]||0));
+        for (const c of dev) {
+          const r = res[c.id]; if (r.left<=1e-6 || cap<=1e-6) continue;
+          if (c.deps.some(dp=>{ const q = res[dp]; const dc = CP.cards.find(z=>z.id===dp); return q && dc && !dc.skip && (q.left>1e-6 || (q.end && iso(q.end)===k)); })) continue;
+          const use = Math.min(r.left, CP.maxPerCard, cap);
+          r.perDay[k] = use; r.left -= use; cap -= use;
+          if (!r.start) r.start = new Date(x);
+          if (r.left<=1e-6) r.end = new Date(x);
+        }
+      }
+      x = addDays(x,1);
+    }
+    return {res, days, wdays, hol, freeze, dl};
+  }
+
+  function renderClose(){
+    const {res, days, wdays, hol, freeze, dl} = schedule();
+    const dev = CP.cards.filter(c=>c.tier!==9 && !c.skip);
+    const need = dev.reduce((a,c)=>a+c.md,0);
+    const wdFreeze = wdays.filter(x=>x<=freeze).length;
+    const capFreeze = wdFreeze*CP.mdPerDay;
+    const late = dev.filter(c=>!res[c.id].end || res[c.id].end>freeze);
+    const lateMD = late.reduce((a,c)=>a + Object.entries(res[c.id].perDay).filter(([k])=>d(k)>freeze).reduce((s,[,v])=>s+v,0) + res[c.id].left, 0);
+    const lastEnd = dev.reduce((m,c)=>res[c.id].end && res[c.id].end>m ? res[c.id].end : m, new Date(0));
+    document.getElementById('c-sub').textContent = 'เหลือ '+wdays.length+' วันทำงาน ('+fmt(d(CP.from))+' – '+fmt(dl)+') · code freeze '+fmt(freeze);
+    const T = document.getElementById('c-tiles'); T.textContent = '';
+    T.appendChild(bTile('การ์ดที่ต้องทำ', String(dev.length)+' การ์ด', 'ครอบคลุม '+dev.reduce((a,c)=>a+c.items.length,0)+' ข้อในใบสั่งงานที่ยังไม่ครบ'));
+    T.appendChild(bTile('งานที่ต้องใช้', intf(need)+' MD', '+ ทดสอบ/ติดตั้ง/ส่งมอบ '+CP.cards.filter(c=>c.tier===9&&!c.skip).reduce((a,c)=>a+c.md,0)+' MD'));
+    T.appendChild(bTile('กำลังทีมถึง code freeze', intf(capFreeze)+' MD', wdFreeze+' วันทำงาน × '+CP.mdPerDay+' MD/วัน'));
+    T.appendChild(bTile('ไม่ทัน code freeze', late.length+' การ์ด', late.length ? 'ราว '+intf(lateMD)+' MD · งานเสร็จจริง ~'+fmt(lastEnd) : 'ทันทั้งหมด', late.length?'bad':'good'));
+    const ctl = document.getElementById('c-ctl'); ctl.textContent = '';
+    const fld = (lab, key, type, w) => { const i = el('input',{type,value:String(CP[key]),'aria-label':lab}); if (w) i.style.width = w; i.addEventListener('change',()=>{ CP[key] = type==='number' ? +i.value : i.value; cpSave(); renderClose(); }); return el('label',{class:'b-f',style:'flex-direction:row;align-items:center;gap:6px'},[el('span',{text:lab}), i]); };
+    ctl.appendChild(fld('เริ่มนับ','from','date')); ctl.appendChild(fld('Code freeze','freeze','date')); ctl.appendChild(fld('กำหนดส่ง','deadline','date'));
+    ctl.appendChild(fld('MD ต่อวัน (ทั้งทีม)','mdPerDay','number','64px')); ctl.appendChild(fld('คนต่อการ์ดสูงสุด','maxPerCard','number','56px'));
+
+    // grid: show working days only up to deadline (plus overflow days)
+    const endShow = lastEnd > dl ? lastEnd : dl;
+    const cols = []; for (let x = d(CP.from); x <= endShow; x = addDays(x,1)) if (isWork(x,hol)) cols.push(new Date(x));
+    const g = document.getElementById('c-gantt'); g.textContent = ''; g.style.setProperty('--nd', cols.length);
+    const cellCls = (x,i) => 'c-cell'+(i===0||x.getDay()===1?' wk':'')+(iso(x)===iso(freeze)?' frz':'')+(iso(x)===iso(dl)?' dl':'');
+    // sprint header
+    const sh = el('div',{class:'c-row head'},[el('div',{class:'c-ord'}), el('div',{class:'c-lab',text:'การ์ด (เรียงตามลำดับที่ควรทำ)'}), el('div',{text:'MD'}), el('div',{class:'c-when',text:'เข้า Sprint · วันที่'})]);
+    let prev = null, span = 0, spEls = [];
+    cols.forEach((x,i)=>{ const n = sprintOf(x); if (n!==prev){ if (prev!==null) spEls.push([prev,span]); prev = n; span = 0; } span++; });
+    if (prev!==null) spEls.push([prev,span]);
+    spEls.forEach(([n,sp])=>{ const c = el('div',{text:'S'+String(n).padStart(2,'0'),style:'border-left:1px solid var(--gray-300)'}); c.style.gridColumn = 'span '+sp; sh.appendChild(c); });
+    g.appendChild(sh);
+    const dh = el('div',{class:'c-row head'},[el('div',{class:'c-ord'}), el('div',{class:'c-lab'}), el('div'), el('div',{class:'c-when'})]);
+    cols.forEach((x,i)=>dh.appendChild(el('div',{class:cellCls(x,i),text:String(x.getDate()),title:fmt(x)+(iso(x)===iso(freeze)?' · code freeze':'')+(iso(x)===iso(dl)?' · กำหนดส่ง':'')})));
+    g.appendChild(dh);
+    CP.cards.forEach((c,idx)=>{
+      const r = res[c.id];
+      const up = el('button',{text:'▲','aria-label':'เลื่อนขึ้น '+c.id}), dn = el('button',{text:'▼','aria-label':'เลื่อนลง '+c.id});
+      up.addEventListener('click',()=>{ if (idx>0){ [CP.cards[idx-1],CP.cards[idx]] = [CP.cards[idx],CP.cards[idx-1]]; cpSave(); renderClose(); }});
+      dn.addEventListener('click',()=>{ if (idx<CP.cards.length-1){ [CP.cards[idx+1],CP.cards[idx]] = [CP.cards[idx],CP.cards[idx+1]]; cpSave(); renderClose(); }});
+      const meta = el('span',{class:'m'},[
+        el('span',{class:'chip',text:c.id}), el('span',{class:'chip uc',text:c.uc}),
+        el('span',{class:'chip',style:'border-color:'+TIERC[c.tier]+';color:'+(c.tier===9?'#3538CD':TIERC[c.tier]),text:TIERL[c.tier]}),
+        ...c.refs.map(x=>el('span',{class:'chip',text:'ข้อ '+x})),
+        ...c.flo.map(k=>el('a',Object.assign({class:'chip',href:floUrl(k),text:k},ext))),
+        c.deps.length ? el('span',{class:'nt',style:'color:var(--gray-500)',text:'รอ '+c.deps.join(', ')}) : null,
+        el('button',{class:'c-skip',text:c.skip?'เอากลับ':'ข้าม'})
+      ]);
+      meta.lastChild.addEventListener('click',()=>{ c.skip = !c.skip; cpSave(); renderClose(); });
+      const lab = el('div',{class:'c-lab',title:c.why},[el('span',{class:'t',text:c.title}), meta, c.why ? el('span',{class:'nt',style:'font-size:11.5px;color:var(--gray-500)',text:c.why}) : null]);
+      const mdIn = el('input',{type:'number',step:'0.5',value:String(c.md),'aria-label':'MD '+c.id});
+      mdIn.addEventListener('change',()=>{ c.md = Math.max(0,+mdIn.value); cpSave(); renderClose(); });
+      const isLate = !c.skip && c.tier!==9 && (!r.end || r.end>freeze);
+      const when = c.skip ? el('div',{class:'c-when muted',text:'ข้าม'}) : el('div',{class:'c-when'},[
+        el('span',{text: r.start ? 'S'+String(sprintOf(r.start)).padStart(2,'0')+(r.end && sprintOf(r.end)!==sprintOf(r.start) ? '–S'+String(sprintOf(r.end)).padStart(2,'0') : '') : '—'}),
+        el('span',{class:isLate?'late':'muted',text: r.start ? fmt(r.start,false)+' – '+(r.end?fmt(r.end,false):'ไม่จบ')+(isLate?' · ไม่ทัน':'') : ''})
+      ]);
+      const row = el('div',{class:'c-row'+(c.skip?' skip':'')},[el('div',{class:'c-ord'},[up,dn]), lab, el('div',{class:'c-md'},[mdIn]), when]);
+      cols.forEach((x,i)=>{ const cell = el('div',{class:cellCls(x,i)}); const v = r.perDay[iso(x)];
+        if (v && !c.skip) { const b = el('b',{class:x>freeze && c.tier!==9 ? 'over':'' ,title:c.id+' · '+fmt(x)+' · '+(Math.round(v*10)/10)+' MD'}); b.style.background = TIERC[c.tier]; b.style.opacity = String(0.45 + 0.55*Math.min(1, v/CP.maxPerCard)); cell.appendChild(b); }
+        row.appendChild(cell); });
+      g.appendChild(row);
+    });
+  }
+  document.getElementById('c-copy').addEventListener('click', e=>{ const {res} = schedule(); copy(JSON.stringify({freeze:CP.freeze,deadline:CP.deadline,mdPerDay:CP.mdPerDay,maxPerCard:CP.maxPerCard,cards:CP.cards.map(c=>({id:c.id,title:c.title,md:c.md,skip:c.skip||undefined,start:res[c.id].start?iso(res[c.id].start):null,end:res[c.id].end?iso(res[c.id].end):null}))},null,1), e.currentTarget); });
+  document.getElementById('c-reset').addEventListener('click', ()=>{ ls.del(CPK); CP = cpLoad(); renderClose(); });
+  renderClose();
+
+  // tabs
+  const tabs = [...document.querySelectorAll('nav.tabs a')], secs = [...document.querySelectorAll('section[data-sec]')];
+  function show(){
+    const h = (location.hash||'').slice(1), cur = ['prototype','reports','timeline','jo','close'].includes(h) ? h : 'prototype';
+    tabs.forEach(t=>t.setAttribute('aria-current', t.dataset.tab===cur ? 'true':'false'));
+    secs.forEach(s=>{ s.hidden = s.dataset.sec!==cur; });
+  }
+  addEventListener('hashchange', show); show();
+})();
+</script>
+

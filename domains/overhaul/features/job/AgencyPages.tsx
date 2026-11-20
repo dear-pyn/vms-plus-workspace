@@ -4,7 +4,7 @@
  *  - เมนูใหม่ "ตอบรับนัดหมาย" ใต้ Overhaul = รายการรายคันที่รอหน่วยงานตอบรับ (V2 นัดเข้าอู่ · V8 นัดรับรถ)
  *  - กดแถว → หน้ายานพาหนะรายคัน (หน้าเดียวกับ กบค. แบบดูอย่างเดียว ซ่อนปุ่มจัดการ) + ส่วน "ตอบรับนัดหมาย" บนสุด
  *    ใช้ Text input วันที่ (ปฏิทินเลือกได้เฉพาะช่วงที่ กบค. เสนอ) ไม่ใช้ Radio · ปุ่มขวาบน "ปฏิเสธนัดหมาย" / "ตอบรับนัดหมาย"
- *  - ตอบรับนัดหมาย = ตรวจวันที่ (บังคับ) → Modal ยืนยัน · ปฏิเสธนัดหมาย = ไม่ตรวจ → Modal ใส่เหตุผล (ไม่บังคับ) + ช่วงวันที่สะดวก (ถ้ามี)
+ *  - ตอบรับนัดหมาย = ตรวจวันที่ (บังคับ) → Modal ยืนยัน · ปฏิเสธนัดหมาย = ไม่ตรวจ → Modal ใส่เหตุผล (บังคับ · เจ้าของงาน 20 พ.ย. 2569) + ช่วงวันที่สะดวก (ถ้ามี)
  *  - เจ้าของงาน 18 พ.ย. 2569 (แทนแบบ 16 พ.ย. ด้านบน · ทั้งนัดนำรถเข้าอู่และนัดรับรถ) "ต้องหน้าคล้ายๆ อนุมัติ แต่มี input ด้านบนให้เลือกวันที่แบบ single" · "เป็นหน้าใหม่ของเมนูตอบรับนัดหมายเลย":
  *    หน้าแบบ ApprovalReview (แถบขั้นตอน + ไล่ดูทุกขั้นได้) · ช่อง "วันที่นำรถเข้า" / "วันที่รับรถ" (Date picker single · ตัดช่องผู้นำส่ง/ผู้รับรถ) ใต้หัวหน้า ·
  *    ปุ่มขวาบน "ปฏิเสธนัดหมาย" (ไม่ตรวจ → Modal) / "ยืนยันนัดหมาย" (ตรวจวันที่)
@@ -126,6 +126,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
   const [dateErr, setDateErr] = useState("");
   const [ask, setAsk] = useState<"" | "reject">("");
   const [reason, setReason] = useState("");
+  const [reasonErr, setReasonErr] = useState("");
   const [convenient, setConvenient] = useState({ from: "", to: "" });
   const [busy, setBusy] = useState(false);
 
@@ -195,7 +196,7 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
             actions={
             <>
               {/* ปฏิเสธ: ไม่ตรวจช่องในหน้า เปิด Modal ใส่เหตุผลเลย · ปุ่ม ghost (Tertiary danger button) ตามที่เจ้าของงานกำหนด 16 พ.ย. 2569 */}
-              <Button variant="tertiaryDanger" size="lg" disabled={busy} onClick={() => { setReason(""); setConvenient({ from: "", to: "" }); setAsk("reject"); }}>
+              <Button variant="tertiaryDanger" size="lg" disabled={busy} onClick={() => { setReason(""); setReasonErr(""); setConvenient({ from: "", to: "" }); setAsk("reject"); }}>
                 ปฏิเสธนัดหมาย
               </Button>
               {/* เจ้าของงาน 16 พ.ย. 2569: ตรวจวันที่แล้วส่งตอบรับทันที ไม่มี modal ยืนยัน */}
@@ -241,10 +242,13 @@ export function AgencyReply({ item, staff, onBack, onSubmit, onNotify }: { item:
         confirmVariant="danger"
         confirmLoading={busy}
         onClose={() => setAsk("")}
-        onConfirm={() => send({ accepted: false, reason: reason.trim(), convenient: convenient.from ? `${convenient.from} - ${convenient.to || convenient.from}` : "" })}
+        onConfirm={() => {
+          if (!reason.trim()) return setReasonErr("กรุณาระบุเหตุผลที่ปฏิเสธ");
+          void send({ accepted: false, reason: reason.trim(), convenient: convenient.from ? `${convenient.from} - ${convenient.to || convenient.from}` : "" });
+        }}
       >
         <div className="flex flex-col gap-4">
-          <TextArea label="เหตุผลที่ปฏิเสธ" optional placeholder="ระบุเหตุผล" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <TextArea label="เหตุผลที่ปฏิเสธ" placeholder="ระบุเหตุผล" value={reason} onChange={(e) => { setReason(e.target.value); setReasonErr(""); }} error={reasonErr || undefined} />
           <DateRangeField label="ช่วงวันที่สะดวก" optional min={new Date()} from={convenient.from} to={convenient.to} onChange={(f, t) => setConvenient({ from: f, to: t })} />
         </div>
       </Modal>
