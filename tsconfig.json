@@ -32,6 +32,9 @@
       "@rules/*": [
         "./packages/rules/*"
       ],
+      "@repair/*": [
+        "./domains/repair/*"
+      ],
       "@overhaul/*": [
         "./domains/overhaul/*"
       ]
