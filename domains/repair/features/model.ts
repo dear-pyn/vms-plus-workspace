@@ -48,42 +48,17 @@ export interface RepairJob {
   photos: number;
   note?: string;
   requestedParts: PartLine[];
-  /** ราคาประเมินค่าซ่อม (บาท) จากใบเสนอราคา/ใบประเมิน — กรณีซ่อมศูนย์บริการ/อู่ (JO1 7.2.3.1) */
-  estimate?: string;
-  /** ประเมินค่าซ่อมตอนอนุมัติ (บังคับก่อนรับงาน/อนุมัติ ทั้งซ่อมโดย กบค. และอู่ภายนอก) — ใช้เทียบเกณฑ์ 30% */
-  estimateDetail?: { method: "med" | "garage" | "ecd"; parts: number; labor: string; other: string; total: number };
-  /** ศูนย์บริการ/อู่ที่ผู้แจ้งค้นหาเองจาก master (JO1 7.2.2 · เจ้าของงาน 23 พ.ย. 2569 "ให้เค้ามาค้นหาเองในอู่") */
-  requestGarageId?: string;
-  /** วิธีซ่อมที่ผู้อนุมัติเลือก (เลือกวิธีซ่อม) */
-  /** ecd = ซ่อมโดย กรย. (ซ่อมเอง) · med = ซ่อมโดย กบค. · garage = ศูนย์บริการ/อู่ภายนอก */
-  method?: "med" | "garage" | "ecd";
+  /** วิธีซ่อมที่ผู้อนุมัติเลือก (เลือกวิธีซ่อม) · med = ซ่อมโดย กบค. · garage = ศูนย์บริการ/อู่ภายนอก */
+  method?: "med" | "garage";
   approverId?: string;
   returnReason?: string;
   parts?: { lines: PartLine[]; locked: boolean };
   appt?: Appointment;
-  /** signReq = ส่งให้ผู้ส่งมอบรถ (หน่วยงานต้นทาง) เซ็นจากหน้า "ตอบรับนัดหมาย" ของตัวเอง (แบบ Overhaul) */
-  intake?: { docs: Record<number, DocCheck>; battery?: { brand: string; qty: string }; delivererId?: string; receiverId?: string; signed: [boolean, boolean]; signReq?: boolean; check: Record<number, "ok" | "fix">; notes: Record<number, string>; confirmed?: boolean;
-    /** รูปสภาพยานพาหนะก่อนซ่อม (JO1 7.2.4.1 ข้อ 4 "ข้อมูลภาพและเอกสาร") — ต้นแบบนับจำนวนไฟล์ */ photos?: number };
+  intake?: { docs: Record<number, DocCheck>; battery?: { brand: string; qty: string }; delivererId?: string; receiverId?: string; signed: [boolean, boolean]; check: Record<number, "ok" | "fix">; notes: Record<number, string>; confirmed?: boolean };
   work?: { extra?: boolean; extraText?: string; withdraw?: boolean; extraParts: PartLine[]; extraResult?: "approved" | "rejected"; extraReason?: string; done?: boolean };
   returnAppt?: Appointment;
-  post?: { mileage: string; hours: string; check: Record<number, "ok" | "fix">; notes: Record<number, string>; delivererId?: string; receiverId?: string; signed: [boolean, boolean]; signReq?: boolean; score?: number; used: Record<string, number>; confirmed?: boolean;
-    /** วันที่หน่วยงานเซ็นรับรถคืน = วันปิดงาน (JO1 7.2.4.2 ข้อ 5 · มติ 23 พ.ย. 2569) */ signedAt?: string;
-    /** รูปสภาพยานพาหนะหลังซ่อม (ถ้ามี) */ photos?: number;
-    /** การรับประกันงานซ่อม (JO1 7.2.4.2 ข้อ 4 "เช่น 180 วัน") */ warranty?: Warranty };
-  /** costs = ค่าใช้จ่ายจริง (JO1 7.2.4.1 ข้อ 3 · To-Be: ค่าแรง/ที่พัก/เดินทาง/อะไหล่) — ค่าอะไหล่คิดจากจำนวนที่ใช้จริง */
-  close?: { costs?: { labor: string; travel: string; lodging: string; other: string }; docs: Record<number, "have" | "none" | "na">; files: Record<number, string>; oldParts: Record<string, number>; partNotes: Record<string, string>; result?: "returned"; returnReason?: string };
-  /** ซ่อมเอง / อู่ภายนอก (flow เพิ่ม) */
-  /** garageId = master อู่/ศูนย์บริการ (ชุดเดียวกับ Overhaul) */
-  /** ซ่อมศูนย์บริการ/อู่ (ต้นทางบันทึก) หรือซ่อมโดย กรย. — 3 ขั้น: 1 นำรถเข้าซ่อม · 2 ดำเนินการซ่อม · 3 รับรถคืนและปิดงาน */
-  external?: {
-    garageId?: string; garage: string; doneDate: string; cost: string; mileage: string; files: number; warranty?: Warranty;
-    stage?: 1 | 2 | 3; inDate?: string; inMileage?: string; inPhotos?: number; quoteFiles?: number; quote?: string; outPhotos?: number;
-  };
-  closedEarly?: string;
-  /** งานที่ค่าซ่อมเกิน 30% — เสนอเข้าแผน Overhaul หรือเสนอจำหน่าย (เจ้าของงาน 23 พ.ย. 2569 · ส่งต่อไปโมดูลนั้นรอยืนยัน) */
-  proposal?: { kind: "overhaul" | "dispose"; at: string; byId: string; note?: string };
-  progress?: ProgressRow[];
-  notices?: Notice[];
+  post?: { mileage: string; hours: string; check: Record<number, "ok" | "fix">; notes: Record<number, string>; delivererId?: string; receiverId?: string; signed: [boolean, boolean]; score?: number; used: Record<string, number>; confirmed?: boolean };
+  close?: { docs: Record<number, "have" | "none" | "na">; files: Record<number, string>; oldParts: Record<string, number>; partNotes: Record<string, string> };
   history: LogRow[];
 }
 
@@ -142,12 +117,3 @@ export function nowBE(d = new Date()) {
 }
 export const num = (n?: number | string) => (n === undefined || n === "" ? "-" : Number(n).toLocaleString("en-US"));
 
-/** เตือนค่าซ่อมเกิน 30% ของมูลค่าสินทรัพย์ (JO1 7.2.3.1 "เพื่อพิจารณาจำหน่ายทรัพย์สิน เนื่องจากไม่คุ้มค่ากับการซ่อมแซม")
- *  ค่าซ่อมที่ใช้คิด: ซ่อมโดย กบค. = ค่าอะไหล่ที่เบิก (+ เบิกเพิ่ม) · ซ่อมศูนย์บริการ/อู่ = ราคาประเมินจากใบเสนอราคา · ปิดงานอู่แล้ว = ค่าใช้จ่ายจริง
- *  มติ 23 พ.ย. 2569: เทียบกับราคาที่ได้มา · แค่เตือน ไม่บล็อก · เตือนในหน้ารายการด้วย
- *  ⚠ pending: ใช้ค่าซ่อมครั้งนี้อย่างเดียว หรือรวมค่าซ่อมสะสม */
-export const COST_LIMIT_PCT = 30;
-export function costRatio(cost: number, assetValue: number) {
-  const pct = assetValue > 0 ? (cost / assetValue) * 100 : 0;
-  return { cost, assetValue, pct, over: assetValue > 0 && pct > COST_LIMIT_PCT };
-}

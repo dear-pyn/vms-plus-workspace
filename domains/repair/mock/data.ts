@@ -10,9 +10,7 @@ export type StatusCode =
   | "preparing_spare_parts" | "waiting_origin_confirm_appointment" | "ready_to_proceed" | "repair_in_progress" | "repair_finished"
   | "found_additional_symptoms" | "job_closed" | "waiting_origin_confirm_pickup" | "waiting_origin_pickup" | "waiting_med_reschedule_return"
   | "waiting_med_head_approval" | "waiting_reporter_confirm_return_date" | "waiting_med_post_repair_inspection" | "waiting_med_closing_report"
-  | "waiting_closing_approval"
-  /** เพิ่มใหม่ (เจ้าของงาน 23 พ.ย. 2569): ไม่อนุมัติ → ผู้แจ้งกดยกเลิก → สถานะยกเลิก แล้วสร้างใบแจ้งซ่อมใหม่ */
-  | "cancelled";
+  | "waiting_closing_approval";
 
 /** observed = มีหน้าจอ/งานจริงในสถานะนี้บน UAT (20 พ.ย. 2569) · added = UAT มีแค่ชื่อสถานะ ไม่มีจอ → ต้นแบบเติม flow (รอยืนยัน) · unused = ยังไม่รู้ว่าใช้ตอนไหน */
 export type Evidence = "observed" | "added" | "unused";
@@ -35,7 +33,6 @@ export const STATUSES: { code: StatusCode; name: string; terminal?: boolean; ton
   { code: "repair_finished", name: "ซ่อมเสร็จ", tone: "success", evidence: "observed" },
   { code: "found_additional_symptoms", name: "เจออาการเพิ่ม", tone: "warning", evidence: "added" },
   { code: "job_closed", name: "ปิดงาน", terminal: true, tone: "gray", evidence: "observed" },
-  { code: "cancelled", name: "ยกเลิก", terminal: true, tone: "gray", evidence: "added" },
   { code: "waiting_origin_confirm_pickup", name: "รอต้นทางยืนยันรับรถ", tone: "warning", evidence: "observed" },
   { code: "waiting_origin_pickup", name: "รอต้นทางรับรถกลับไปใช้งาน", tone: "warning", evidence: "unused" },
   { code: "waiting_med_reschedule_return", name: "รอ กบค. ส่งนัดหมายวันคืนรถใหม่อีกครั้ง", tone: "warning", evidence: "added" },

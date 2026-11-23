@@ -10,7 +10,7 @@
  *    ปุ่มขวาบน "ปฏิเสธนัดหมาย" (ไม่ตรวจ → Modal) / "ยืนยันนัดหมาย" (ตรวจวันที่)
  *  component: Page header (actions) · Section header · Content item row · Text input/Date picker · Input dropdown · Text input Readonly ·
  *    Table + Pill (รายการ) · Modal Centered (ยืนยันตอบรับ) · Modal Form + Text area (ปฏิเสธ) · Secondary danger / Primary button */
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { OutlineBadge, Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { DateField, DateRangeField, parseThaiDate } from "@ui/DateField";
@@ -52,14 +52,12 @@ const WORD = {
 } as const;
 
 /** เมนู "ตอบรับนัดหมาย" — รายการรายคันที่รอหน่วยงานตอบรับ */
-/** เจ้าของงาน 23 พ.ย. 2569 "รวมได้ แบ่งเป็นประเภท": เมนูเดียวกับงานซ่อม — tabs = แท็บประเภทงาน (Overhaul / งานซ่อม) · alt = เนื้อหาแท็บที่ไม่ใช่ Overhaul */
-export function AgencyList({ items, unit, onOpen, tabs, alt }: { items: AgencyItem[]; /** หน่วยงานที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ unit: string; onOpen: (po: string, plate: string) => void; tabs?: ReactNode; alt?: ReactNode }) {
+export function AgencyList({ items, unit, onOpen }: { items: AgencyItem[]; /** หน่วยงานที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ unit: string; onOpen: (po: string, plate: string) => void }) {
   const mine = items.filter((x) => x.vehicle?.affiliation === unit && awaitingReply(x.job));
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader crumbs={[{ label: "ตอบรับนัดหมาย" }]} title="ตอบรับนัดหมาย" /* subtitle เอาออก: ซ้ำชื่อหน้า (เจ้าของงาน 18 พ.ย. 2569) */ />
-      {tabs}
-      {alt ?? <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4">
         <SectionHeader title={`รอตอบรับนัดหมาย (${mine.length})`} />
         {mine.length === 0 ? (
           <EmptyState kind="data-empty" title="ไม่มีนัดหมายที่รอตอบรับ" description="เมื่อ กบค. ส่งนัดหมายยานพาหนะของหน่วยงาน รายการจะแสดงที่นี่" />
@@ -106,7 +104,7 @@ export function AgencyList({ items, unit, onOpen, tabs, alt }: { items: AgencyIt
             </tbody>
           </DataTable>
         )}
-      </section>}
+      </section>
     </div>
   );
 }

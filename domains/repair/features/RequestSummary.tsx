@@ -8,8 +8,6 @@ import { BUDGETS, personOf, vehicleOf } from "../mock/data";
 import { num, type RepairJob } from "./model";
 import { PartsReadList } from "./parts";
 import { InfoPanel, PlainTitle } from "./ui";
-import { currency } from "@rules/currency.mjs";
-import { loadGarages } from "../mock/store";
 
 export function RequestSummary({ job, receiverFull, top }: { job: RepairJob; receiverFull?: boolean; top?: ReactNode }) {
   const v = vehicleOf(job.plate);
@@ -35,7 +33,6 @@ export function RequestSummary({ job, receiverFull, top }: { job: RepairJob; rec
               ["ส่วนที่ต้องการซ่อม", parts || "ตัวรถ"],
               ["งบที่ตัด", BUDGETS.find((x) => x.value === b.type)?.label],
               ...budgetRows,
-              ...(job.requestMode === "self" ? ([["ศูนย์บริการ/อู่", loadGarages().find((g) => g.id === job.requestGarageId)?.name ?? "-"], ["ราคาประเมินค่าซ่อม", job.estimate ? `${currency(job.estimate)} บาท` : "-"]] as [ReactNode, ReactNode][]) : []),
               ["ผู้รับแจ้งเหตุ", receiverFull && rcv ? `${rcv.name}, ${rcv.position}, ${rcv.unit}` : rcv?.name],
             ]}
           />

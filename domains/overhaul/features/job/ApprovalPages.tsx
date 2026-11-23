@@ -7,7 +7,7 @@
  *  - ส่งกลับแก้ไข → Modal ใส่เหตุผล (บังคับ เพราะ กบค. ต้องรู้ว่าแก้อะไร) → กลับ V10.2 + Alert เหตุผลที่ขั้น 7
  *  ออกแบบตามแพทเทิร์นหน้า "ตอบรับนัดหมาย" (AgencyPages) — จอ Figma ฝั่งผู้อนุมัติยังไม่มี (Scene U เดิมถูกตัดไป 9/11) รอทีมออกแบบ
  *  component: Page header (actions) · Select (ผู้ใช้งานต้นแบบ) · Table + Pill · Empty state · Modal Form + Text area · Tertiary danger / Primary button lg */
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
@@ -26,14 +26,12 @@ export type ApprovalDecision = { approved: true } | { approved: false; reason: s
 export const awaitingApproval = (x: AgencyItem, approverId: string) => x.job.code === "V10.3" && x.job.close?.approval?.approverId === approverId;
 
 /** เมนู "อนุมัติปิดงาน" — รายการรายคันที่รออนุมัติ */
-/** เจ้าของงาน 23 พ.ย. 2569 "รวมได้ แบ่งเป็นประเภท": เมนู "อนุมัติงาน" ใช้ร่วมกับงานซ่อม (เดิม "อนุมัติปิดงาน") — tabs/alt แบบเดียวกับ AgencyList */
-export function ApprovalList({ items, staff, me, onOpen, tabs, alt }: { items: AgencyItem[]; staff: Staff[]; /** ผู้อนุมัติที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ me: string; onOpen: (po: string, plate: string) => void; tabs?: ReactNode; alt?: ReactNode }) {
+export function ApprovalList({ items, staff, me, onOpen }: { items: AgencyItem[]; staff: Staff[]; /** ผู้อนุมัติที่ login — ต้นแบบเลือกจาก header (prototypeBar) */ me: string; onOpen: (po: string, plate: string) => void }) {
   const mine = items.filter((x) => awaitingApproval(x, me));
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
-      <PageHeader crumbs={[{ label: "อนุมัติงาน" }]} title="อนุมัติงาน" /* subtitle เอาออก: ซ้ำชื่อหน้า (เจ้าของงาน 18 พ.ย. 2569) */ />
-      {tabs}
-      {alt ?? <section className="flex flex-col gap-4">
+      <PageHeader crumbs={[{ label: "อนุมัติปิดงาน" }]} title="อนุมัติปิดงาน" /* subtitle เอาออก: ซ้ำชื่อหน้า (เจ้าของงาน 18 พ.ย. 2569) */ />
+      <section className="flex flex-col gap-4">
         <SectionHeader title={`รออนุมัติปิดงาน (${mine.length})`} />
         {mine.length === 0 ? (
           <EmptyState kind="data-empty" title="ไม่มีงานที่รออนุมัติ" description="เมื่อ กบค. ส่งอนุมัติปิดงานมาถึงคุณ รายการจะแสดงที่นี่" />
@@ -65,7 +63,7 @@ export function ApprovalList({ items, staff, me, onOpen, tabs, alt }: { items: A
             </tbody>
           </DataTable>
         )}
-      </section>}
+      </section>
     </div>
   );
 }

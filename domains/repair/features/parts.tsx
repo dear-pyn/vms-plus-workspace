@@ -13,9 +13,7 @@ import { NumberInput } from "@ui/NumberInput";
 import { SearchInput } from "@ui/SearchInput";
 import { cx } from "@ui/cx";
 import { PARTS, partOf, type Part } from "../mock/data";
-import { Alert } from "@ui/Alert";
-import { COST_LIMIT_PCT, costRatio, type PartLine, type RepairJob } from "./model";
-import { vehicleOf } from "../mock/data";
+import type { PartLine, RepairJob } from "./model";
 import { SectionBar } from "./ui";
 
 export function partTotals(lines: PartLine[]) {
@@ -154,36 +152,4 @@ export function PartsReadList({ lines }: { lines: PartLine[] }) {
 export const money = (t?: string) => { const n = Number((t ?? "").replace(/,/g, "")); return Number.isFinite(n) ? n : 0; };
 export function usedPartsCost(j: Pick<RepairJob, "parts" | "post">) {
   return (j.parts?.lines ?? []).reduce((a, l) => a + (j.post?.used[l.partId] ?? l.qty) * partOf(l.partId).price, 0);
-}
-export function closeTotal(j: Pick<RepairJob, "parts" | "post" | "close">) {
-  const c = j.close?.costs;
-  return c ? usedPartsCost(j) + money(c.labor) + money(c.travel) + money(c.lodging) + money(c.other) : null;
-}
-export function jobCost(j: Pick<RepairJob, "external" | "estimate" | "estimateDetail" | "method" | "requestMode" | "parts" | "requestedParts" | "work" | "post" | "close">): { cost: number; basis: string } {
-  if (j.external?.cost) return { cost: money(j.external.cost), basis: "ค่าใช้จ่ายจริงจากศูนย์บริการ/อู่" };
-  const actual = closeTotal(j);
-  if (actual != null) return { cost: actual, basis: "ค่าใช้จ่ายจริงในการซ่อม" };
-  if (j.estimateDetail) return { cost: j.estimateDetail.total, basis: j.estimateDetail.method === "med" ? "ราคาประเมินค่าซ่อม (กบค.)" : j.estimateDetail.method === "ecd" ? "ราคาประเมินค่าซ่อม (กรย.)" : "ราคาประเมินจากใบเสนอราคา" };
-  const garage = j.method ? j.method === "garage" : j.requestMode === "self";
-  if (garage && j.estimate) return { cost: money(j.estimate), basis: "ราคาประเมินจากใบเสนอราคา" };
-  const lines = [...(j.parts?.lines ?? j.requestedParts), ...(j.work?.extraResult ? [] : j.work?.extraParts ?? [])];
-  return { cost: partTotals(lines).all, basis: j.parts ? "ค่าอะไหล่ที่เบิก" : "ค่าอะไหล่ที่เลือกไว้" };
-}
-
-/** เตือนค่าซ่อมเกิน 30% ของราคาที่ได้มา (JO1 7.2.3.1 · มติ 23 พ.ย. 2569) — แสดงเมื่อเกินเท่านั้น · ไม่บล็อกการส่ง (pending: บล็อกหรือไม่) */
-export function CostAlert({ cost, basis, plate }: { cost: number; basis: string; plate: string }) {
-  const r = costRatio(cost, vehicleOf(plate).assetValue);
-  if (!r.over) return null;
-  return (
-    <Alert tone="warning" title={`ค่าซ่อมเกิน ${COST_LIMIT_PCT}% ของราคาที่ได้มา — ควรพิจารณาจำหน่ายทรัพย์สิน`}>
-      {basis} {currency(r.cost)} บาท คิดเป็น {r.pct.toFixed(1)}% ของราคาที่ได้มา {currency(r.assetValue)} บาท
-    </Alert>
-  );
-}
-
-/** ใช้ในหน้ารายการ: เกินเกณฑ์ไหม + ข้อความ tooltip */
-export function costFlag(j: RepairJob) {
-  const c = jobCost(j);
-  const r = costRatio(c.cost, vehicleOf(j.plate).assetValue);
-  return r.over ? { ...r, basis: c.basis, text: `ค่าซ่อมเกิน ${COST_LIMIT_PCT}% ของราคาที่ได้มา (${r.pct.toFixed(1)}%) — ${c.basis} ${currency(r.cost)} บาท จากราคาที่ได้มา ${currency(r.assetValue)} บาท` } : null;
 }
