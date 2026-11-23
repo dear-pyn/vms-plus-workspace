@@ -70,7 +70,7 @@
 | # | ทำอะไร | ทำอย่างไร | เสร็จเมื่อ |
 |---|---|---|---|
 | 1 | **แก้ prototype** | แก้ใน `domains/<domain>/` + `src/app/(prototype)/…` · ข้อความใช้ `senior-ux-writing` · พฤติกรรมใหม่ผ่าน `senior-ux-review` / `senior-dev-review` ก่อน · รัน `npm test` `npm run check` `npm run typecheck` `npm run build` + `tests/browser/*.cjs` ที่เกี่ยว · ดูจริงที่ `npm run dev` (port 3020) | ผ่านทุก check และกดดูจอที่แก้แล้วบน local · จดสั้นๆ ว่าแก้อะไร (ใช้ต่อในขั้น 4) |
-| 2 | **sync gh-pages** | commit บน `main` (`type(scope): subject (MTD-<n>)`) → push **เมื่อเจ้าของงานสั่ง** → GitHub Action `Deploy to GitHub Pages` build แล้ว push ลง branch `gh-pages` เอง (ห้าม push gh-pages มือ) · ตาม: `gh run list --workflow pages.yml -L 1` / `gh run watch` · ยืนยัน: `git fetch && git log origin/gh-pages -1 --format=%s` ต้องเป็น `deploy <sha 7 ตัวของ commit>` | Action เขียว + เปิด https://dear-pyn.github.io/vms-plus-workspace/prototypes/overhaul/ เห็นการแก้ (hard refresh) · จด sha |
+| 2 | **sync gh-pages** | commit บน `main` (`type(scope): subject (MTD-<n>)`) → push **เมื่อเจ้าของงานสั่ง** → GitHub Action `Deploy to GitHub Pages` build แล้ว push ลง branch `gh-pages` เอง (ห้าม push gh-pages มือ) · ตาม: `gh run list --workflow pages.yml -L 1` / `gh run watch` · ยืนยัน: `git fetch && git log origin/gh-pages -1 --format=%s` ต้องเป็น `deploy main <sha 7 ตัวของ commit>` | Action เขียว + เปิด https://dear-pyn.github.io/vms-plus-workspace/prototypes/overhaul/ เห็นการแก้ (hard refresh) · จด sha |
 | 3 | **update artifact** | ใช้ artifact **เดิม** ของ domain (Overhaul = "เคสต้นแบบ Overhaul" https://claude.ai/artifact/6aRbuXbrciV7KeZGDgvhPM) · `Artifact read` เอาไฟล์ล่าสุด → แคปใหม่ **เฉพาะเคสที่กระทบ** จากหน้า gh-pages (ไม่ใช่ local) เข้าทางสารบัญเคส `#/cases` → แทนภาพเดิม + ใส่วันที่และ sha ที่หัวหน้า → publish ทับ URL เดิม | ภาพในหน้าตรงกับ gh-pages sha เดียวกัน · ไม่สร้าง artifact ใหม่ · ไม่มีข้อมูลคนจริง |
 | 4 | **update AC ในการ์ด** | ตาม `docs/FLO-AGENT-INSTRUCTIONS.md`: comment `**เปลี่ยน AC:** <ID>` เดิม → ใหม่ · เหตุผล · หลักฐาน (sha + ลิงก์) ก่อน → แล้วแก้ description วันเดียวกัน: ตาราง AC/EC (ID เดิมไม่เปลี่ยนเลข · ตัดออกย้ายไป "ถอดออก") · Design (แถว CH) · Sources แถว Prototype = `DD/MM/25xx · <ลิงก์ gh-pages> · <sha>` + ลิงก์ artifact · บล็อกสถานะ · Change log | การ์ดบอกได้ว่า AC ไหนเปลี่ยนเพราะอะไร ดูภาพ/ต้นแบบได้จากลิงก์ในการ์ด |
 
@@ -88,3 +88,12 @@
 - ข้อมูลต้นแบบบน gh-pages อยู่ใน Supabase ชุดเดียวที่ทุกคนใช้ร่วมกัน · ถ้าเปลี่ยนโครงข้อมูลหรือ seed ต้อง "รีเซ็ตข้อมูลต้นแบบ" ซึ่งล้างข้อมูลที่คนอื่นกดไว้ → ถามเจ้าของงานก่อน · ชุดเคสทดสอบที่สร้างจากปุ่ม Mock อยู่เฉพาะเบราว์เซอร์นั้น ไม่ขึ้น gh-pages ของคนอื่น
 - push / ย้าย column / assign ทำเมื่อคนสั่งเท่านั้น · artifact เป็น private จนเจ้าของงานแชร์
 - ขั้นไหนค้าง (Action แดง · ยังไม่ได้แคป) → เขียนใน `รอ:` ของบล็อกสถานะ ไม่ข้ามไปอัปเดต AC ก่อน
+
+## เปลี่ยนใหญ่: แยก branch ให้ลูกค้ารีวิวก่อนรวม (23 พ.ย. 2569)
+
+เปลี่ยน flow / ช่องกรอก / กติกา / แจ้งเตือน = ทำใน branch `<domain>-v<n>` (เช่น `overhaul-v2`) · แก้คำหรือหน้าตาอย่างเดียว = ทำบน main ได้
+
+1. push branch → Action วางที่ `…/vms-plus-workspace/preview/<branch>/prototypes/<domain>/` · ข้อมูลต้นแบบแยก namespace (`NEXT_PUBLIC_PROTO_NS`) ไม่ทับฉบับหลัก
+2. ให้ลูกค้ารีวิวจาก preview + artifact เล็ก "<Domain> v<n> — สิ่งที่เปลี่ยน" (เฉพาะจอที่เปลี่ยน ก่อน/หลัง) · ไม่แตะ Overview เดิม · ยังไม่แก้ AC ในการ์ด
+3. ลูกค้าผ่าน → tag `<domain>-v<n-1>` ที่ main ก่อน merge → merge → อัปเดต Overview เดิมเฉพาะเคสที่เปลี่ยน + AC ตามขั้น 3–4 ข้างบน → ลบ `preview/<branch>` ออกจาก gh-pages
+
