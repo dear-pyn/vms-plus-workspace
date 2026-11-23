@@ -1,0 +1,100 @@
+1:"$Sreact.fragment"
+2:I[8500,["500","static/chunks/500-b13bb91f5a6311b6.js","611","static/chunks/app/(workspace)/cases/%5Bid%5D/page-e7ecaaeb148233f7.js"],""]
+3:T3f2d,# Scene B (S1 สร้างแผน Overhaul) — Senior review + ต้นแบบ r1
+
+**ต้นแบบ:** `/prototypes/overhaul/#/new` · ทำแล้ว B.1–B.19 (ทางเลือก modal) · B.20–B.23 ทางเลือกเต็มหน้า **ไม่ทำ** (เคาะ D1)
+จำลอง B.5: ตั้งชื่อแผนให้มีคำว่า "error" · ฟอร์มเดียวกันใช้กับ S2 แก้ไขแผน (ได้โครง 2 คอลัมน์ตาม Figma ไปด้วย)
+ข้อความแจ้งผลเปลี่ยนเป็น `Notification` การ์ดขาวมุมขวาบน ตามจอ B.18 C.5 D.3 (เดิมทำเป็น Toast สีเข้ม — ผิด component)
+ต้นแบบเติมเอง (รอยืนยัน): validation เอกสารบังคับ "กรุณาแนบหนังสืออนุมัติหลักการ / เอกสารอนุมัติงบ" (AC-S1 บอกว่าบังคับ แต่จอไม่มีข้อความ) ·
+หัวข้อ modal ราคา "ระบุราคารายคัน" (จอเขียน "แก้ไขข้อมูลผู้ใช้ยานพาหนะ") · คำว่า "รถ" → "ยานพาหนะ" ทั้งฟอร์ม
+
+แหล่ง: จอ Figma B.1–B.23 (dump figma-overhaul-refinement-09) · FigJam refinement (โน้ตเรื่องเลือกรถ/ราคา) · AC-S1 (15-overhaul-AC.md)
+skill: senior-ux-review + senior-dev-review · สถานะทุกข้อ = pending จนกว่าเจ้าของงานตอบ
+
+## เคาะแล้ว (เจ้าของงาน 13 พ.ย. 2569)
+- **D1 = Modal** (B.15–B.18) ตามที่คุยกันไว้ · ไม่ใช้ทางเลือก B เต็มหน้า → ต้องปิดช่องโหว่การเลือกจำนวนมากในหัวข้อ "เลือกยานพาหนะจำนวนมากใน modal"
+- **D2 = ตารางเดียว** เลือกใน modal แล้วแสดงในฟอร์มเป็นตาราง **เหมือนตารางยานพาหนะ A.5** (ทะเบียน/สังกัด · ยี่ห้อ รุ่น/ประเภท · มูลค่า · ราคากลาง · ประเมิน Overhaul · อายุ · ความคืบหน้า)
+- **D3 = เมนู "…"**: ดูข้อมูลยานพาหนะ · ดูข้อมูลการซ่อม · ระบุราคา · ลบยานพาหนะ (สีแดง)
+
+## เลือกยานพาหนะจำนวนมากใน modal — วิธีปิดช่องโหว่ (รอยืนยัน)
+| # | ปัญหา | วิธี |
+|---|---|---|
+| M1 | modal แคบ ตาราง 5 แถว/หน้า (B.15) | Modal ขนาดใหญ่สุดของไลบรารี สูงคงที่ · ตารางเลื่อนในกรอบ หัวตาราง/ท้าย modal ติดอยู่ · 10 แถว/หน้า เลือก 10/20/50 ได้ |
+| M2 | หาไม่เจอในรายการยาว | ค้นหา + แผงตัวกรอง ประเภท/ยี่ห้อ/สังกัด (B.16) + ชิปตัวกรองที่ใช้อยู่ (แบบ A.7) |
+| M3 | ติ๊กหัวตาราง = เลือกแค่หน้านี้หรือทั้งหมด | ติ๊กหัวตาราง = หน้านี้ แล้วขึ้นแถบ "เลือก 10 คันในหน้านี้แล้ว · เลือกทั้งหมด N คันตามตัวกรอง" · มี "ล้างที่เลือก" |
+| M4 | เปลี่ยนหน้า/ค้นใหม่แล้วที่เลือกหาย | ที่เลือกค้างข้ามหน้า คำค้น และตัวกรอง · ท้าย modal บอก "เลือกแล้ว N คัน" ตลอด |
+| M5 | ไม่รู้ว่าเลือกอะไรไปแล้วบ้างก่อนกดยืนยัน | สวิตช์ "แสดงเฉพาะที่เลือก (N)" ไว้ตรวจก่อนกด "เพิ่มยานพาหนะ (N)" |
+| M6 | ยานพาหนะที่เลือกไม่ได้ | อยู่ในแผนนี้แล้ว = ไม่แสดง (B.15 "ยังไม่อยู่ในแผนนี้") · อยู่ใน PO ที่ยังไม่ปิด/สถานะไม่พร้อม = แสดงแต่ปิด checkbox + เหตุผล |
+| M7 | เพิ่มเข้ามา 100 คันแล้วต้องกรอกราคาทีละคันผ่าน modal | ตารางในฟอร์มมีตัวกรอง "ยังไม่ระบุราคา (N)" (ต่อจาก B.19) · เสนอเพิ่ม: กรอกราคาในแถวได้เลย หรือเลือกหลายแถวแล้ว "ระบุราคาพร้อมกัน" — รอยืนยัน |
+| M8 | dev: เลือกทั้งหมดหลายร้อยคัน | ส่งเป็น ตัวกรอง + รหัสที่ยกเว้น ไม่ส่งรหัสทีละคัน · แบ่งหน้า/ค้นที่ server · เพดานต่อครั้ง (เช่น 200) ถ้าเกินให้แจ้ง — รอยืนยัน |
+| M9 | มือถือ | modal เป็น bottom sheet เต็มจอ (ตามกติกา Modal ของ packages/ui) |
+
+## ต้องตัดสินใจก่อนทำ (กระทบโครงจอ) — ปิดแล้ว ดู "เคาะแล้ว"
+| # | เรื่อง | ทางเลือก | แนะนำ |
+|---|---|---|---|
+| D1 | เลือกรถ: Modal (B.15–B.18) หรือ เต็มหน้า (ทางเลือก B: B.20–B.23) | ก. Modal 5 แถว/หน้า · ข. เต็มหน้า | **ข. เต็มหน้า** — รถหลายสิบ–หลายร้อยคัน modal แคบ เลือกข้ามหน้ายาก · ต้องกลับมาฟอร์มโดยค่าที่กรอกไม่หาย |
+| D2 | ตารางรถในฟอร์ม: 1 ตาราง (Figma) หรือ 2 ตาราง (FigJam: "ตารางเลือกรถ / ตารางใส่ราคากลาง") | | 1 ตาราง + ราคาแก้ในแถว/modal — ถ้า FigJam หมายถึงหน้าเลือกรถแยกจากตารางราคา = ตรงกับทางเลือก B อยู่แล้ว |
+| D3 | เมนู "…" ของรถในแผน: Figma B.8 "ดูรายละเอียด · แก้ไข · ลบ" vs FigJam "ดูข้อมูลยานพาหนะ · ดูข้อมูลการซ่อม · ระบุราคา · ลบ" | | ยึด FigJam (ใหม่กว่า) · "ลบ" → "ลบยานพาหนะออกจากแผน" สีแดง |
+
+## เคสประหลาด → จัดการยังไง
+
+> ทะเบียนกลางของ domain: `domains/overhaul/edge-cases.md` (EC-01–EC-11 สูง · EC-20–EC-30 กลาง) — ตารางด้านล่างคือรายละเอียดตอนรีวิว Scene B
+| # | เคส | ระดับ | แนะนำ | คำถามถึงลูกค้า |
+|---|---|---|---|---|
+| 1 | ยานพาหนะคันเดียวกันอยู่ในแผนอื่นที่ยังไม่เสร็จ (ซ้ำงบ Overhaul) | สูง | แสดงป้าย "อยู่ในแผน ORZ… แล้ว" ในหน้าเลือก · ห้ามเลือกถ้าอยู่ใน PO ที่ยังไม่ปิด · ถ้าแค่อยู่ในแผนให้เตือน | เลือกซ้ำข้ามแผนได้ไหม |
+| 2 | ยานพาหนะสถานะไม่พร้อม (ระหว่างซ่อม · รอจำหน่าย · โอนย้ายอยู่) | สูง | ไม่ซ่อน แต่ปิด checkbox พร้อมเหตุผล | สถานะไหนห้ามเข้า Overhaul |
+| 3 | เลือกทั้งหมดในหน้าเลือกรถ ที่มีหลายหน้า | กลาง | ติ๊กหัวตาราง = หน้านี้ + แถบ "เลือกทั้งหมด N คันตามตัวกรอง" · ที่เลือกค้างข้ามหน้า/ตัวกรอง · ปุ่ม "ยืนยันรถที่เลือก (N)" | ต้องมีเลือกทั้งหมดไหม |
+| 4 | เปลี่ยนตัวกรองแล้วรถที่ติ๊กไว้หายจากตาราง | กลาง | ไม่ล้างที่เลือก · บอก "เลือกแล้ว 5 คัน (3 คันไม่อยู่ในตัวกรองนี้)" | — |
+| 5 | ลบรถออกจากแผนหลังกรอกราคาแล้ว | กลาง | ยืนยันก่อนลบ · toast มี "เลิกทำ" | — |
+| 6 | ราคาประเมิน Overhaul **มากกว่า** ราคากลาง (ซ่อมแพงกว่าซื้อใหม่) | กลาง | เตือนสีเหลืองในแถว ไม่บล็อก | บล็อกหรือแค่เตือน |
+| 7 | ผลรวมราคาประเมิน Overhaul ทุกคัน **เกิน** วงเงินอนุมัติ | สูง | แสดงยอดรวมเทียบวงเงินใต้ตาราง · เกินแล้วเตือน | บล็อกการบันทึกไหม |
+| 8 | ราคา = 0.00 · ติดลบ · พิมพ์ "1,000,000" · วางข้อความมีช่องว่าง · ทศนิยม 3 ตำแหน่ง | กลาง | รับเลข 0 ขึ้นไป (B.11 "ตั้งแต่ 0.00 ขึ้นไป") · ตัดจุลภาค/ช่องว่างอัตโนมัติ · ปัดเป็น 2 ตำแหน่งตอนออกจากช่อง · เก็บเป็น decimal ไม่ใช่ float | 0.00 ใช้ได้จริงไหม |
+| 9 | เปลี่ยนประเภทงบหลังกรอกช่องย่อยแล้ว (WBS → ใบสั่ง) | กลาง | ล้างค่าช่องเดิมทันที ไม่ส่งค่าที่ซ่อนไป server | — |
+| 10 | "งบทำการ หน่วยงานต้นสังกัด" แต่ผู้ใช้มีศูนย์ต้นทุนหลายอัน / ไม่มี | กลาง | หลายอัน = ให้เลือก · ไม่มี = ข้อความแจ้ง + ปิดตัวเลือกนี้ | ดึงศูนย์ต้นทุนจากไหน |
+| 11 | ศูนย์ต้นทุนมีหลายร้อยรายการ | กลาง | ช่องเลือกแบบพิมพ์ค้นได้ (Combobox) แสดง "รหัส ชื่อ" | — |
+| 12 | ปีงบประมาณช่วงรอยต่อ (ต.ค. เริ่มปีงบใหม่) | ต่ำ | ค่าตั้งต้น = ปีงบปัจจุบันตามปฏิทินงบ (ต.ค.) ไม่ใช่ปี พ.ศ. ปฏิทิน | ยืนยันตามปีงบ |
+| 13 | กดบันทึกซ้ำ / เน็ตช้า → แผนซ้ำ 2 แผน | สูง | ปิดปุ่มระหว่างส่ง + idempotency key ที่ server | — |
+| 14 | บันทึกไม่สำเร็จ (B.5) | กลาง | ค่าคงอยู่ · toast รหัส+ข้อความ (B.5 "ไม่รู้สาเหตุให้แสดง Status Code เช่น 500") | — |
+| 15 | ปิดแท็บ/รีเฟรช/กดย้อนของเบราว์เซอร์ระหว่างกรอก | กลาง | ถามก่อนออก (beforeunload) นอกจาก modal B.4 | ต้องมีบันทึกร่างไหม |
+| 16 | อัปโหลดไฟล์แล้วไม่กดบันทึก (ไฟล์ค้างบน server) | กลาง (dev) | อัปโหลดชั่วคราว ผูกตอนบันทึก ลบไฟล์ที่ไม่ถูกผูกตามรอบ | — |
+| 17 | เลขแผนชนกันเมื่อ 2 คนสร้างพร้อมกัน | สูง (dev) | ออกเลขที่ server แบบ sequence ต่อเขต+ปีงบ | รูปแบบเลขแผน (AC ยังไม่เคาะ) |
+| 18 | ข้อมูลรถ (ราคาที่ได้มา · อายุ · เลขไมล์) มาจาก VMMS ที่ยังไม่มี API | สูง (dev) | ช่วงแรกนำเข้าจากไฟล์/กรอกมือ · แสดงวันที่ข้อมูลล่าสุด | ดึงข้อมูลรถจากไหน |
+| 19 | ชื่อแผนซ้ำ · WBS ซ้ำกับแผนอื่น | ต่ำ | ไม่บล็อก · WBS ซ้ำให้เตือน | — |
+| 20 | วงเงิน/ราคา ใหญ่มาก (เกิน 999,999,999.99) | ต่ำ | กำหนดเพดานตาม DB · ข้อความบอกเพดาน | — |
+
+## จุดผิดในจอ Figma ที่ต้องแก้ (ไม่ใช่เคส แต่เจอระหว่างรีวิว)
+- modal ราคารายคัน (B.10 B.11 B.13) หัวข้อเขียน **"แก้ไขข้อมูลผู้ใช้ยานพาหนะ"** — ก๊อปมาจากจออื่น ควรเป็น "ระบุราคารายคัน"
+- ช่องค้นหาเขียนไม่ตรงกัน 3 แบบ: modal "ทะเบียน, ยี่ห้อ/รุ่น, ประเภท, สังกัด" · เต็มหน้า "ทะเบียน, รุ่น, สังกัด" · FigJam (แท็บยานพาหนะ) "ทะเบียน, ยี่ห้อ/รุ่น ไม่เอาสังกัด"
+- คำว่า "รถ" ยังมีทั้งจอ — FigJam: "รถ → ยานพาหนะ นับแต่บัดนี้"
+- B.7 รายละเอียดแผน "จำนวนรถที่ Overhaul 0 คัน" แต่ "รถในแผน (2 คัน)"
+- AC-S1 ยังไม่มีเรื่องเลือกรถ/ราคารายคันเลย (เพิ่มมาใน Figma รอบหลัง) — AC ต้องอัปเดต
+7:X
+c:X
+c:C
+0:{"buildId":"jERWN1llYUMJN5EYlEr7o","data":[{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"mx-auto max-w-5xl px-6 py-10","children":[["$","$L2",null,{"href":"/","className":"text-brand-800","children":"← งานและเคสทั้งหมด"}],["$","p",null,{"className":"mt-8 text-sm text-gray-500","children":["overhaul"," / ","overhaul-scene-b"," / ","r1"]}],["$","h1",null,{"className":"mt-3 text-3xl font-semibold","children":"Overhaul · Scene B (S1) สร้างแผน + เลือกยานพาหนะ + ราคารายคัน"}],["$","p",null,{"className":"mt-4 text-gray-600","children":"B.1–B.19 จาก refinement sprint 09 · เลือกยานพาหนะด้วย modal (D1) ตาราง A.5 (D2) เมนู D3 · รองรับเลือกจำนวนมาก M1–M6"}],["$","div",null,{"className":"my-6 rounded-lg border border-warning-200 bg-warning-50 p-5","children":[["$","p",null,{"className":"font-semibold","children":"กำลังเตรียม"}],["$","p",null,{"className":"mt-2 text-sm","children":"เคสประหลาดอยู่ในทะเบียน domains/overhaul/edge-cases.md · M7/M8 รอเลือก"}]]}],["$","dl",null,{"className":"mb-6 grid gap-4 text-sm md:grid-cols-3","children":[["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"JO"}],["$","dd",null,{"children":"รอยืนยัน"}]]}],["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"Revision"}],["$","dd",null,{"children":"r1"}]]}],["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"กติกากลาง"}],["$","dd",null,{"children":["v","1.0.0"]}]]}]]}],["$","div",null,{"className":"grid gap-4 md:grid-cols-2","children":[["$","section","Requirement",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Requirement"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ขอบเขต บทบาท และข้อกำหนด"}],["$","a",null,{"className":"font-semibold text-brand-800 underline","href":"/vms-plus-workspace/preview/repair-v2/content/overhaul-scene-b/review.md","target":"_blank","rel":"noopener","children":["เปิด ","Requirement"," ↗"]}]]}],["$","section","Business Flow",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Business Flow"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ลำดับงานและเงื่อนไขธุรกิจ"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}],["$","section","Prototype",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Prototype"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ต้นแบบสำหรับทดลองใช้งาน"}],["$","a",null,{"className":"font-semibold text-brand-800 underline","href":"/vms-plus-workspace/preview/repair-v2/prototypes/overhaul/","target":"_blank","rel":"noopener","children":["เปิด ","Prototype"," ↗"]}]]}],["$","section","Acceptance Criteria",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Acceptance Criteria"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"AC พร้อมหลักฐานและสถานะการยืนยัน"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}],["$","section","Figma screen spec",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Figma screen spec"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ข้อกำหนดที่ป้อนให้ปลั๊กอิน export"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}]]}],["$","section",null,{"className":"mt-8 space-y-4 rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-xl font-semibold","children":"AC ของเคสนี้"}],["$","p",null,{"className":"text-gray-500","children":"ยังไม่มี AC ที่ระบุรายละเอียด"}]]}],["$","details",null,{"className":"mt-6 rounded-lg border border-gray-200 bg-white p-6","children":[["$","summary",null,{"className":"cursor-pointer font-semibold","children":"อ่าน Requirement ในหน้านี้"}],["$","pre",null,{"className":"mt-4 whitespace-pre-wrap font-sans text-sm leading-7","children":"$3"}]]}],"$L4"]}],null,"$L5"]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":"$L8","isPartial":"$@9","staleTime":"$7","varyParams":null},{"rsc":"$La","isPartial":"$@b","staleTime":"$7","varyParams":"$c"},{"rsc":"$Ld","isPartial":"$@e","staleTime":"$7","varyParams":"$c"},{"rsc":"$Lf","isPartial":"$@10","staleTime":"$7","varyParams":null},{"rsc":"$L11","isPartial":"$@12","staleTime":"$7","varyParams":"$c"}],"isUpgradeableISRFallback":false,"a":"$@13","rootVaryParams":null,"needsRuntimeRequest":"$@14"}
+15:I[484,[],"OutletBoundary"]
+16:"$Sreact.suspense"
+18:I[484,[],"ViewportBoundary"]
+19:I[484,[],"MetadataBoundary"]
+1a:I[7121,[],""]
+1b:I[4581,[],""]
+:HL["/vms-plus-workspace/preview/repair-v2/_next/static/css/31b69de0f945450b.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap","style"]
+4:["$","p",null,{"className":"mt-8 text-sm text-gray-600","children":["การเผยแพร่หรือแก้ AC ไม่เปลี่ยน requirement ที่อนุมัติแล้วโดยอัตโนมัติ ดู ",["$","$L2",null,{"href":"/guide/","className":"underline","children":"วิธีทำงาน"}]]}]
+5:["$","$L15",null,{"children":["$","$16",null,{"name":"Next.MetadataOutlet","children":"$@17"}]}]
+8:["$","$1","h",{"children":[null,["$","$L18",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L19",null,{"children":["$","$16",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"VMS+ Workspace"}],["$","meta","1",{"name":"description","content":"Requirements, flows, prototypes and review cases"}]]}]}]}],null]}]
+a:["$","$1","c",{"children":[null,["$","$L1a",null,{"parallelRouterKey":"children","template":["$","$L1b",null,{}]}]]}]
+d:["$","$1","c",{"children":[null,["$","$L1a",null,{"parallelRouterKey":"children","template":["$","$L1b",null,{}]}]]}]
+f:["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/vms-plus-workspace/preview/repair-v2/_next/static/css/31b69de0f945450b.css","precedence":"next"}]],["$","html",null,{"lang":"th","children":[["$","head",null,{"children":["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap"}]}],["$","body",null,{"className":"bg-gray-50 text-gray-900","children":[["$","header",null,{"className":"border-b border-gray-200 bg-white","children":["$","div",null,{"className":"mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5","children":[["$","$L2",null,{"href":"/","className":"text-xl font-semibold text-brand-900 no-underline","children":"VMS+ Workspace"}],["$","nav",null,{"aria-label":"เมนูหลัก","className":"flex gap-6 text-sm","children":[["$","$L2",null,{"href":"/","children":"งานและเคสรีวิว"}],["$","$L2",null,{"href":"/guide/","children":"วิธีใช้งาน / กติกากลาง"}]]}]]}]}],["$","$L1a",null,{"parallelRouterKey":"children","template":["$","$L1b",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]]}]]}]
+11:["$","$1","c",{"children":[null,["$","$L1a",null,{"parallelRouterKey":"children","template":["$","$L1b",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:style","children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:1:props:style","children":404}],["$","div",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:2:props:style","children":["$","h2",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:2:props:children:props:style","children":"This page could not be found."}]}]]}]}]],[]]}]]}]
+17:null
+14:true
+7:300
+7:C
+13:0
+9:"$undefined"
+b:"$undefined"
+e:"$undefined"
+10:"$undefined"
+12:"$undefined"
+6:"$undefined"

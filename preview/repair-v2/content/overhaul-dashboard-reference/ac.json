@@ -1,0 +1,16 @@
+{
+  "caseId": "overhaul-dashboard-reference",
+  "revision": "r1",
+  "ruleVersion": "1.0.0",
+  "items": [
+    {
+      "id": "OBS-001",
+      "screenId": "dashboard-plan",
+      "status": "observed",
+      "source": "Imported Main.dc.html",
+      "given": "เปิด Dashboard ระดับแผน",
+      "when": "หน้าจอแสดงผล",
+      "then": "มีหน้าจอระดับแผนให้ตรวจด้วยสายตา; การคำนวณและสิทธิ์ยังรอยืนยัน"
+    }
+  ]
+}
