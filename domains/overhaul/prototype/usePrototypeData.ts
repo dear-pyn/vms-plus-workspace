@@ -11,16 +11,17 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Se
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Plan } from "../features/plan/types";
 import type { PurchaseOrder, VehicleJob } from "../features/po/types";
+import { protoKey } from "@/lib/protoNs";
 
 type Data = { plans: Plan[]; pos: PurchaseOrder[]; jobs: VehicleJob[] };
 type Row = { version: number; data: Data };
 
-const KEY = "vms-plus:overhaul-prototype:v1";
-const RESET_FLAG = "vms-plus:overhaul-prototype:reset";
-const MOCK_KEY = "vms-plus:overhaul-prototype:mock:v1";
+const KEY = protoKey("vms-plus:overhaul-prototype:v1");
+const RESET_FLAG = protoKey("vms-plus:overhaul-prototype:reset");
+const MOCK_KEY = protoKey("vms-plus:overhaul-prototype:mock:v1");
 const EMPTY: Data = { plans: [], pos: [], jobs: [] };
 const TABLE = "prototype_snapshot";
-const DATASET = "overhaul-main";
+const DATASET = protoKey("overhaul-main");
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 

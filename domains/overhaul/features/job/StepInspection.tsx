@@ -51,7 +51,7 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
       <>
         {/* เจ้าของงาน 16 พ.ย. 2569: รูปสภาพยานพาหนะ (หลัง Overhaul) อยู่บนสุด */}
         <section className="flex flex-col gap-4">
-          <SectionHeader title="รูปสภาพยานพาหนะหลัง Overhaul" description={inspection?.confirmedAt ? `ยืนยันการตรวจสภาพแล้ว ${inspection.confirmedAt}` : undefined} />
+          <SectionHeader title="รูปสภาพยานพาหนะหลัง Overhaul" description={inspection?.confirmedAt ? `ยืนยันการตรวจรับงานแล้ว ${inspection.confirmedAt}` : undefined} />
           <PhotoUploader label="รูปสภาพยานพาหนะหลัง Overhaul" photos={init.photos} readOnly />
         </section>
         <section className="flex flex-col gap-6">
@@ -94,7 +94,7 @@ export function StepInspection({ inspection, readOnly, onBack, onConfirm }: { in
             setBusy(false);
           }}
         >
-          ยืนยันการตรวจสภาพ
+          ยืนยันการตรวจรับงาน
         </Button>
       </div>
       {dialog}

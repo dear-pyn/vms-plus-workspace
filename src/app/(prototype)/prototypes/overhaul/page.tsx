@@ -20,7 +20,8 @@ import { parseThaiDate } from "@ui/DateField";
 import { ConfirmDialog } from "@ui/Modal";
 import { Toast, type ToastTone } from "@ui/Toast";
 import { NotificationBell, type NotificationItem } from "@ui/NotificationPanel";
-import { warrantyEnd, warrantyLeft } from "@overhaul/features/job/close";
+import { warrantyEnd } from "@overhaul/features/job/close";
+import { warrantyAlert } from "@overhaul/features/job/warranty-alert.mjs";
 import { PlanDetail } from "@overhaul/features/plan/PlanDetail";
 import { PlanForm } from "@overhaul/features/plan/PlanForm";
 import { blockHashLeave } from "@overhaul/features/shared/leaveGuard";
@@ -50,6 +51,7 @@ import { PODetail } from "@overhaul/features/po/PODetail";
 import type { PODraft, PurchaseOrder, VehicleJob } from "@overhaul/features/po/types";
 import { seedVehicles } from "@overhaul/mock/vehicles";
 import { mainNav } from "@/lib/nav";
+import { protoKey } from "@/lib/protoNs";
 import { GarageList } from "@overhaul/features/garage/GarageList";
 import { GarageForm } from "@overhaul/features/garage/GarageForm";
 import { GarageDetail } from "@overhaul/features/garage/GarageDetail";
@@ -163,7 +165,7 @@ const nextId = (plans: Plan[], fy: number) => {
   return `${prefix}${String(max + 1).padStart(5, "0")}`;
 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const GARAGE_KEY = "vms-plus:overhaul-garages:v1";
+const GARAGE_KEY = protoKey("vms-plus:overhaul-garages:v1");
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
@@ -700,9 +702,12 @@ export default function OverhaulPrototype() {
   const notiAll: Array<NotificationItem & { go: Route; timestamp?: number }> = jobs.flatMap((j) => {
     const out: Array<NotificationItem & { go: Route; timestamp?: number }> = [];
     const w = j.close?.warranty;
-    const left = j.code === "V11" && w?.on ? warrantyLeft(w.start, w.days) : null;
-    if (left !== null && left >= 0 && left <= 30 && w)
-      out.push({ id: `w-${j.poId}-${j.plate}-${left <= 15 ? 15 : 30}`, status: left <= 15 ? "error" : "warning", time: "วันนี้ 09:00 · ถึง กบค.", text: N.warrantyEnd(warrantyEnd(w.start, w.days), jobKey(j.poId, j.plate), left), go: { view: "job", po: j.poId, plate: j.plate } }); // ไม่มีหน้าสรุปรายคัน (16 พ.ย. 2569) → หน้างานรายคัน
+    /* v2 (EC-53): รอบ 30 วัน → หน่วยงานเจ้าของรถ + กบค. (ตรวจความสมบูรณ์) · รอบ 15 วัน → กบค. (เตรียมคืนเงินค้ำประกัน · ผู้รับยัง pending) ·
+       ปิดงานตอนเหลือ ≤ 15 วัน = รอบเดียวรวมสองเรื่อง ส่งทั้งสองฝ่าย */
+    const endDate = j.code === "V11" && w?.on ? parseThaiDate(warrantyEnd(w.start, w.days)) : null;
+    const alert = endDate ? warrantyAlert(endDate, new Date(), parseThaiDate(j.close?.approval?.at?.slice(0, 10) ?? "")) : null;
+    if (alert && w)
+      out.push({ id: `w-${j.poId}-${j.plate}-${alert.round}`, status: alert.round === 15 ? "error" : "warning", time: `วันนี้ 09:00 · ถึง ${alert.round === 30 || alert.combined ? "หน่วยงานเจ้าของรถ และ กบค." : "กบค."}`, text: N.warrantyEnd(warrantyEnd(w.start, w.days), jobKey(j.poId, j.plate), alert.left, alert.round, alert.combined), go: { view: "job", po: j.poId, plate: j.plate } }); // ไม่มีหน้าสรุปรายคัน (16 พ.ย. 2569) → หน้างานรายคัน
     const unit = plans.flatMap((p) => p.vehicles).find((v) => v.plate === j.plate)?.affiliation ?? "";
     /* เจ้าของงาน 16 พ.ย. 2569: ขั้น 5 "ไม่มีการนัดหมาย" ต้องแจ้งเตือนหน่วยงานว่าส่งมอบรถคืนแล้ว (แทนแจ้งเตือนนัดรับรถ) */
     if (j.direct5) {

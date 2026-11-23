@@ -95,7 +95,7 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
         <dl className="grid grid-cols-1 gap-x-6 gap-y-5 rounded-lg bg-gray-50 p-6 md:grid-cols-2 xl:grid-cols-4">
           <Item label="ชื่อแผน">{plan.name}</Item>
           <Item label="ประจำปีงบประมาณ">{plan.fiscalYear}</Item>
-          <Item label="วงเงินอนุมัติ (บาท)">{currency(plan.budget)}</Item>
+          <Item label="วงเงินงบประมาณ (บาท)">{currency(plan.budget)}</Item>
           {/* จำนวน = ยานพาหนะในแผน (จอ B.7/E.1/E.8 เป็นค่าคงที่ "0 คัน" แม้มี PO แล้ว — ไม่ใช้เป็นสูตร) */}
           <Item label="จำนวนยานพาหนะที่ Overhaul">{`${plan.vehicles.length} คัน`}</Item>
           <Item label="วันที่สร้าง">{plan.createdAt}</Item>

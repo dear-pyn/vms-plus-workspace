@@ -28,8 +28,27 @@ export const emptyChecks = (): CheckItem[] =>
 export const intakeComplete = (checks: CheckItem[], delivererId: string, receiverId: string) => checks.every((c) => c.has !== null) && !!delivererId && !!receiverId;
 
 /** ข้อมูลทั้งขั้นต้องครบก่อนส่งให้เซ็น เพื่อไม่ล็อกเอกสารที่ยังไม่สมบูรณ์ */
-export function validateIntakeForSign(draft: { mileage: string; hours: string; checks: CheckItem[]; delivererId: string; receiverId: string }): Record<string, string> {
+/** วว/ดด/ปปปป (พ.ศ.) → Date · ผิดรูปแบบ/วันไม่มีจริง = null (ไม่พึ่ง @ui เพื่อให้ node test import ได้) */
+function parseBE(t: string): Date | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t.trim());
+  if (!m) return null;
+  const d = new Date(Number(m[3]) - 543, Number(m[2]) - 1, Number(m[1]));
+  return d.getDate() === Number(m[1]) && d.getMonth() === Number(m[2]) - 1 ? d : null;
+}
+
+/** v2 (feedback ลูกค้า 20 พ.ย. 2569 "หน้านี้มีลงวันที่ก็จะดี" · "ผมใส่เองตอนวันที่ไปตรวจรับรถ"): วันที่ตรวจรับรถ บังคับ · ห้ามเป็นวันในอนาคต
+ *  ตรวจรับรถบันทึกย้อนหลังได้ (ลูกค้ายืนยัน 20 พ.ย. 2569) จึงไม่จำกัดวันในอดีต */
+export function checkIntakeDate(date: string, today = new Date()): string {
+  if (!date.trim()) return "กรุณาเลือกวันที่ตรวจรับรถ";
+  const d = parseBE(date);
+  if (!d) return "กรุณาระบุวันที่ให้ถูกต้อง (วว/ดด/ปปปป)";
+  return d > new Date(today.toDateString()) ? "วันที่ตรวจรับรถต้องไม่หลังวันนี้" : "";
+}
+
+export function validateIntakeForSign(draft: { date: string; mileage: string; hours: string; checks: CheckItem[]; delivererId: string; receiverId: string }): Record<string, string> {
   const errors: Record<string,string> = {};
+  const dateErr = checkIntakeDate(draft.date);
+  if (dateErr) errors.date = dateErr;
   const mileage = draft.mileage.trim().replace(/,/g, "");
   if (!mileage) errors.mileage = "กรุณาระบุเลขไมล์ปัจจุบัน";
   else if (!/^\d{1,7}$/.test(mileage)) errors.mileage = "กรุณาระบุเลขไมล์เป็นตัวเลขไม่เกิน 7 หลัก";

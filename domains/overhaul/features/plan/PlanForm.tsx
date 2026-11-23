@@ -97,7 +97,7 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
     const e: Record<string, string> = {};
     if (!x.name.trim()) e.name = "กรุณาระบุชื่อแผน";
     if (!x.fiscalYear) e.fiscalYear = "กรุณาเลือกปีงบประมาณ";
-    if (!Number.isFinite(x.budget)) e.budget = "กรุณาระบุวงเงินอนุมัติ";
+    if (!Number.isFinite(x.budget)) e.budget = "กรุณาระบุวงเงินงบประมาณ";
     if (!x.budgetType) e.budgetType = "กรุณาเลือกประเภทงบประมาณ";
     if (!x.docs.principle.length) e.principle = "กรุณาแนบหนังสืออนุมัติหลักการ";
     if (!x.docs.budget.length) e.budgetDoc = "กรุณาแนบเอกสารอนุมัติงบ";
@@ -159,8 +159,8 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
             options={years}
           />
           <MoneyField
-            label="วงเงินอนุมัติ (บาท)"
-            placeholder="ระบุวงเงินอนุมัติ"
+            label="วงเงินงบประมาณ (บาท)"
+            placeholder="ระบุวงเงินงบประมาณ"
             value={budgetText}
             error={errors.budget}
             onChange={(v) => {
@@ -236,9 +236,9 @@ export function PlanForm({ plan, fleet, ownCostCenter, costCenters, onCancel, on
                 />
               )}
             />
-            {/* EC-03 ยอดรวมราคาประเมินเทียบวงเงินอนุมัติ · เจ้าของงาน 19 พ.ย. 2569: เอาข้อความเตือนสีส้ม "เกินวงเงินอนุมัติ" ออก (คงยอดรวมสีเทา) */}
+            {/* EC-03 ยอดรวมราคาประเมินเทียบวงเงินงบประมาณ · เจ้าของงาน 19 พ.ย. 2569: เอาข้อความเตือนสีส้ม "เกินวงเงินงบประมาณ" ออก (คงยอดรวมสีเทา) */}
             <p className="text-sm text-gray-600">
-              รวมราคาประเมิน Overhaul {currency(totalEstimate)} บาท{Number.isFinite(d.budget) ? ` จากวงเงินอนุมัติ ${currency(d.budget)} บาท` : ""}
+              รวมราคาประเมิน Overhaul {currency(totalEstimate)} บาท{Number.isFinite(d.budget) ? ` จากวงเงินงบประมาณ ${currency(d.budget)} บาท` : ""}
             </p>
           </>
         )}

@@ -19,3 +19,18 @@ test('progress ordering uses B.E. timestamps, stable latest-insertion ties, and 
   assert.deepEqual(ids(sortProgress(log,'percent',1)),['bad','same-minute','new','old']);
   assert.equal(log[0].id,'old');
 });
+
+import { warrantyAlert, alertsStartImmediately } from '../domains/overhaul/features/job/warranty-alert.mjs';
+test('v2 warranty alerts: 30-day then 15-day round; closing with ≤15 days left sends one combined alert; expired sends none', () => {
+  const end = new Date(2026, 11, 31);
+  const at = (m, d) => new Date(2026, m, d);
+  assert.equal(warrantyAlert(end, at(10, 30)), null); // 31 days left
+  assert.deepEqual(warrantyAlert(end, at(11, 1)), { round: 30, combined: false, left: 30 });
+  assert.deepEqual(warrantyAlert(end, at(11, 16), at(5, 1)), { round: 15, combined: false, left: 15 });
+  assert.deepEqual(warrantyAlert(end, at(11, 20), at(11, 20)), { round: 15, combined: true, left: 11 });
+  assert.deepEqual(warrantyAlert(end, at(11, 31)), { round: 15, combined: false, left: 0 });
+  assert.equal(warrantyAlert(end, new Date(2027, 0, 1)), null);
+  assert.equal(alertsStartImmediately(end, at(11, 1)), true);
+  assert.equal(alertsStartImmediately(end, at(10, 1)), false);
+  assert.equal(alertsStartImmediately(end, new Date(2027, 0, 2)), false);
+});

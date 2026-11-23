@@ -10,6 +10,8 @@
  *    วางใต้ Section header "ข้อมูลการรับรถเข้าอู่" ตามโครงจอ OH2 / I.1 (Text input "เลขไมล์ ณ วันรับรถ (กม.)") · ใส่จุลภาคหลักพันอัตโนมัติ · เต็มจำนวนไม่เกิน 7 หลัก
  *  component: Radio button · Checkbox · Text input · Input dropdown (Combobox) · Table — ไฟล์ Component VMS Plus */
 import { usePrototypeFill } from "../../prototype/MockTools";
+import { mockDate } from "../../prototype/fixtures";
+import { DateField } from "@ui/DateField";
 import { useMemo, useRef, useState } from "react";
 import { Pill } from "@ui/Badge";
 import { Button } from "@ui/Button";
@@ -22,10 +24,12 @@ import { TextField } from "@ui/TextField";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
 import { PhotoUploader } from "../shared/PhotoUploader";
 import type { CheckItem, Intake, Staff, Photo } from "../po/types";
-import { BATTERY, emptyChecks, intakeComplete, intakeLocked, validateIntakeForSign } from "./intake";
+import { BATTERY, checkIntakeDate, emptyChecks, intakeComplete, intakeLocked, validateIntakeForSign } from "./intake";
 import { GIVER_INFO } from "../shared/messages";
 
 export interface IntakeDraft {
+  /** วันที่ตรวจรับรถ วว/ดด/ปปปป (พ.ศ.) — v2 feedback ลูกค้า 20 พ.ย. 2569 */
+  date: string;
   /** เลขไมล์ปัจจุบัน (กม.) — ข้อความที่มีจุลภาค ("182,400") */
   mileage: string;
   /** ชั่วโมงการทำงาน (ชม.) — ไม่บังคับ ข้อความที่มีจุลภาค */
@@ -37,9 +41,11 @@ export interface IntakeDraft {
 }
 
 export function StepIntake({
-  intake, staff, readOnly, onBack, onSave, onSendSign, defaultDeliverer,
+  intake, staff, readOnly, onBack, onSave, onSendSign, defaultDeliverer, defaultDate,
 }: {
   intake?: Intake;
+  /** v2: ตั้งต้นวันที่ตรวจรับรถจากขั้น 1 (วันที่หน่วยงานตอบรับนัด / วันที่นำรถเข้า) · แก้ได้จนกว่าจะส่งเซ็น */
+  defaultDate?: string;
   /** ขั้น 1 "ไม่มีการนัดหมาย" เลือกผู้ส่งมอบรถไว้แล้ว → ตั้งต้นช่องผู้ส่งมอบรถ (หน่วยงาน) (17 พ.ย. 2569) */
   defaultDeliverer?: string;
   staff: Staff[];
@@ -51,8 +57,8 @@ export function StepIntake({
   onSendSign: (side: "หน่วยงาน" | "กบค.", staffId: string, draft: IntakeDraft) => Promise<boolean>;
 }) {
   const init = useMemo<IntakeDraft>(
-    () => ({ mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", hours: intake?.engineHours != null ? intake.engineHours.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? defaultDeliverer ?? "", receiverId: intake?.receiverId ?? "" }),
-    [intake, defaultDeliverer],
+    () => ({ date: intake?.date || defaultDate || "", mileage: intake?.mileageKm != null ? intake.mileageKm.toLocaleString() : "", hours: intake?.engineHours != null ? intake.engineHours.toLocaleString() : "", photos: intake?.photos ?? [], checks: intake?.checks ?? emptyChecks(), delivererId: intake?.delivererId ?? defaultDeliverer ?? "", receiverId: intake?.receiverId ?? "" }),
+    [intake, defaultDeliverer, defaultDate],
   );
   const [f, setF] = useState(init);
   const formRef = useRef<HTMLDivElement>(null);
@@ -68,7 +74,7 @@ export function StepIntake({
   } : f;
   usePrototypeFill((mode) => {
     setMileErr(""); setErrors({});
-    setF({ mileage: mode === "missing" ? "" : mode === "error" ? "12a" : "182,400", hours: mode === "ready" ? "9,180" : "", photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
+    setF({ date: mode === "missing" ? "" : mockDate(), mileage: mode === "missing" ? "" : mode === "error" ? "12a" : "182,400", hours: mode === "ready" ? "9,180" : "", photos: f.photos, checks: emptyChecks().map((c, i) => ({ ...c, has: mode === "missing" && i === 0 ? null : true, note: mode === "error" && i === 0 ? "error" : "", ...(c.item === BATTERY ? { brand: "ยี่ห้อจำลอง", count: "2" } : {}) })), delivererId: staff.find((s) => s.unit !== "กบค.")?.id || "", receiverId: staff.find((s) => s.unit === "กบค.")?.id || "" });
   }, !locked && !busy);
   const dirty = (!locked && JSON.stringify(f) !== JSON.stringify(init)) || (!signerLocked && ((!delivererSigned && f.delivererId !== init.delivererId) || (!receiverSigned && f.receiverId !== init.receiverId)));
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);
@@ -77,6 +83,7 @@ export function StepIntake({
   const [errors, setErrors] = useState<Record<string,string>>({});
   const currentErrors = validateIntakeForSign(shown);
   const fieldError = (key: string) => errors[key] ? currentErrors[key] : undefined;
+  const [dateErr, setDateErr] = useState("");
   const checkMileage = (v = shown.mileage) => (!v.trim() ? "กรุณาระบุเลขไมล์ปัจจุบัน" : /^\d{1,7}$/.test(v.replace(/,/g, "")) ? "" : "กรุณาระบุเลขไมล์เป็นตัวเลข");
   /* ลงนาม: ต้องเซ็นครบทั้ง 2 ฝ่าย (ผู้ส่งมอบ + ผู้รับมอบ) ก่อนบันทึกและถัดไป */
   const signedBoth = (["หน่วยงาน", "กบค."] as const).every((side) => intake?.approvals.find((a) => a.side === side)?.result === "approved");
@@ -89,6 +96,7 @@ export function StepIntake({
     const next = validateIntakeForSign(shown);
     setErrors(next);
     setMileErr(next.mileage ?? "");
+    setDateErr(next.date ?? "");
     if (Object.keys(next).length) {
       requestAnimationFrame(() => {
         const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-intake-error]');
@@ -208,6 +216,20 @@ export function StepIntake({
 
       <section className="flex flex-col gap-4">
         <SectionHeader title="ลงนามการรับมอบรถ" />
+        {/* v2 feedback ลูกค้า 20 พ.ย. 2569 (ชี้ที่ส่วนลงนาม "ตรงนี้คับ"): วันที่ตรวจรับรถ ลูกค้ากรอกเองตอนไปตรวจรับรถ ·
+            ตั้งต้นจากวันในขั้น 1 · บันทึกย้อนหลังได้ · ห้ามวันในอนาคต · ล็อกพร้อมข้อมูลทั้งขั้นเมื่อส่งเซ็น */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <DateField
+            label="วันที่ตรวจรับรถ"
+            placeholder="เลือกวันที่ตรวจรับรถ"
+            max={new Date()}
+            readOnly={locked}
+            value={shown.date}
+            onChange={(v) => { setF((x) => ({ ...x, date: v })); setDateErr(""); }}
+            onBlur={() => !locked && setDateErr(checkIntakeDate(shown.date))}
+            error={fieldError("date") || dateErr || undefined}
+          />
+        </div>
         {/* กระดานเจ้าของงาน 17 พ.ย. 2569 (ต่อผู้ลงนาม 1 คน):
             ① ยังไม่เลือก = ช่องเปิด (placeholder) · ปุ่ม "เซ็นลงนาม" ปิด
             ② เลือกแล้ว = ช่องเปิด · "เซ็นลงนาม" เปิด → แจ้งเตือนให้คนนั้นเซ็นรับทราบจากหน้าเซ็นลงนาม

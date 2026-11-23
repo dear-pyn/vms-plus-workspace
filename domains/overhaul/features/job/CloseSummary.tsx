@@ -187,9 +187,9 @@ export function CloseSummary({ job, po, garage, vehicle, warrantyExtra }: { job:
         </section>
         <section className="flex flex-col gap-4">
           <SectionHeader title="อะไหล่ที่ใช้งาน" />
-          {/* P.1: หัวย่อย "อะไหล่ — ตัวรถ" / "อะไหล่ — เครื่องมือกล" เหนือแต่ละกลุ่ม */}
-          {c?.body.length ? <PartList title="อะไหล่ — ตัวรถ" parts={c.body} /> : null}
-          {c?.tools.length ? <PartList title="อะไหล่ — เครื่องมือกล" parts={c.tools} /> : null}
+          {/* P.1: หัวย่อย "อะไหล่ — ตัวรถ/เครื่องยนต์" / "อะไหล่ — เครื่องจักรกล" เหนือแต่ละกลุ่ม */}
+          {c?.body.length ? <PartList title="อะไหล่ — ตัวรถ/เครื่องยนต์" parts={c.body} /> : null}
+          {c?.tools.length ? <PartList title="อะไหล่ — เครื่องจักรกล" parts={c.tools} /> : null}
           {!c?.body.length && !c?.tools.length && <p className="text-md text-gray-600">ไม่มีข้อมูลอะไหล่</p>}
         </section>
         <section className="flex flex-col gap-4">

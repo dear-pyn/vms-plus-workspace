@@ -22,8 +22,8 @@ export function warrantyLeft(start: string, days: WarrantyDays | null): number |
 export const sumParts = (ps: PartUsed[]) => ps.reduce((a, p) => a + p.qty * p.price, 0);
 export const costRows = (c: Pick<CloseOut, "body" | "tools" | "labor" | "other">): Array<[string, number]> => {
   const rows: Array<[string, number]> = [
-    ["ค่าอะไหล่ตัวรถ", sumParts(c.body)],
-    ["ค่าอะไหล่เครื่องมือกล", sumParts(c.tools)],
+    ["ค่าอะไหล่ตัวรถ/เครื่องยนต์", sumParts(c.body)],
+    ["ค่าอะไหล่เครื่องจักรกล", sumParts(c.tools)],
     ["ค่าแรง", c.labor ?? 0],
     ["ค่าใช้จ่ายอื่นๆ", c.other ?? 0],
   ];

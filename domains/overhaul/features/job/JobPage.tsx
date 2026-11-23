@@ -124,7 +124,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     const who = staff.find((x) => x.id === staffId)?.name ?? staffId;
     const intake = {
       ...base,
-      ...(!intakeLocked(base) ? { date: base.date || job.direct1?.date || job.appt1?.reply?.date || nowStamp().slice(0,10), mileageKm: draft.mileage ? Number(draft.mileage.replace(/,/g,"")) : null, engineHours: draft.hours ? Number(draft.hours.replace(/,/g,"")) : null, checks: draft.checks, photos: draft.photos, delivererId: draft.delivererId, receiverId: draft.receiverId } : {}),
+      ...(!intakeLocked(base) ? { date: draft.date, mileageKm: draft.mileage ? Number(draft.mileage.replace(/,/g,"")) : null, engineHours: draft.hours ? Number(draft.hours.replace(/,/g,"")) : null, checks: draft.checks, photos: draft.photos, delivererId: draft.delivererId, receiverId: draft.receiverId } : {}),
       ...(side === "หน่วยงาน" ? { delivererId: staffId } : { receiverId: staffId }),
       approvals: [...base.approvals.filter((a) => a.side !== side), { side, staffId, sentAt: at, requestId: crypto.randomUUID(), requestedAt: Date.now() }],
       log: [...base.log, { at, who: "กบค. (ผู้ใช้งานปัจจุบัน)", action: `ส่งให้ ${who} เซ็นลงนามการรับมอบรถ` }],
@@ -154,7 +154,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
   }
   async function finishRepair(): Promise<boolean> {
     await wait(500);
-    set("V6", { progress: 100, detail: [`ซ่อมเสร็จ ${nowStamp().slice(0, 10)}`, "รอตรวจสภาพ"] }, T.repairDone() /* แถว 21 */);
+    set("V6", { progress: 100, detail: [`ซ่อมเสร็จ ${nowStamp().slice(0, 10)}`, "รอตรวจรับงาน"] }, T.repairDone() /* แถว 21 */);
     return true;
   }
 
@@ -164,7 +164,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
       { const t = T.stepSaveFail(); onNotify(t.msg, "error", t.description); } // ชีต OH-Toast แถว 26
       return false;
     }
-    set("V7", { inspection: { ...d, confirmedAt: nowStamp() }, detail: ["ตรวจสภาพแล้ว", "รอนัดรับรถ"] }, T.inspectionConfirmed()); // ชีต OH-Toast แถว 22
+    set("V7", { inspection: { ...d, confirmedAt: nowStamp() }, detail: ["ตรวจรับงานแล้ว", "รอนัดรับรถ"] }, T.inspectionConfirmed()); // ชีต OH-Toast แถว 22
     return true;
   }
 
@@ -246,6 +246,7 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
           intake={job.intake}
           /* 18 พ.ย. 2569: หน่วยงานไม่กรอกชื่อคนตอนตอบรับนัดแล้ว → ตั้งต้นผู้ส่งมอบรถจากขั้น 1 ทั้งกรณีไม่มีนัดและมีนัด · เปลี่ยนเป็นคนที่มาส่งจริงได้จนกว่าจะเซ็น */
           defaultDeliverer={job.direct1?.coordinatorId ?? job.appt1?.coordinatorId}
+          defaultDate={job.direct1?.date ?? job.appt1?.reply?.date}
           staff={staff}
           readOnly={ro}
           onBack={onGoPO}

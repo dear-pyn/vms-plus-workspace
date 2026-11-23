@@ -10,7 +10,7 @@ import { costRows } from "../job/close";
 
 export const WORTH_LIMIT = 50;
 
-export const DASH_STEPS = ["นัดหมายนำยานพาหนะเข้าอู่", "ตรวจรับยานพาหนะ", "ติดตามงานซ่อม", "ตรวจสภาพ", "นัดรับยานพาหนะ", "ปิดงาน", "ยืนยันการส่งอนุมัติ"];
+export const DASH_STEPS = ["การส่งมอบยานพาหนะ", "ตรวจรับยานพาหนะ", "ติดตามงานซ่อม", "ตรวจรับงาน", "นัดรับยานพาหนะ", "ปิดงาน", "ยืนยันการส่งอนุมัติ"];
 
 /** สถานะ → [ชื่อ, ขั้น 1–7 (8 = เสร็จสิ้น), สี Pill] */
 export const DASH_STATUS: Record<DashStatus, [string, number, PillTone]> = {

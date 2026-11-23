@@ -30,14 +30,15 @@ import { Toggle } from "@ui/Toggle";
 import { useLeaveGuard } from "../shared/useLeaveGuard";
 import type { CloseOut, PartUsed } from "../po/types";
 import { UNITS, WARRANTY_MAX_DAYS, costRows, partReturned, warrantyEnd } from "./close";
+import { WARRANTY_USUAL_MIN_DAYS, alertsStartImmediately, daysBetween } from "./warranty-alert.mjs";
 import { Row } from "./StepAppointment";
 import { MoneyField } from "../plan/VehicleModals";
 
 export type CloseDraft = Omit<CloseOut, "closedAt" | "approval" | "returned">;
 type Cat = "body" | "tools";
 const CATS = [
-  { k: "body", title: "อะไหล่ — ตัวรถ" },
-  { k: "tools", title: "อะไหล่ — เครื่องมือกล" },
+  { k: "body", title: "อะไหล่ — ตัวรถ/เครื่องยนต์" },
+  { k: "tools", title: "อะไหล่ — เครื่องจักรกล" },
 ] as const;
 const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(/,/g, "")));
 const okNum = (s: string) => /^\d+(\.\d{1,2})?$/.test(s.replace(/,/g, "").trim());
@@ -135,7 +136,7 @@ export function CostTable({ c }: { c: Pick<CloseOut, "body" | "tools" | "labor" 
 
 export function WarrantyRows({ w }: { w: CloseOut["warranty"] }) {
   return w.on ? (
-    <Row items={[["วันเริ่มรับประกัน", w.start], ["จำนวนวันที่รับประกัน", w.days ? `${w.days} วัน` : ""], ["วันหมดอายุประกัน", warrantyEnd(w.start, w.days)], ["แจ้งเตือนก่อนหมด", "เจ้าของยานพาหนะ และ กบค. 30 วัน และ 15 วัน"]]} />
+    <Row items={[["วันเริ่มรับประกัน", w.start], ["จำนวนวันที่รับประกัน", w.days ? `${w.days} วัน` : ""], ["วันหมดอายุประกัน", warrantyEnd(w.start, w.days)], ["แจ้งเตือนก่อนหมด", "30 วัน (หน่วยงานเจ้าของรถ และ กบค.) · 15 วัน (กบค.)"]]} />
   ) : (
     <Row items={[["การรับประกันงานซ่อม", "ไม่มี"], ["แจ้งเตือนก่อนหมด", "ไม่แจ้งเตือน"]]} />
   );
@@ -223,6 +224,7 @@ export function StepClose({
   const dirty = !readOnly && JSON.stringify(draft) !== JSON.stringify(init);
   const { requestLeave, runSave, dialog } = useLeaveGuard(dirty, onBack);
   const end = warrantyEnd(d.warranty.start, d.warranty.days);
+  const endDate = end ? parseThaiDate(end) : null;
 
   if (readOnly && close) {
     return (
@@ -348,14 +350,26 @@ export function StepClose({
                 /* เจ้าของงาน 20 พ.ย. 2569 "กรอก 0 แล้วไม่มี validate" ⇒ ตรวจตอนออกจากช่องแบบ UAT (เดิมตรวจเฉพาะตอนกดปิดงาน) */
                 onBlur={() => setErr((x) => ({ ...x, days: daysError() }))}
                 error={err.days || undefined}
+                /* v2 (EC-53): สัญญา Overhaul กำหนดประกัน 180 วันขึ้นไป (ลูกค้า 23 พ.ย. 2569) → ต่ำกว่านั้นเตือน ไม่บล็อก */
+                helper={!err.days && d.warranty.days && d.warranty.days < WARRANTY_USUAL_MIN_DAYS ? `ต่ำกว่า ${WARRANTY_USUAL_MIN_DAYS} วันตามสัญญา Overhaul ทั่วไป กรุณาตรวจสอบ` : undefined}
               />
               <TextField label="วันหมดอายุประกัน" autoFilled placeholder="คำนวณเมื่อระบุจำนวนวันที่รับประกัน" value={end} />
             </div>
             {/* เจ้าของงาน 20 พ.ย. 2569 "เอาตาม uat แต่วันที่ไม่ prefill" ⇒ กลับมาใส่ Alert info แบบ UAT (แทนมติ 17 พ.ย. ที่ตัดออก)
                 ข้อความตาม UAT 20 พ.ย. 2569 ยกเว้นตัด "วันเริ่มตั้งต้นเป็นวันปิดงาน แก้ได้" เพราะต้นแบบไม่เติมวันเริ่มให้ */}
-            <Alert tone="info" title="ระบบจะแจ้งเตือนหน่วยงานเจ้าของรถ และ กบค. ก่อนประกันหมด 30 วัน และ 15 วัน แจ้งทางกระดิ่งในระบบ">
-              เพื่อให้หน่วยงานสำรวจความสมบูรณ์ของรถ และนำรถเข้าเก็บงานก่อนหมดประกัน วันหมดอายุ = วันเริ่ม + จำนวนวันที่รับประกัน
-            </Alert>
+            {/* v2 (EC-53 · ลูกค้า 23 พ.ย. 2569): 30 วัน = ตรวจความสมบูรณ์ ให้ผู้รับจ้างแก้ทัน · 15 วัน = เตรียมเอกสารคืนเงินค้ำประกัน ·
+                วันหมดอายุเหลือ ≤ 30 วันนับจากวันนี้ → แจ้งทันทีเมื่อปิดงาน · หมดแล้ว → ไม่แจ้ง */}
+            {endDate && daysBetween(new Date(), endDate) < 0 ? (
+              <Alert tone="warning" title="ประกันหมดแล้ว ระบบจะไม่แจ้งเตือน">กรุณาตรวจสอบวันเริ่มรับประกันและจำนวนวันที่รับประกัน</Alert>
+            ) : endDate && alertsStartImmediately(endDate, new Date()) ? (
+              <Alert tone="warning" title={`ประกันเหลือไม่ถึง 30 วัน ระบบจะแจ้งเตือนทันทีเมื่อปิดงาน`}>
+                {daysBetween(new Date(), endDate) <= 15 ? "แจ้งรอบเดียว ให้ตรวจสอบความสมบูรณ์ของยานพาหนะ และเตรียมเอกสารคืนเงินค้ำประกัน" : "แจ้งรอบ 30 วันทันที และแจ้งรอบ 15 วันตามกำหนด"}
+              </Alert>
+            ) : (
+              <Alert tone="info" title="ระบบจะแจ้งเตือนทางกระดิ่งในระบบก่อนประกันหมด 30 วัน และ 15 วัน">
+                30 วัน: หน่วยงานเจ้าของรถ และ กบค. ตรวจสอบความสมบูรณ์ของยานพาหนะ หากพบชำรุดให้ผู้รับจ้างแก้ไขก่อนหมดประกัน · 15 วัน: กบค. เตรียมเอกสารคืนเงินค้ำประกัน
+              </Alert>
+            )}
           </>
         ) : (
           <p className="text-md text-gray-600">งานนี้ไม่มีการรับประกัน ระบบจะไม่แจ้งเตือนก่อนหมดประกัน</p>

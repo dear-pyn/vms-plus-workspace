@@ -137,14 +137,14 @@ function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
             <Metric label="ยานพาหนะในแผน" value={n(s.total)} unit="คัน" sub={`${selPlans.length} แผนที่เลือก`} icon="local_shipping" />
             <Metric label="เสร็จแล้ว" value={n(s.done)} unit="คัน" sub={`${pctOf(s.done, s.total)}% ของยานพาหนะในแผน`} icon="task_alt" tone="success" />
             <Metric label="ยังไม่เสร็จ" value={n(s.pending)} unit="คัน" sub="ค้างอยู่ในแผน" icon="pending_actions" tone="gray" />
-            <Metric label="ค่าใช้จ่ายจริง" value={currency(s.actual)} unit="บาท" sub={`${pctOf(s.actual, budget)}% ของวงเงินอนุมัติ`} icon="payments" />
+            <Metric label="ค่าใช้จ่ายจริง" value={currency(s.actual)} unit="บาท" sub={`${pctOf(s.actual, budget)}% ของวงเงินงบประมาณ`} icon="payments" />
             <Metric label="ถูกกว่าซื้อใหม่" value={currency(s.nw - s.oh)} unit="บาท" sub={`Overhaul = ${s.ratio}% ของราคาซื้อใหม่`} icon="savings" tone="success" />
           </div>
 
           <section aria-label="ตัวเลขงบประมาณ" className="flex flex-col gap-3">
             <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border border-gray-200 bg-white p-6 max-md:p-4 md:grid-cols-3 xl:grid-cols-6">
               {[
-                ["วงเงินอนุมัติ", `${currency(budget)} บาท`],
+                ["วงเงินงบประมาณ", `${currency(budget)} บาท`],
                 ["งบต่อคัน (เฉลี่ย)", `${currency(avgBudget)} บาท`],
                 ["ค่าใช้จ่ายจริงต่อคัน", s.actualAvg === null ? "—" : `${currency(s.actualAvg)} บาท`],
                 ["ประหยัดงบต่อคัน", s.saveAvg === null ? "—" : `${currency(s.saveAvg)} บาท`],
@@ -157,7 +157,7 @@ function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
                 </div>
               ))}
             </dl>
-            <p className="text-xs text-gray-500">ค่าใช้จ่ายจริงนับเฉพาะยานพาหนะที่ปิดงานแล้ว {n(s.done)} คัน · งบต่อคัน = วงเงินอนุมัติ ÷ จำนวนยานพาหนะในแผน · ค่า Overhaul ของคันที่ยังไม่ปิดงานใช้งบต่อคัน</p>
+            <p className="text-xs text-gray-500">ค่าใช้จ่ายจริงนับเฉพาะยานพาหนะที่ปิดงานแล้ว {n(s.done)} คัน · งบต่อคัน = วงเงินงบประมาณ ÷ จำนวนยานพาหนะในแผน · ค่า Overhaul ของคันที่ยังไม่ปิดงานใช้งบต่อคัน</p>
           </section>
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -184,7 +184,9 @@ function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
               </DataTable>
             </Panel>
 
-            <Panel title="ยานพาหนะค้างอยู่ขั้นตอนไหน (ณ ตอนนี้)" subtitle={<>นับตาม 7 ขั้นตอนของงาน Overhaul · ไม่นับคันที่เสร็จสิ้นแล้ว · รวม {n(s.total)} · ยังไม่เสร็จ <strong className="text-warning-600">{n(s.pending)}</strong></>}>
+            {/* v2 feedback ลูกค้า 20 พ.ย. 2569: ลูกค้าอ่าน % เป็นความคืบหน้า (คิดว่า 7 ขั้นรวมเป็น 100% ต่อคัน) → ตัด % และแถบสัดส่วนออก เหลือจำนวนคันต่อขั้น
+                ใช้ดูคอขวด (เช่น ค้างรอหน่วยงานตอบนัด / รออนุมัติ) · ยังต้องถามลูกค้าว่าต้องการ Panel นี้หรือไม่ */}
+            <Panel title="ยานพาหนะที่ยังไม่เสร็จ แยกตามขั้นตอน" subtitle={<>จำนวนคันที่อยู่ในแต่ละขั้นตอน ณ ตอนนี้ · ยังไม่เสร็จ <strong className="text-warning-600">{n(s.pending)}</strong> จาก {n(s.total)} คัน</>}>
               <ol className="flex flex-col gap-4">
                 {steps.map((st, i) => (
                   <li key={st.label} className="flex flex-col gap-1.5">
@@ -194,7 +196,6 @@ function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
                       <strong className="tabular-nums">{n(st.count)}</strong>
                       <span className="text-gray-600">คัน</span>
                     </div>
-                    <ProgressBar value={pctOf(st.count, s.total)} label={`สัดส่วน${st.label}`} />
                   </li>
                 ))}
               </ol>
@@ -233,7 +234,7 @@ function PlanLevel({ vehicles }: { vehicles: DashVehicle[] }) {
               <thead>
                 <tr>
                   <Th>แผน / Purchase Order</Th><Th className="text-right">เสร็จ/ทั้งหมด (คัน)</Th><Th className="min-w-48">ความคืบหน้า</Th>
-                  <Th className="text-right">วงเงินอนุมัติ</Th><Th className="text-right">ค่าใช้จ่ายจริง</Th><Th className="text-right">ประหยัดงบต่อคัน</Th><Th>ความคุ้มค่า</Th>
+                  <Th className="text-right">วงเงินงบประมาณ</Th><Th className="text-right">ค่าใช้จ่ายจริง</Th><Th className="text-right">ประหยัดงบต่อคัน</Th><Th>ความคุ้มค่า</Th>
                 </tr>
               </thead>
               <tbody>
@@ -298,7 +299,8 @@ function VehicleLevel({ vehicles, onVehicle }: { vehicles: DashVehicle[]; onVehi
   const shown = rows.filter((x) => !k || `${x.plate} ${x.model}`.toLowerCase().includes(k));
   const current = Math.min(page, Math.max(1, Math.ceil(shown.length / size)));
   const brandCount: Record<string, number> = {};
-  rows.forEach((x) => { const b = x.model.split(" ")[0]; brandCount[b] = (brandCount[b] ?? 0) + 1; });
+  /* v2 feedback ลูกค้า 20 พ.ย. 2569 "เขียนยี่ห้อ มันแปลกๆ" → ตกลงลองนับตาม ยี่ห้อ + รุ่น (ไม่มีตัวกรองเพิ่ม) */
+  rows.forEach((x) => { const b = x.model.trim(); brandCount[b] = (brandCount[b] ?? 0) + 1; });
   const brands = Object.entries(brandCount).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
 
   return (
@@ -327,7 +329,7 @@ function VehicleLevel({ vehicles, onVehicle }: { vehicles: DashVehicle[]; onVehi
             <Metric label="ควรพิจารณาซื้อใหม่" value={n(s.rebuy)} unit="คัน" sub={`Overhaul เกิน ${WORTH_LIMIT}% ของราคาใหม่`} icon="warning" tone="error" />
           </div>
 
-          <Panel title="ยี่ห้อที่ Overhaul บ่อยที่สุด 3 อันดับ" subtitle="นับจำนวนครั้งที่เข้า Overhaul ตามตัวกรองที่เลือก · ยานพาหนะคันเดียวเข้าหลายครั้งนับทุกครั้ง">
+          <Panel title="ยี่ห้อ/รุ่นที่ Overhaul บ่อยที่สุด 3 อันดับ" subtitle="นับจำนวนครั้งที่เข้า Overhaul ตามตัวกรองที่เลือก · ยานพาหนะคันเดียวเข้าหลายครั้งนับทุกครั้ง">
             <ol className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {brands.map(([name, c], i) => (
                 <li key={name} className="flex flex-col gap-2">
@@ -336,7 +338,7 @@ function VehicleLevel({ vehicles, onVehicle }: { vehicles: DashVehicle[]; onVehi
                     <strong className="flex-1">{name}</strong>
                     <span><strong className="tabular-nums">{c}</strong> ครั้ง</span>
                   </div>
-                  <ProgressBar value={pctOf(c, s.total)} label={`สัดส่วนยี่ห้อ ${name}`} />
+                  <ProgressBar value={pctOf(c, s.total)} label={`สัดส่วนยี่ห้อ/รุ่น ${name}`} />
                 </li>
               ))}
             </ol>
