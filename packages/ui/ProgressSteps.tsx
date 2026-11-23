@@ -9,7 +9,7 @@
 import { Icon } from "./Icon";
 import { cx } from "./cx";
 
-export function ProgressSteps({ steps, current, viewing, onSelect, label = "ขั้นตอนงาน" }: { steps: readonly string[]; /** 1-based ขั้นปัจจุบัน · เกินจำนวนขั้น = ครบทุกขั้น */ current: number; /** ขั้นที่กำลังดู (เน้นด้วยพื้น) */ viewing?: number; onSelect?: (step: number) => void; label?: string }) {
+export function ProgressSteps({ steps, current, viewing, onSelect, label = "ขั้นตอนงาน", plainNumbers, size = "md" }: { steps: readonly string[]; /** true = เลขขั้น 1 2 3 (ระบบงานซ่อม UAT 20 พ.ย. 2569) · ค่าตั้งต้น 01 02 (Overhaul ตาม Figma) */ plainNumbers?: boolean; /** sm = วง 36 · ข้อความ 14/600 · pad ซ้าย 16 (ระบบงานซ่อม UAT) */ size?: "md" | "sm"; /** 1-based ขั้นปัจจุบัน · เกินจำนวนขั้น = ครบทุกขั้น */ current: number; /** ขั้นที่กำลังดู (เน้นด้วยพื้น) */ viewing?: number; onSelect?: (step: number) => void; label?: string }) {
   return (
     <ol aria-label={label} className="flex overflow-x-auto rounded-md border border-gray-300 bg-white">
       {steps.map((s, i) => {
@@ -25,17 +25,17 @@ export function ProgressSteps({ steps, current, viewing, onSelect, label = "ข�
               aria-current={state === "current" ? "step" : undefined}
               title={past && n === current ? "ขั้นปัจจุบันของงาน" : undefined}
               onClick={() => onSelect?.(n)}
-              className={cx("flex min-w-0 flex-1 items-center gap-4 py-4 pr-2 pl-6 text-left", clickable ? "cursor-pointer" : "cursor-default")}
+              className={cx(size === "sm" ? "flex min-w-0 flex-1 items-center gap-3 py-4 pr-2 pl-4 text-left" : "flex min-w-0 flex-1 items-center gap-4 py-4 pr-2 pl-6 text-left", clickable ? "cursor-pointer" : "cursor-default")}
             >
               <span
                 className={cx(
-                  "flex size-10 shrink-0 items-center justify-center rounded-full border text-md font-semibold",
+                  size === "sm" ? "flex size-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold" : "flex size-10 shrink-0 items-center justify-center rounded-full border text-md font-semibold",
                   state === "done" ? "border-brand-900 bg-brand-900 text-white" : state === "current" ? "border-brand-900 bg-white text-brand-900" : "border-gray-300 bg-white text-gray-400",
                 )}
               >
-                {state === "done" ? <Icon name="check" size={24} /> : String(n).padStart(2, "0")}
+                {state === "done" ? <Icon name="check" size={24} /> : plainNumbers ? String(n) : String(n).padStart(2, "0")}
               </span>
-              <span className={cx("py-1 text-md leading-6 font-semibold", state === "done" ? "text-black" : state === "current" ? "text-brand-900" : "text-gray-600")}>{s}</span>
+              <span className={cx(size === "sm" ? "py-1 text-sm leading-5 font-semibold" : "py-1 text-md leading-6 font-semibold", state === "done" ? "text-black" : state === "current" ? "text-brand-900" : "text-gray-600")}>{s}</span>
             </button>
             {i < steps.length - 1 && (
               <span aria-hidden className="relative w-5 shrink-0">

@@ -4,9 +4,12 @@
 # ข้อมูลในต้นแบบเป็นข้อมูลจำลองทั้งหมด — tools/capture/captures/ (ข้อมูลจริง) อยู่ใน .gitignore ไม่ขึ้นที่นี่
 name: Deploy to GitHub Pages
 
+# preview: branch ฉบับใหม่ที่รอลูกค้ารีวิว (เช่น overhaul-v2) → วางที่ /preview/<branch>/ ไม่แตะฉบับหลัก
+#   ข้อมูลต้นแบบของ preview แยก namespace (NEXT_PUBLIC_PROTO_NS) ไม่ทับข้อมูลที่ลูกค้าใช้บน main
+#   ลูกค้าผ่านแล้ว merge เข้า main → ลบโฟลเดอร์ preview/<branch> ออกจาก gh-pages
 on:
   push:
-    branches: [main]
+    branches: [main, "overhaul-v*", "repair-v*"]
   workflow_dispatch:
 
 permissions:
@@ -29,20 +32,42 @@ jobs:
 
       - run: npm ci
 
-      # basePath = ชื่อ repo เพราะ Pages เสิร์ฟที่ /<repo>/ · build ใส่ out/.nojekyll ให้แล้ว (ไม่ผ่าน Jekyll)
+      - name: ตั้งปลายทาง (main = ราก · branch อื่น = preview/<branch>)
+        id: target
+        run: |
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "dir=" >> "$GITHUB_OUTPUT"; echo "ns=" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=preview/$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"; echo "ns=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          fi
+
+      # basePath = ชื่อ repo (+ preview/<branch>) เพราะ Pages เสิร์ฟที่ /<repo>/ · build ใส่ out/.nojekyll ให้แล้ว (ไม่ผ่าน Jekyll)
       - name: build (validate + next build + .nojekyll)
         # ฐานข้อมูลกลางของต้นแบบ (Supabase · ข้อมูลจำลองเท่านั้น) — publishable key ออกแบบให้อยู่ในหน้าเว็บได้ สิทธิ์คุมด้วย RLS ของตาราง prototype_snapshot
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://hgattobrdvjzapsbaxkc.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_0O2NK19Y4SAOwc3RIvF_8w_v5hJxUlY
-        run: NEXT_PUBLIC_BASE_PATH=/${{ github.event.repository.name }} npm run build
+          NEXT_PUBLIC_PROTO_NS: ${{ steps.target.outputs.ns }}
+        run: NEXT_PUBLIC_BASE_PATH=/${{ github.event.repository.name }}${{ steps.target.outputs.dir && format('/{0}', steps.target.outputs.dir) || '' }} npm run build
 
+      # ไม่ล้าง gh-pages ทั้ง branch อีกแล้ว: main แทนที่ทุกอย่างยกเว้น preview/ · preview แทนที่เฉพาะโฟลเดอร์ของตัวเอง
       - name: วางไฟล์ลง branch gh-pages
+        env:
+          DIR: ${{ steps.target.outputs.dir }}
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         run: |
-          cd out
-          git init -q -b gh-pages
+          git clone -q --depth 1 --branch gh-pages "$REPO_URL" site || { mkdir site && git -C site init -q -b gh-pages; }
+          cd site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -z "$DIR" ]; then
+            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name preview -exec rm -rf {} +
+            cp -R ../out/. .
+          else
+            rm -rf "$DIR" && mkdir -p "$DIR"
+            cp -R ../out/. "$DIR/"
+            touch .nojekyll
+          fi
           git add -A
-          git commit -q -m "deploy ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+          git commit -q -m "deploy ${DIR:-main} ${GITHUB_SHA::7}" || echo "ไม่มีอะไรเปลี่ยน"
+          git push -q "$REPO_URL" HEAD:gh-pages
