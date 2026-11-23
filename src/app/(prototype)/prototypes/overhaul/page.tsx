@@ -104,7 +104,7 @@ function parse(hash: string): Route {
   if (h === "/garages/new") return { view: "garageNew" };
   const gm = h.match(/^\/garage\/([^/]+)(\/edit)?$/);
   if (gm) return gm[2] ? { view: "garageEdit", id: decodeURIComponent(gm[1]) } : { view: "garage", id: decodeURIComponent(gm[1]) };
-  if (h === "/cases") return { view: "cases" }; // สารบัญเคส (เครื่องมือต้นแบบ 17 พ.ย. 2569)
+  if (h === "/cases" || h === "/overview") return { view: "cases" }; // Overview (เดิม สารบัญเคส · เครื่องมือต้นแบบ 17 พ.ย. 2569)
   const ag = h.match(/^\/agency\/job\/([^/]+)\/([^/]+)$/);
   if (ag) return { view: "agencyJob", po: decodeURIComponent(ag[1]), plate: decodeURIComponent(ag[2]) };
   const sm = h.match(/^\/summary\/([^/]+)\/([^/]+)$/);
