@@ -1,0 +1,118 @@
+1:"$Sreact.fragment"
+2:I[8500,["500","static/chunks/500-b13bb91f5a6311b6.js","611","static/chunks/app/(workspace)/cases/%5Bid%5D/page-e7ecaaeb148233f7.js"],""]
+7:X
+c:X
+c:C
+0:{"buildId":"Ww1PtieeUezS6RvSJQnUM","data":[{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"mx-auto max-w-5xl px-6 py-10","children":[["$","$L2",null,{"href":"/","className":"text-brand-800","children":"← งานและเคสทั้งหมด"}],["$","p",null,{"className":"mt-8 text-sm text-gray-500","children":["repair"," / ","repair-uat-baseline"," / ","r7"]}],["$","h1",null,{"className":"mt-3 text-3xl font-semibold","children":"งานซ่อม (แจ้งซ่อม) · ต้นแบบตาม UAT + flow ที่ขาด"}],["$","p",null,{"className":"mt-4 text-gray-600","children":"ตาม UAT 20 พ.ย. 2569 + เติมขั้นที่ UAT ข้าม (S1–S11): เมนูตอบรับนัดหมาย/อนุมัติงานซ่อม · คำขอเซ็น · บันทึกความคืบหน้า · แจ้งเตือน · เทียบ Overhaul"}],["$","div",null,{"className":"my-6 rounded-lg border border-warning-200 bg-warning-50 p-5","children":[["$","p",null,{"className":"font-semibold","children":"กำลังเตรียม"}],["$","p",null,{"className":"mt-2 text-sm","children":"r7: section อู่ · อนุมัติ/ไม่อนุมัติ · ยกเลิก · ซ่อมอู่ 3 ขั้น · r6: อาการเพิ่มตาม UAT · เซ็นรับมอบแบบ Overhaul · r5: flow อนุมัติผ่าน กรย. ก่อน กบค. · รายการ 2 แท็บ ปกติ/เกิน 30% · r4: Overview (เปลี่ยนชื่อจาก สารบัญเคส) · แก้ไข/ยกเลิกใบแจ้งซ่อม · วันปิดงาน = วันเซ็นรับรถ · เตือน 30% ในรายการ · r3: เมนูรวม Overhaul · r2: S1–S11 · r1: ตาม UAT"}]]}],["$","dl",null,{"className":"mb-6 grid gap-4 text-sm md:grid-cols-3","children":[["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"JO"}],["$","dd",null,{"children":"รอยืนยัน"}]]}],["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"Revision"}],["$","dd",null,{"children":"r7"}]]}],["$","div",null,{"children":[["$","dt",null,{"className":"text-gray-500","children":"กติกากลาง"}],["$","dd",null,{"children":["v","1.0.0"]}]]}]]}],["$","div",null,{"className":"grid gap-4 md:grid-cols-2","children":[["$","section","Requirement",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Requirement"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ขอบเขต บทบาท และข้อกำหนด"}],["$","a",null,{"className":"font-semibold text-brand-800 underline","href":"/vms-plus-workspace/content/repair-uat-baseline/review.md","target":"_blank","rel":"noopener","children":["เปิด ","Requirement"," ↗"]}]]}],["$","section","Business Flow",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Business Flow"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ลำดับงานและเงื่อนไขธุรกิจ"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}],["$","section","Prototype",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Prototype"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ต้นแบบสำหรับทดลองใช้งาน"}],["$","a",null,{"className":"font-semibold text-brand-800 underline","href":"/vms-plus-workspace/prototypes/repair/","target":"_blank","rel":"noopener","children":["เปิด ","Prototype"," ↗"]}]]}],["$","section","Acceptance Criteria",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Acceptance Criteria"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"AC พร้อมหลักฐานและสถานะการยืนยัน"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}],["$","section","Figma screen spec",{"className":"rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-lg font-semibold","children":"Figma screen spec"}],["$","p",null,{"className":"my-3 text-sm text-gray-600","children":"ข้อกำหนดที่ป้อนให้ปลั๊กอิน export"}],["$","p",null,{"className":"text-sm text-gray-500","children":"ยังไม่จัดทำ"}]]}]]}],["$","section",null,{"className":"mt-8 space-y-4 rounded-lg border border-gray-200 bg-white p-6","children":[["$","h2",null,{"className":"text-xl font-semibold","children":"AC ของเคสนี้"}],["$","p",null,{"className":"text-gray-500","children":"ยังไม่มี AC ที่ระบุรายละเอียด"}]]}],"$L3","$L4"]}],null,"$L5"]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":"$L8","isPartial":"$@9","staleTime":"$7","varyParams":null},{"rsc":"$La","isPartial":"$@b","staleTime":"$7","varyParams":"$c"},{"rsc":"$Ld","isPartial":"$@e","staleTime":"$7","varyParams":"$c"},{"rsc":"$Lf","isPartial":"$@10","staleTime":"$7","varyParams":null},{"rsc":"$L11","isPartial":"$@12","staleTime":"$7","varyParams":"$c"}],"isUpgradeableISRFallback":false,"a":"$@13","rootVaryParams":null,"needsRuntimeRequest":"$@14"}
+16:I[484,[],"OutletBoundary"]
+17:"$Sreact.suspense"
+19:I[484,[],"ViewportBoundary"]
+1a:I[484,[],"MetadataBoundary"]
+1b:I[7121,[],""]
+1c:I[4581,[],""]
+:HL["/vms-plus-workspace/_next/static/css/31b69de0f945450b.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap","style"]
+15:T52ba,# งานซ่อม (แจ้งซ่อม) · ต้นแบบเทียบ UAT r2
+
+ต้นแบบ: `/prototypes/repair/` · ดูระบบจริง: vms-plus-uat.odds.team/maintain-d/repair-utility-vehicle (20 พ.ย. 2569 · ตัวตนทดสอบ "นาย กบค" admin-super)
+ข้อมูลในต้นแบบเป็นค่าสมมติทั้งหมด · ป้ายม่วงเส้นประ **"เพิ่มใหม่ · รอยืนยัน"** = จอ/ทางที่ UAT ยังไม่มี
+
+## 1. สิ่งที่ทำตาม UAT (observed)
+
+| จอ | สิ่งที่ตรงกับ UAT |
+|---|---|
+| รายการ | คอลัมน์ 8 + ปุ่มดู · ค้นหา "หมายเลขเหตุการณ์, เลขทะเบียน" · เรียงคอลัมน์ · แบ่งหน้า 10/25/50/100 · ว่าง "ไม่มีรายการแจ้งซ่อม" · สีป้ายสถานะ (warning / brand "รอตรวจสภาพก่อนซ่อม" / success "ซ่อมเสร็จ" / gray "ปิดงาน") |
+| ตัวกรอง | สถานะเหตุการณ์ 24 ค่าเรียงตาม API · ยี่ห้อรถ · ประเภทรถ · สถานะรถ · วันนัดหมาย · ล้างตัวกรอง / ยกเลิก / ตกลง |
+| แจ้งซ่อม 4 ขั้น | กล่องสรุปยานพาหนะ · "ส่วนที่ต้องการแจ้งซ่อม" เฉพาะรถกระเช้า/เครน · เอกสารแนบเฉพาะ "ซ่อมศูนย์บริการ/อู่" · ช่องตามงบ 5 แบบ · tooltip ผู้รับแจ้งเหตุ · อาการเสียเลือกหลายค่า · อะไหล่ 2 แผง · หน้ายืนยัน · กล่อง "ยืนยันการส่งอนุมัติ" · การ์ดส่งเรื่องสำเร็จ · กล่อง "ออกจากหน้านี้" |
+| รอหัวหน้าหน่วยงานอนุมัติ | เลือกวิธีซ่อม 2 การ์ด · ส่งคืนงานซ่อม (เหตุผล) · รับงานซ่อม → "ส่งอนุมัติเพื่อเปิดงานซ่อม" (ผู้อนุมัติ) |
+| รอหัวหน้า กบค. อนุมัติ | เลือกวิธีซ่อม · ส่งคืนงานซ่อม · อนุมัติ |
+| กระบวนการซ่อม 7 ขั้น | ขั้น 1–2 แบบล็อก · ขั้น 3 เอกสารรับรถ 13 ข้อ + ลงนาม + ตรวจสภาพ 24 ข้อ · ขั้น 4 พบ/ไม่พบอาการเพิ่ม + เบิก/ไม่เบิกอะไหล่ · ขั้น 5 นัดคืนรถ + "รอตอบกลับจากหน่วยงาน" · ขั้น 6 ตรวจหลังซ่อม + คะแนน 1–5 + จำนวนที่ใช้/คืน · ขั้น 7 เอกสาร + อะไหล่เก่า + เอกสารปิดงาน 15 ข้อ · ส่งอนุมัติ / อนุมัติปิดงาน |
+| แท็บ | ประวัติการซ่อม (ค้นหาอาการเสีย · ตัวกรอง · รายงาน (n)) · ประวัติการดำเนินการ |
+| เมนู | "รายการแจ้งซ่อม" · "สร้างใบแจ้งซ่อม" ใต้ จัดการยานพาหนะขนาดใหญ่ |
+
+**ต่างจาก UAT โดยตั้งใจ:** เงินแสดง `0.00 บาท` ตาม MONEY-001 (UAT `0 บาท`) · ขนาดหัวหน้าใช้ PageHeader ของไลบรารี (32px) · ผลค้นหาอะไหล่ฝั่งซ้ายเป็นแบบของต้นแบบ เพราะ UAT ค้นแล้วไม่พบรายการเสมอ · ปุ่ม "แก้ไขนัดหมาย" กดได้ (UAT ดูเหมือนปิดไว้)
+
+## 2. จุดที่ UAT ข้ามขั้น (r2 · 23 พ.ย. 2569)
+
+| # | UAT ข้ามอะไร | หลักฐาน (observed) | ต้นแบบ r2 ทำอะไร |
+|---|---|---|---|
+| S1 | หัวหน้าหน่วยงานไม่มีหน้าอนุมัติของตัวเอง · ข้ามงานคัดแยก กรย. และ กบค รับเรื่อง/พิจารณา | หน้า "รอหัวหน้าหน่วยงานอนุมัติ" มีปุ่ม "รับงานซ่อม" ของ กบค. · ไม่มีงานในสถานะ กรย./กบค รับเรื่อง | เมนู **อนุมัติงานซ่อม** + หน้า กรย. คัดแยก 3 ทาง + กบค รับเรื่อง (F2, F3) |
+| S2 | อนุมัติแล้วกระโดดไป "รอตรวจสภาพก่อนซ่อม" — ข้ามเตรียมอะไหล่และส่งนัดหมาย | ขั้น 1–2 ล็อกเสมอ · ไม่มีงานใน "เตรียมอะไหล่" / "รอต้นทางยืนยันนัดหมาย" | ขั้น 1 เลือก+ยืนยันเบิกอะไหล่ · ขั้น 2 ส่งนัดหมาย (F5, F6) |
+| S3 | หน่วยงานต้นทางไม่ได้ตอบนัดหมายเอง | ปุ่ม "ต้นทางยืนยัน" ให้ กบค. กดแทน เปลี่ยนสถานะทันที | เมนู **ตอบรับนัดหมายงานซ่อม** (ตอบรับในช่วงวันที่ กบค. เสนอ / ปฏิเสธ + เหตุผล + วันที่สะดวก) · ปุ่มลัดเหลือเฉพาะ admin-super |
+| S4 | ผู้ส่งมอบรถ (หน่วยงาน) ไม่ได้เซ็นเอง | ปุ่ม "เซ็นลงนาม" ทั้งสองฝั่งอยู่ในหน้า กบค. | ฝั่งหน่วยงาน "ส่งให้เซ็นลงนาม" → หน่วยงานเซ็นจากเมนูตอบรับ · ยืนยันขั้นได้เมื่อเซ็นครบ |
+| S5 | ไม่มีการบันทึกระหว่างซ่อม | ขั้น 4 มีแค่ผลอาการเพิ่ม | **บันทึกความคืบหน้า** (วันเวลาอัตโนมัติ · % · หมายเหตุ) แบบ Overhaul |
+| S6 | เจออาการเพิ่มไม่มีคนอนุมัติ | สถานะ "เจออาการเพิ่ม" มีใน API · กล่อง "ส่งอนุมัติเพื่อเปิดงานซ่อม" ซ่อนอยู่ | หน้าอนุมัติอาการเพิ่มของหัวหน้า กบค. (F7) |
+| S7 | ต้นทางปฏิเสธวันคืนรถไม่ได้ | สถานะ "รอ กบค. ส่งนัดหมายวันคืนรถใหม่อีกครั้ง" ไม่มีทางไปถึง | ปฏิเสธจากเมนูตอบรับ → กบค. ส่งนัดใหม่ (F8) |
+| S8 | ปิดงานไม่มีผู้อนุมัติเฉพาะ / ส่งกลับแก้ไขไม่ได้ | ปุ่ม "อนุมัติปิดงาน" อยู่ในหน้าเดียวกับคนส่ง | อนุมัติจากเมนูอนุมัติงานซ่อม + ส่งกลับแก้ไข (F9) |
+| S9 | งานอู่ภายนอก/ซ่อมเองไม่มีการติดตาม | งานปิดแล้วไม่มีแท็บกระบวนการซ่อม | ฟอร์มบันทึกผลการซ่อม → ปิดงาน (F4) |
+| S10 | ไม่มีแจ้งเตือน | กระดิ่งว่าง | แจ้งเตือนตาม role ทุกจุดส่งต่องาน (กดแล้วไปหน้าที่ต้องทำ) |
+| S11 | ปิดงานทันทีใช้ไม่ได้ | ปุ่มปิด "ยังไม่พร้อมใช้งาน" | เปิด + บังคับเหตุผล (F10) |
+
+เทียบกับ Overhaul และมติ 23 พ.ย. 2569 ดู [repair-vs-overhaul.md](repair-vs-overhaul.md) · r3: เมนู "ตอบรับนัดหมาย" / "อนุมัติงาน" รวมกับ Overhaul แบ่งแท็บตามประเภท
+
+## 2.1 รายการ flow ที่เติม (F1–F11) และคำถาม
+
+API มี 24 สถานะ แต่ UAT มีจอ/งานจริงแค่ 10 สถานะ
+
+| # | สถานะ / จุด | ต้นแบบทำอะไร | คำถามถึง กฟภ. |
+|---|---|---|---|
+| F1 | ส่งคืนงานซ่อม → ? | กล่องส่งคืนเพิ่มตัวเลือก "ส่งกลับต้นทางซ่อมเอง" / "ไม่อนุมัติ" | ส่งคืนแล้วไปสถานะไหน (ก) ส่งกลับซ่อมเอง (ข) ไม่อนุมัติ (ค) แล้วแต่ผู้อนุมัติเลือก |
+| F2 | รอ กรย พิจารณา · กรย เห็นชอบ ซ่อมเอง · รอ กรย ดำเนินการ | หน้า "พิจารณางานคัดแยก (กรย.)" 3 ปุ่ม | หน้าส่งเรื่องบอก "อนุมัติแล้วไป งานคัดแยก กรย." แต่ปุ่มใน UAT ไปหัวหน้า กบค. — ลำดับที่ถูกคืออะไร |
+| F3 | รอ กบค รับเรื่อง · รอ กบค พิจารณา | ปุ่ม "รับเรื่อง" แล้วเลือกวิธีซ่อมเหมือนหน้าอนุมัติ | สองสถานะนี้ต่างกันอย่างไร |
+| F4 | ส่งกลับต้นทางซ่อมเอง · ดำเนินการซ่อมเอง · อนุมัติแบบอู่ภายนอก | ต้นทางรับทราบ → ฟอร์ม "บันทึกผลการซ่อม" (อู่ · วันที่เสร็จ · ค่าใช้จ่าย · เลขไมล์ · ไฟล์) → ปิดงาน | งานอู่ภายนอก/ซ่อมเองต้องบันทึกอะไรก่อนปิด · ต้องมีผู้อนุมัติไหม |
+| F5 | เตรียมอะไหล่ (ขั้น 1 แก้ได้) | เลือกอะไหล่ ตั้งต้นจากที่ผู้แจ้งเลือก · ยืนยันเบิก / ไม่เบิกอะไหล่ | ใครยืนยันเบิก · ต้องอนุมัติใบเบิกไหม |
+| F6 | ขั้น 2 ส่งนัดหมาย · รอต้นทางยืนยันนัดหมาย | ฟอร์มส่งนัด → หน้ารอ → ต้นทางยืนยัน / ขอเปลี่ยนวัน (เหตุผล) | ต้นทางตอบผ่านหน้าไหน (เมนูของหน่วยงาน หรือแจ้งเตือน) |
+| F7 | เจออาการเพิ่ม | UAT มีกล่องส่งอนุมัติซ่อนอยู่ → หน้าอนุมัติ/ไม่อนุมัติของหัวหน้า กบค. · อนุมัติแล้วรวมอะไหล่เพิ่ม | ไม่อนุมัติแล้วซ่อมต่อหรือหยุดงาน |
+| F8 | รอ กบค. ส่งนัดหมายวันคืนรถใหม่อีกครั้ง | ต้นทางขอเปลี่ยนวันคืนรถ → กบค. ส่งนัดใหม่ | — |
+| F9 | ไม่อนุมัติปิดงาน | "ส่งกลับแก้ไข" พร้อมเหตุผล → กลับไปขั้น 7 | ต้องมีทางไม่อนุมัติไหม |
+| F10 | ปิดงานทันที | UAT ปิดปุ่ม ("ยังไม่พร้อมใช้งาน") → ต้นแบบเปิด + บังคับเหตุผล | ใครกดได้ · ขั้นไหนกดได้ |
+| F11 | รอต้นทางรับรถกลับไปใช้งาน · รอ คนแจ้งซ่อม ยืนยันนัดหมาย วันคืนรถ | ยังไม่ทำ (แสดงป้ายเท่านั้น) | ใช้ตอนไหน — UAT หลังต้นทางยืนยันรับรถไป "ตรวจสภาพหลังซ่อม" ทันที |
+
+## 3. ความเสี่ยง (senior-ux-review + senior-dev-review)
+
+| # | จอ / behavior | ความเสี่ยง | ระดับ | แนะนำ | สถานะ |
+|---|---|---|---|---|---|
+| 1 | ปุ่ม "ต้นทางยืนยัน" ในหน้า กบค. | กบค. กดแทนหน่วยงานได้ ไม่มีหลักฐานว่าต้นทางยืนยันจริง (กดแล้วเปลี่ยนสถานะทันที ไม่มีกล่องยืนยัน) | สูง | ให้ต้นทางยืนยันจากหน้าของตัวเอง หรือบันทึกว่าใครยืนยันแทน | observed · EC-R01 |
+| 2 | วิธีซ่อมเลือกซ้ำทุกขั้นอนุมัติ | หัวหน้า กบค. เปลี่ยนวิธีที่หัวหน้าหน่วยงานเลือกโดยไม่รู้ตัว (UAT ไม่ตั้งค่าเดิมไว้) | กลาง | ตั้งค่าตามที่เลือกก่อนหน้า | observed · EC-R02 |
+| 3 | อะไหล่ไม่มี API Smart Inventory | ยอดคงเหลือไม่จริง เบิกเกิน | สูง | ระบุแหล่งยอดและเวลาอัปเดต · ส่วนเกินตั้งจัดซื้ออัตโนมัติ (UAT บอกไว้แล้ว) | pending · EC-R03 |
+| 4 | กรอกฟอร์มยาว (ขั้น 3, 6, 7) แล้วออกหน้า | ข้อมูลหาย | กลาง | บันทึกร่าง หรือถามก่อนออก | pending · EC-R04 |
+| 5 | กดยืนยัน/ส่งซ้ำ | สถานะข้ามขั้น · ประวัติซ้ำ | สูง | ปิดปุ่มระหว่างส่ง + server ตรวจสถานะเดิมก่อนเปลี่ยน | pending (dev) · EC-R05 |
+| 6 | สิทธิ์ตาม role | UAT ใช้ admin-super เห็นทุกปุ่ม | สูง | server ตรวจ role ต่อสถานะ (ตาราง ACTOR ใน model.ts) | pending · EC-R06 |
+| 7 | ผู้ดำเนินการในรายการขึ้นแต่ "หน่วยงาน" | ไม่รู้หน่วยงานจริง | ต่ำ | แสดงชื่อหน่วยงาน | observed |
+
+ทำ prototype ต่อได้ · ต้องถาม กฟภ. ข้อ F1–F11 ก่อนเขียน AC ละเอียด
+
+## 4. บันทึกการยืนยัน
+
+| ขั้น | revision | ขอบเขตที่ยืนยัน | ผู้ยืนยัน | วันที่ | หลักฐาน | เรื่องค้าง |
+|---|---|---|---|---|---|---|
+| Prototype | r1 | — | — | — | — | F1–F11 · ความเสี่ยง 1–6 |
+| Prototype | r2 | — | — | — | — | S1–S11 · คำถามใน repair-vs-overhaul.md ข้อ 1–4 |
+| Prototype | r3 | มติ 4 ข้อ (เมนูรวม · ลำดับแยก · รูปตาม JO1 · อู่ master + ประกัน) | เจ้าของงาน | 23/11/2569 | แชตกับเจ้าของงาน | สิ่งที่ JO1 ระบุแต่ยังไม่มี (repair-vs-overhaul.md ข้อ 6) |
+| Prototype | r5 | flow อนุมัติก่อนซ่อม: หัวหน้าหน่วยงาน (อนุมัติ/ส่งคืน) → กรย พิจารณา (ซ่อมโดย กรย. · กบค. · อู่ภายนอก + ประเมินราคา) → กบค รับเรื่อง (= หน้า UAT เลือกวิธีซ่อม + รับงานซ่อม) → หัวหน้า กบค. · รายการ 2 แท็บ ปกติ/เกิน 30% + เสนอเข้าแผน Overhaul/เสนอจำหน่าย · ส่งกลับต้นทางซ่อมเองไม่มีหน้าใหม่ | เจ้าของงาน | 23/11/2569 | แชตกับเจ้าของงาน | ไม่อนุมัติ: เก็บปุ่มแก้ไข/ยกเลิก (JO1 7.2.2) หรือไม่ · ข้อเสนอ Overhaul/จำหน่ายไปต่อที่ไหน (EC-R13) |
+| Prototype | r6 | ขั้น 4: เก็บบันทึกความคืบหน้าไว้ · เอาความเร่งด่วน (วิกฤต/รอซ่อมรอบถัดไป) ออก ใช้อาการเพิ่มตาม UAT · เซ็นลงนามรับมอบ/ส่งคืนรถแบบ Overhaul: ตรวจสภาพครบก่อนเซ็น · ส่งคำขอแล้วล็อก · ยังไม่เซ็นกด แก้ไข ได้ | เจ้าของงาน | 23/11/2569 | แชตกับเจ้าของงาน | — |
+| Prototype | r7 | แจ้งซ่อม: section ศูนย์บริการ/อู่ (เลือกอู่ → แนบเอกสาร → ราคาประเมิน) · อนุมัติทันที / ไม่อนุมัติ = Modal เหตุผล · ไม่อนุมัติ → ยกเลิกอย่างเดียว (สถานะยกเลิก แล้วสร้างใหม่) · ซ่อมอู่/ซ่อมโดย กรย. = กระบวนการซ่อม 3 ขั้น · ขั้น 3 บังคับรูปก่อนเซ็น · ไม่แสดง "รอเซ็นลงนาม" | เจ้าของงาน | 23/11/2569 | แชตกับเจ้าของงาน | กรย พิจารณา 3 ทาง · จังหวะประเมินค่าซ่อม (EC-R15) |
+
+## 5. ข้อสังเกตระหว่างดู UAT
+
+- ปุ่ม "ต้นทางยืนยัน" (ขั้น 5) เปลี่ยนสถานะทันทีเมื่อกด — ระหว่างดูหน้า กดปุ่มนี้ 1 ครั้ง งานทดสอบ RRB6900015 จึงเปลี่ยนจาก "รอต้นทางยืนยันรับรถ" เป็น "รอ กบค. ตรวจสภาพหลังซ่อม" บน UAT
+- งานที่ปิดแล้วแบบอู่ภายนอกไม่มีแท็บกระบวนการซ่อม
+3:["$","details",null,{"className":"mt-6 rounded-lg border border-gray-200 bg-white p-6","children":[["$","summary",null,{"className":"cursor-pointer font-semibold","children":"อ่าน Requirement ในหน้านี้"}],["$","pre",null,{"className":"mt-4 whitespace-pre-wrap font-sans text-sm leading-7","children":"$15"}]]}]
+4:["$","p",null,{"className":"mt-8 text-sm text-gray-600","children":["การเผยแพร่หรือแก้ AC ไม่เปลี่ยน requirement ที่อนุมัติแล้วโดยอัตโนมัติ ดู ",["$","$L2",null,{"href":"/guide/","className":"underline","children":"วิธีทำงาน"}]]}]
+5:["$","$L16",null,{"children":["$","$17",null,{"name":"Next.MetadataOutlet","children":"$@18"}]}]
+8:["$","$1","h",{"children":[null,["$","$L19",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L1a",null,{"children":["$","$17",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"VMS+ Workspace"}],["$","meta","1",{"name":"description","content":"Requirements, flows, prototypes and review cases"}]]}]}]}],null]}]
+a:["$","$1","c",{"children":[null,["$","$L1b",null,{"parallelRouterKey":"children","template":["$","$L1c",null,{}]}]]}]
+d:["$","$1","c",{"children":[null,["$","$L1b",null,{"parallelRouterKey":"children","template":["$","$L1c",null,{}]}]]}]
+f:["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/vms-plus-workspace/_next/static/css/31b69de0f945450b.css","precedence":"next"}]],["$","html",null,{"lang":"th","children":[["$","head",null,{"children":["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap"}]}],["$","body",null,{"className":"bg-gray-50 text-gray-900","children":[["$","header",null,{"className":"border-b border-gray-200 bg-white","children":["$","div",null,{"className":"mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5","children":[["$","$L2",null,{"href":"/","className":"text-xl font-semibold text-brand-900 no-underline","children":"VMS+ Workspace"}],["$","nav",null,{"aria-label":"เมนูหลัก","className":"flex gap-6 text-sm","children":[["$","$L2",null,{"href":"/","children":"งานและเคสรีวิว"}],["$","$L2",null,{"href":"/guide/","children":"วิธีใช้งาน / กติกากลาง"}]]}]]}]}],["$","$L1b",null,{"parallelRouterKey":"children","template":["$","$L1c",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]]}]]}]
+11:["$","$1","c",{"children":[null,["$","$L1b",null,{"parallelRouterKey":"children","template":["$","$L1c",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:style","children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:1:props:style","children":404}],["$","div",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:2:props:style","children":["$","h2",null,{"style":"$f:props:children:1:props:children:1:props:children:1:props:notFound:0:1:props:children:props:children:2:props:children:props:style","children":"This page could not be found."}]}]]}]}]],[]]}]]}]
+18:null
+14:true
+7:300
+7:C
+13:0
+9:"$undefined"
+b:"$undefined"
+e:"$undefined"
+10:"$undefined"
+12:"$undefined"
+6:"$undefined"
