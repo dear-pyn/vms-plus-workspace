@@ -40,6 +40,9 @@ import { signIntake } from "@overhaul/features/job/intake";
 import type { PendingClose } from "@overhaul/features/po/types";
 import { AgencyList, AgencyReply, awaitingReply, type AgencyAnswer, type AgencyItem } from "@overhaul/features/job/AgencyPages";
 import { ApprovalList, ApprovalReview, awaitingApproval, type ApprovalDecision } from "@overhaul/features/job/ApprovalPages";
+import { Tabs } from "@ui/Tabs";
+import { RepairApprovalTable, RepairReplyTable, approvalItems, replyItems } from "@repair/features/RepairInbox";
+import { loadRepairJobs, repairHref } from "@repair/mock/store";
 import { approversOf } from "@overhaul/features/job/StepSendApproval";
 import { nowStamp } from "@overhaul/features/shared/time";
 import { N, T, jobKey, ohName, type ToastMsg } from "@overhaul/features/shared/messages";
@@ -50,6 +53,7 @@ import { PODetail } from "@overhaul/features/po/PODetail";
 import type { PODraft, PurchaseOrder, VehicleJob } from "@overhaul/features/po/types";
 import { seedVehicles } from "@overhaul/mock/vehicles";
 import { mainNav } from "@/lib/nav";
+import { protoKey } from "@/lib/protoNs";
 import { GarageList } from "@overhaul/features/garage/GarageList";
 import { GarageForm } from "@overhaul/features/garage/GarageForm";
 import { GarageDetail } from "@overhaul/features/garage/GarageDetail";
@@ -69,10 +73,10 @@ type Route =
   | { view: "poEdit"; id: string; po: string; from?: string }
   | { view: "job"; po: string; plate: string }
   | { view: "approve"; po: string; plate: string; staff: string }
-  | { view: "agency" }
+  | { view: "agency"; type?: "repair" }
   | { view: "cases" }
   | { view: "agencyJob"; po: string; plate: string }
-  | { view: "approval" }
+  | { view: "approval"; type?: "repair" }
   | { view: "approvalJob"; po: string; plate: string }
   | { view: "garages" }
   | { view: "garageNew" }
@@ -95,8 +99,11 @@ function parse(hash: string): Route {
   if (pe) return { view: "poEdit", id: decodeURIComponent(pe[1]), po: decodeURIComponent(pe[2]), from: pe[3] };
   const pd = h.match(/^\/plan\/([^/]+)\/po\/([^/]+)$/);
   if (pd) return { view: "po", id: decodeURIComponent(pd[1]), po: decodeURIComponent(pd[2]) };
-  if (h === "/agency") return { view: "agency" };
-  if (h === "/approval") return { view: "approval" };
+  /* 23 พ.ย. 2569 เมนูรวม Overhaul + งานซ่อม แบ่งแท็บตามประเภท (?type=repair) */
+  if (h === "/agency" || h === "/agency?type=overhaul") return { view: "agency" };
+  if (h === "/agency?type=repair") return { view: "agency", type: "repair" };
+  if (h === "/approval" || h === "/approval?type=overhaul") return { view: "approval" };
+  if (h === "/approval?type=repair") return { view: "approval", type: "repair" };
   const apj = h.match(/^\/approval\/job\/([^/]+)\/([^/]+)$/);
   if (apj) return { view: "approvalJob", po: decodeURIComponent(apj[1]), plate: decodeURIComponent(apj[2]) };
   /* 19 พ.ย. 2569 เมนู อู่/ศูนย์บริการ */
@@ -104,7 +111,7 @@ function parse(hash: string): Route {
   if (h === "/garages/new") return { view: "garageNew" };
   const gm = h.match(/^\/garage\/([^/]+)(\/edit)?$/);
   if (gm) return gm[2] ? { view: "garageEdit", id: decodeURIComponent(gm[1]) } : { view: "garage", id: decodeURIComponent(gm[1]) };
-  if (h === "/cases") return { view: "cases" }; // สารบัญเคส (เครื่องมือต้นแบบ 17 พ.ย. 2569)
+  if (h === "/cases" || h === "/overview") return { view: "cases" }; // Overview (เดิม สารบัญเคส · เครื่องมือต้นแบบ 17 พ.ย. 2569)
   const ag = h.match(/^\/agency\/job\/([^/]+)\/([^/]+)$/);
   if (ag) return { view: "agencyJob", po: decodeURIComponent(ag[1]), plate: decodeURIComponent(ag[2]) };
   const sm = h.match(/^\/summary\/([^/]+)\/([^/]+)$/);
@@ -131,8 +138,8 @@ function href(r: Route): string {
     case "poEdit": return `/plan/${r.id}/po/${r.po}/edit${r.from ? `?from=${r.from}` : ""}`;
     case "job": return `/job/${r.po}/${encodeURIComponent(r.plate)}`;
     case "approve": return `/approve/${r.po}/${encodeURIComponent(r.plate)}/${r.staff}`;
-    case "agency": return "/agency";
-    case "approval": return "/approval";
+    case "agency": return r.type ? `/agency?type=${r.type}` : "/agency";
+    case "approval": return r.type ? `/approval?type=${r.type}` : "/approval";
     case "approvalJob": return `/approval/job/${r.po}/${encodeURIComponent(r.plate)}`;
     case "cases": return "/cases";
     case "garages": return "/garages";
@@ -163,7 +170,7 @@ const nextId = (plans: Plan[], fy: number) => {
   return `${prefix}${String(max + 1).padStart(5, "0")}`;
 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const GARAGE_KEY = "vms-plus:overhaul-garages:v1";
+const GARAGE_KEY = protoKey("vms-plus:overhaul-garages:v1"); // preview repair-v2 ใช้ master อู่ชุดเดียวกับหน้างานซ่อม (namespace เดียวกัน)
 
 export default function OverhaulPrototype() {
   const [seed] = useState(() => seedPOs(seedPlans(), seedVehicles()));
@@ -591,9 +598,13 @@ export default function OverhaulPrototype() {
   } else if (route.view === "agency") {
     const items = agencyItems();
     const { unit } = loginUnit(items);
+    const repairJobs = loadRepairJobs();
+    const ohCount = items.filter((x) => x.vehicle?.affiliation === unit && awaitingReply(x.job)).length;
     body = (
       <AgencyList
         items={items} unit={unit}
+        tabs={<Tabs items={[{ id: "overhaul", label: "Overhaul", count: ohCount }, { id: "repair", label: "งานซ่อม", count: replyItems(repairJobs).length }]} value={route.type ?? "overhaul"} onChange={(t) => go({ view: "agency", type: t === "repair" ? "repair" : undefined })} />}
+        alt={route.type === "repair" ? <RepairReplyTable jobs={repairJobs} onOpen={(id, kind) => { location.href = repairHref(kind === "self" ? `#/job/${id}` : `#/reply/${id}/${kind}`); }} /> : undefined}
         onOpen={(po, plate) => {
           setAgencyUnit(unit); // คงหน่วยงานที่เลือกไว้เมื่อกลับมาหน้ารายการ
           go({ view: "agencyJob", po, plate });
@@ -605,7 +616,16 @@ export default function OverhaulPrototype() {
     const items = agencyItems();
     const me = loginApprover(items);
     if (route.view === "approval") {
-      body = <ApprovalList items={items} staff={staff} me={me} onOpen={(po, plate) => { setApproverMe(me); go({ view: "approvalJob", po, plate }); }} />;
+      const repairJobs = loadRepairJobs();
+      body = (
+        <ApprovalList
+          items={items} staff={staff} me={me}
+          onOpen={(po, plate) => { setApproverMe(me); go({ view: "approvalJob", po, plate }); }}
+          tabs={<Tabs items={[{ id: "overhaul", label: "Overhaul", count: items.filter((x) => awaitingApproval(x, me)).length }, { id: "repair", label: "งานซ่อม", count: approvalItems(repairJobs, "admin").length }]} value={route.type ?? "overhaul"} onChange={(t) => go({ view: "approval", type: t === "repair" ? "repair" : undefined })} />}
+          /* ต้นแบบ: แท็บงานซ่อมแสดงทุกเรื่องที่รออนุมัติ (ผู้อนุมัติงานซ่อมเลือก role ในต้นแบบงานซ่อม) */
+          alt={route.type === "repair" ? <RepairApprovalTable jobs={repairJobs} role="admin" onOpen={(id) => { location.href = repairHref(`#/job/${id}`); }} /> : undefined}
+        />
+      );
     } else {
       const item = items.find((x) => x.po.id === route.po && x.job.plate === route.plate)!;
       const who = item.job.close?.approval?.approverId ?? me;

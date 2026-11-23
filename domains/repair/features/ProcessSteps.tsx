@@ -20,10 +20,14 @@ import { TextField } from "@ui/TextField";
 import { InfoTooltip } from "@ui/Tooltip";
 import { cx } from "@ui/cx";
 import { CLOSE_DOCS, INSPECT_ITEMS, INTAKE_DOCS, partOf, personOf, vehicleOf, type StatusCode } from "../mock/data";
-import { DateRangeField } from "@ui/DateField";
-import { nowBE, num, type Appointment, type DocCheck, type Notice, type RepairJob, type Role } from "./model";
-import { PartsPicker } from "./parts";
-import { GridRow, GridTable, InfoPanel, PersonPicker, SectionBar, SignBlock } from "./ui";
+import { WARRANTY_MAX_DAYS, warrantyEnd } from "@overhaul/features/job/close";
+import { DateField, DateRangeField, parseThaiDate } from "@ui/DateField";
+import { Toggle } from "@ui/Toggle";
+import { MoneyField } from "@overhaul/features/plan/VehicleModals";
+import { nowBE, num, todayBE, type Warranty, type Appointment, type DocCheck, type Notice, type PartLine, type RepairJob, type Role } from "./model";
+import { ProgressBar } from "@ui/ProgressBar";
+import { CostAlert, PartsPicker, jobCost, money, usedPartsCost } from "./parts";
+import { AddedNote, AddedTag, GridRow, GridTable, InfoPanel, PersonPicker, SectionBar, SignBlock, UploadBox } from "./ui";
 
 export type Notify = { to: Role; text: string; tone?: Notice["tone"] };
 export type Act = (patch: Partial<RepairJob>, o?: { status?: StatusCode; log?: string; note?: string; toast?: string; notify?: Notify[] }) => void;
@@ -32,10 +36,23 @@ interface StepProps { job: RepairJob; edit: boolean; act: Act; role: Role }
 const HQ = "การไฟฟ้าส่วนภูมิภาคสำนักงานใหญ่ อาคาร 9";
 export const Footer = ({ children }: { children: ReactNode }) => <div className="flex flex-wrap items-center justify-end gap-3">{children}</div>;
 
-/* ---------------- 1 เบิกอะไหล่ (UAT: ล็อกเสมอ) ---------------- */
-export function StepParts({ job }: StepProps) {
+/* ---------------- 1 เบิกอะไหล่ ---------------- */
+export function StepParts({ job, edit, act }: StepProps) {
+  const [lines, setLines] = useState<PartLine[]>(job.parts?.lines ?? job.requestedParts);
   const locked = !!job.parts?.locked;
-  return <PartsPicker readOnly lines={job.parts?.lines ?? []} footer={locked ? <p className="pt-2 text-xs text-gray-600">สถานะใบเบิก: รอสั่งซื้อ/เบิก (PENDING_ORDER)</p> : undefined} lockedText={locked ? undefined : "ยังไม่ได้เบิกอะไหล่"} />;
+  if (locked || !edit)
+    return <PartsPicker readOnly lines={job.parts?.lines ?? []} footer={locked ? <p className="pt-2 text-xs text-gray-600">สถานะใบเบิก: รอสั่งซื้อ/เบิก (PENDING_ORDER)</p> : undefined} lockedText={locked ? undefined : "ยังไม่ได้เบิกอะไหล่"} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <AddedNote>UAT มีแต่หน้าขั้นนี้แบบล็อกแล้ว — ต้นแบบเติมหน้าเลือกอะไหล่ก่อนยืนยันเบิก (ตั้งต้นจาก &quot;อะไหล่ที่ผู้แจ้งเลือกไว้&quot;) · เบิกแล้วแก้ไม่ได้</AddedNote>
+      <PartsPicker lines={lines} onChange={setLines} subtitle="จำนวนที่เกินยอดในคลัง จะถูกตั้งเป็นรายการจัดซื้อให้อัตโนมัติ" />
+      <CostAlert plate={job.plate} {...jobCost({ ...job, parts: { lines, locked: false } })} />
+      <Footer>
+        <Button variant="secondary" onClick={() => act({ parts: { lines: [], locked: true } }, { log: "ไม่เบิกอะไหล่", toast: "บันทึกสำเร็จ" })}>ไม่เบิกอะไหล่</Button>
+        <Button disabled={!lines.length} onClick={() => act({ parts: { lines, locked: true } }, { log: `ยืนยันเบิกอะไหล่ ${lines.length} รายการ`, toast: "ยืนยันเบิกอะไหล่สำเร็จ" })}>ยืนยันเบิกอะไหล่</Button>
+      </Footer>
+    </div>
+  );
 }
 
 /* ---------------- ฟอร์มนัดหมาย (ขั้น 2 และ 5) ---------------- */
@@ -74,22 +91,50 @@ function ApptForm({ value, onChange, readOnly, kind }: { value: Appointment; onC
   );
 }
 
-/** หน้ารอหน่วยงานตอบ (UAT ขั้น 5: ภาพว่าง + "รอตอบกลับจากหน่วยงาน" + แก้ไขนัดหมาย + ต้นทางยืนยัน — กบค. กดแทนหน่วยงาน) */
-function WaitingReply({ onEdit, onConfirm, appt }: { onEdit: () => void; onConfirm: () => void; appt: Appointment }) {
+/** หน้ารอหน่วยงานตอบ (UAT ขั้น 5: ภาพว่าง + "รอตอบกลับจากหน่วยงาน" + แก้ไขนัดหมาย + ต้นทางยืนยัน)
+ *  เพิ่มใหม่: หน่วยงานตอบเองจากเมนู "ตอบรับนัดหมายงานซ่อม" (แบบ Overhaul) — ปุ่ม "ต้นทางยืนยัน" ใน UAT เป็นทางลัดให้ กบค. กดแทน จึงแสดงเฉพาะ role admin-super (EC-R01) */
+function WaitingReply({ onEdit, onConfirm, appt, shortcut }: { onEdit: () => void; onConfirm: () => void; appt: Appointment; shortcut: boolean }) {
   return (
     <div className="flex flex-col items-center gap-4 py-8">
       <EmptyState kind="data-empty" title="รอตอบกลับจากหน่วยงาน" description={`นัดหมาย ${appt.from}${appt.to && appt.to !== appt.from ? ` - ${appt.to}` : ""} · ${appt.place}`} />
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button variant="secondary" onClick={onEdit}>แก้ไขนัดหมาย</Button>
-        <Button onClick={onConfirm}>ต้นทางยืนยัน</Button>
+        {shortcut && <Button onClick={onConfirm}>ต้นทางยืนยัน</Button>}
       </div>
+      <p className="flex items-center gap-2 text-sm text-gray-600"><AddedTag /> หน่วยงานต้นทางตอบรับ/ปฏิเสธจากเมนู &quot;ตอบรับนัดหมายงานซ่อม&quot;</p>
     </div>
   );
 }
 
-/* ---------------- 2 นัดหมายวันซ่อม (UAT: ล็อก · อ่านอย่างเดียว) ---------------- */
-export function StepAppointment({ job }: StepProps) {
-  return <ApptForm kind="repair" value={job.appt ?? { kind: "at_med", from: "", to: "", mechanicId: "", place: "" }} onChange={() => {}} readOnly />;
+/* ---------------- 2 นัดหมายวันซ่อม ---------------- */
+export function StepAppointment({ job, edit, act, role }: StepProps) {
+  const [a, setA] = useState<Appointment>(job.appt ?? { kind: "at_med", from: "", to: "", mechanicId: "", place: HQ });
+  const [editing, setEditing] = useState(false);
+  const waiting = job.status === "waiting_origin_confirm_appointment";
+  if (edit && waiting && !editing)
+    return (
+      <WaitingReply
+        appt={job.appt!}
+        shortcut={role === "admin"}
+        onEdit={() => setEditing(true)}
+        onConfirm={() => act({ appt: { ...job.appt!, reply: { ok: true, at: nowBE() } } }, { status: "ready_to_proceed", log: "ต้นทางยืนยันนัดหมายวันซ่อม (กบค. กดแทน)", toast: "ยืนยันนัดหมายสำเร็จ" })}
+      />
+    );
+  const can = edit && (job.status === "preparing_spare_parts" || editing);
+  const ok = !!a.from && !!a.mechanicId && !!a.place.trim();
+  return (
+    <div className="flex flex-col gap-6">
+      {can && <AddedNote>UAT มีแต่หน้าขั้นนี้แบบอ่าน — ต้นแบบเติมฟอร์มส่งนัดหมายให้หน่วยงานต้นทางยืนยัน (ใช้ฟิลด์เดียวกับหน้าอ่าน)</AddedNote>}
+      {job.appt?.reply?.ok === false && can && <Alert tone="warning" title="ต้นทางขอเปลี่ยนวันนัดหมาย">{job.appt.reply.reason}</Alert>}
+      <ApptForm kind="repair" value={a} onChange={setA} readOnly={!can} />
+      {can && (
+        <Footer>
+          {editing && <Button variant="secondary" onClick={() => setEditing(false)}>ยกเลิก</Button>}
+          <Button disabled={!ok} onClick={() => { setEditing(false); act({ appt: { ...a, sentAt: nowBE(), reply: undefined } }, { status: "waiting_origin_confirm_appointment", log: "ส่งนัดหมายวันซ่อม", toast: "ส่งนัดหมายสำเร็จ", notify: [{ to: "origin", text: `นัดหมายวันซ่อม ${job.no} รอการตอบรับ`, tone: "warning" }] }); }}>ส่งนัดหมาย</Button>
+        </Footer>
+      )}
+    </div>
+  );
 }
 
 /* ---------------- ข้อมูลยานพาหนะ (ขั้น 3 และ 6) ---------------- */
@@ -138,11 +183,14 @@ function InspectTable({ title, check, notes, onChange, readOnly }: { title: stri
 
 /* ---------------- 3 ตรวจสภาพก่อนซ่อม ---------------- */
 type Intake = NonNullable<RepairJob["intake"]>;
-export function StepIntake({ job, edit, act }: StepProps) {
+export function StepIntake({ job, edit, act, role }: StepProps) {
   const [s, setS] = useState<Intake>(job.intake ?? { docs: {}, signed: [false, false], check: {}, notes: {} });
   const ro = !edit || !!job.intake?.confirmed;
   const setDoc = (i: number, p: DocCheck) => setS({ ...s, docs: { ...s.docs, [i]: { ...s.docs[i], ...p } } });
-  const ok = INTAKE_DOCS.every((_, i) => s.docs[i]?.v) && s.signed[0] && s.signed[1] && INSPECT_ITEMS.every((_, i) => s.check[i]);
+  /* แบบ Overhaul: ตรวจสภาพครบก่อนจึงเซ็น · ส่งคำขอ/เซ็นแล้วล็อกข้อมูลทั้งขั้น */
+  const complete = INTAKE_DOCS.every((_, i) => s.docs[i]?.v) && (s.docs[4]?.v !== "have" || (!!s.battery?.brand?.trim() && !!s.battery?.qty)) && INSPECT_ITEMS.every((_, i) => s.check[i]) && (s.photos ?? 0) > 0;
+  const locked = !!s.signReq || s.signed[0] || s.signed[1];
+  const ok = complete && s.signed[0] && s.signed[1];
   const cols = "2.4fr 0.8fr 0.8fr 0.9fr 0.9fr 2fr";
   return (
     <div className="flex flex-col gap-8">
@@ -158,30 +206,42 @@ export function StepIntake({ job, edit, act }: StepProps) {
                   {i + 1}. {d}
                   {i === 4 && (
                     <>
-                      <TextField aria-label="ยี่ห้อแบตเตอรี่" className="w-20" placeholder="ระบุยี่ห้อ" readOnly={ro} value={s.battery?.brand ?? ""} onChange={(e) => setS({ ...s, battery: { brand: e.target.value, qty: s.battery?.qty ?? "" } })} />
+                      <TextField aria-label="ยี่ห้อแบตเตอรี่" className="w-20" placeholder="ระบุยี่ห้อ" readOnly={ro || locked} value={s.battery?.brand ?? ""} onChange={(e) => setS({ ...s, battery: { brand: e.target.value, qty: s.battery?.qty ?? "" } })} />
                       จำนวน
-                      <TextField aria-label="จำนวนแบตเตอรี่" className="w-24" placeholder="ระบุจำนวน" inputMode="numeric" readOnly={ro} value={s.battery?.qty ?? ""} onChange={(e) => setS({ ...s, battery: { brand: s.battery?.brand ?? "", qty: e.target.value.replace(/\D/g, "") } })} />
+                      <TextField aria-label="จำนวนแบตเตอรี่" className="w-24" placeholder="ระบุจำนวน" inputMode="numeric" readOnly={ro || locked} value={s.battery?.qty ?? ""} onChange={(e) => setS({ ...s, battery: { brand: s.battery?.brand ?? "", qty: e.target.value.replace(/\D/g, "") } })} />
                       ลูก
                     </>
                   )}
                 </span>
-                <span className="px-1"><Radio name={`doc-${i}`} label={`มี ${d}`} checked={r.v === "have"} disabled={ro} onChange={() => setDoc(i, { v: "have" })} /></span>
-                <span className="px-1"><Radio name={`doc-${i}`} label={`ไม่มี ${d}`} checked={r.v === "none"} disabled={ro} onChange={() => setDoc(i, { v: "none", broken: false, wrong: false })} /></span>
-                <span className="px-1"><Checkbox label={`ชำรุด ${d}`} checked={!!r.broken} disabled={ro || r.v !== "have"} onChange={(b) => setDoc(i, { broken: b })} /></span>
-                <span className="px-1"><Checkbox label={`ผิดรุ่น ${d}`} checked={!!r.wrong} disabled={ro || r.v !== "have"} onChange={(b) => setDoc(i, { wrong: b })} /></span>
-                <TextField aria-label={`หมายเหตุ ${d}`} placeholder="ระบุหมายเหตุ" readOnly={ro} value={r.note ?? ""} onChange={(e) => setDoc(i, { note: e.target.value })} />
+                <span className="px-1"><Radio name={`doc-${i}`} label={`มี ${d}`} checked={r.v === "have"} disabled={ro || locked} onChange={() => setDoc(i, { v: "have" })} /></span>
+                <span className="px-1"><Radio name={`doc-${i}`} label={`ไม่มี ${d}`} checked={r.v === "none"} disabled={ro || locked} onChange={() => setDoc(i, { v: "none", broken: false, wrong: false })} /></span>
+                <span className="px-1"><Checkbox label={`ชำรุด ${d}`} checked={!!r.broken} disabled={ro || locked || r.v !== "have"} onChange={(b) => setDoc(i, { broken: b })} /></span>
+                <span className="px-1"><Checkbox label={`ผิดรุ่น ${d}`} checked={!!r.wrong} disabled={ro || locked || r.v !== "have"} onChange={(b) => setDoc(i, { wrong: b })} /></span>
+                <TextField aria-label={`หมายเหตุ ${d}`} placeholder="ระบุหมายเหตุ" readOnly={ro || locked} value={r.note ?? ""} onChange={(e) => setDoc(i, { note: e.target.value })} />
               </GridRow>
             );
           })}
         </GridTable>
       </section>
+      <InspectTable title="รายละเอียดการตรวจสภาพก่อนซ่อม" check={s.check} notes={s.notes} readOnly={ro || locked} onChange={(check, notes) => setS({ ...s, check, notes })} />
+      <PhotoSection title="รูปสภาพยานพาหนะ (ก่อนซ่อม)" note="JO1 7.2.4.1 ข้อ 4 ข้อมูลภาพและเอกสาร · บันทึกจุดชำรุดเป็นหลักฐาน" count={s.photos ?? 0} readOnly={ro || locked} onAdd={(n) => setS({ ...s, photos: (s.photos ?? 0) + n })} />
       <SignBlock
         title="ลงนามการรับมอบรถ"
         readOnly={ro}
-        left={{ label: "ผู้ส่งมอบรถ", placeholder: "เลือกผู้ส่งมอบรถ", value: s.delivererId, onChange: (v) => setS({ ...s, delivererId: v }), signed: s.signed[0], onSign: () => setS({ ...s, signed: [true, s.signed[1]] }) }}
-        right={{ label: "ผู้รับมอบ (กบค.)", placeholder: "เลือกผู้รับมอบ (กบค.)", value: s.receiverId, onChange: (v) => setS({ ...s, receiverId: v }), signed: s.signed[1], onSign: () => setS({ ...s, signed: [s.signed[0], true] }) }}
+        hint={!ro && !complete ? "ตรวจสภาพให้ครบทุกรายการ (เอกสารรับรถ + รายละเอียดการตรวจสภาพ) และแนบรูปสภาพยานพาหนะก่อนเซ็นลงนาม" : undefined}
+        left={{
+          label: "ผู้ส่งมอบรถ", placeholder: "เลือกผู้ส่งมอบรถ", value: s.delivererId, onChange: (v) => setS({ ...s, delivererId: v }), signed: s.signed[0],
+          remote: role !== "admin", requested: s.signReq, ready: complete,
+          onCancel: () => { const next = { ...s, signReq: false }; setS(next); act({ intake: next }, { log: "ยกเลิกคำขอเซ็นลงนามการรับมอบรถ · แก้ไขข้อมูล", toast: "ยกเลิกคำขอเซ็นลงนามแล้ว" }); },
+          onSign: () => {
+            if (role === "admin") return setS({ ...s, signed: [true, s.signed[1]] });
+            const next = { ...s, signReq: true };
+            setS(next);
+            act({ intake: next }, { log: "ส่งให้ผู้ส่งมอบรถเซ็นลงนามการรับมอบรถ", toast: "ส่งคำขอเซ็นลงนามสำเร็จ", notify: [{ to: "origin", text: `กรุณาเซ็นลงนามการรับมอบรถ ${job.no}`, tone: "warning" }] });
+          },
+        }}
+        right={{ label: "ผู้รับมอบ (กบค.)", placeholder: "เลือกผู้รับมอบ (กบค.)", value: s.receiverId, onChange: (v) => setS({ ...s, receiverId: v }), signed: s.signed[1], ready: complete, onSign: () => setS({ ...s, signed: [s.signed[0], true] }) }}
       />
-      <InspectTable title="รายละเอียดการตรวจสภาพก่อนซ่อม" check={s.check} notes={s.notes} readOnly={ro} onChange={(check, notes) => setS({ ...s, check, notes })} />
       {!ro && (
         <Footer>
           <Button disabled={!ok} onClick={() => act({ intake: { ...s, confirmed: true } }, { status: "repair_in_progress", log: "ยืนยันการตรวจสภาพก่อนซ่อม", toast: "ยืนยันการตรวจสภาพสำเร็จ" })}>ยืนยันการตรวจสภาพ</Button>
@@ -199,12 +259,28 @@ export function StepWork({ job, edit, act, role }: StepProps) {
   const [w, setW] = useState<Work>(fresh && edit && !prev?.done ? { extraParts: [], extra: undefined } : prev ?? { extraParts: [] });
   const [ask, setAsk] = useState(false);
   const [approver, setApprover] = useState("");
+  const [reject, setReject] = useState<string | null>(null);
   const ro = !edit || job.status !== "repair_in_progress";
 
-  /* UAT: มีสถานะ "เจออาการเพิ่ม" แต่ไม่มีหน้าพิจารณา → แสดงผลที่บันทึกไว้อย่างเดียว */
-  if (job.status === "found_additional_symptoms") return <WorkRead w={prev!} />;
+  if (job.status === "found_additional_symptoms") {
+    return (
+      <div className="flex flex-col gap-6">
+        <AddedNote>UAT มีสถานะ &quot;เจออาการเพิ่ม&quot; และกล่อง &quot;ส่งอนุมัติเพื่อเปิดงานซ่อม&quot; แต่ไม่มีหน้าพิจารณา — ต้นแบบเติมหน้าอนุมัติอาการเพิ่มของหัวหน้า กบค.</AddedNote>
+        <WorkRead w={prev!} />
+        {edit && (
+          <Footer>
+            <Button variant="tertiaryDanger" onClick={() => setReject("")}>ไม่อนุมัติ</Button>
+            <Button onClick={() => act({ work: { ...prev!, extraResult: "approved" }, parts: { locked: true, lines: mergeLines(job.parts?.lines ?? [], prev!.extraParts) } }, { status: "repair_in_progress", log: "อนุมัติอาการเพิ่ม", toast: "อนุมัติสำเร็จ", notify: [{ to: "med", text: `อาการเพิ่มของ ${job.no} ได้รับอนุมัติแล้ว`, tone: "success" }] })}>อนุมัติ</Button>
+          </Footer>
+        )}
+        <Modal open={reject !== null} onClose={() => setReject(null)} title="ไม่อนุมัติอาการเพิ่ม" confirmLabel="ยืนยัน" confirmDisabled={!reject?.trim()} onConfirm={() => { act({ work: { ...prev!, extraResult: "rejected", extraReason: reject!.trim() } }, { status: "repair_in_progress", log: "ไม่อนุมัติอาการเพิ่ม", note: reject!.trim(), toast: "บันทึกสำเร็จ", notify: [{ to: "med", text: `อาการเพิ่มของ ${job.no} ไม่ได้รับอนุมัติ เหตุผล: ${reject!.trim()}`, tone: "error" }] }); setReject(null); }}>
+          <TextArea label="เหตุผล" rows={4} placeholder="ระบุเหตุผล" value={reject ?? ""} onChange={(e) => setReject(e.target.value)} />
+        </Modal>
+      </div>
+    );
+  }
 
-  if (ro) return <WorkRead w={prev ?? { extraParts: [] }} />;
+  if (ro) return <div className="flex flex-col gap-8"><ProgressLog job={job} edit={false} act={act} role={role} /><WorkRead w={prev ?? { extraParts: [] }} /></div>;
   const canDone = w.extra === false;
   const canExtra = w.extra === true && !!w.extraText?.trim() && w.withdraw !== undefined && (!w.withdraw || w.extraParts.length > 0);
   return (
@@ -214,6 +290,7 @@ export function StepWork({ job, edit, act, role }: StepProps) {
           {prev.extraText}{prev.extraReason ? ` · เหตุผล: ${prev.extraReason}` : ""}
         </Alert>
       )}
+      <ProgressLog job={job} edit act={act} role={role} />
       <section className="flex flex-col gap-4">
         <SectionBar>ผลการตรวจสอบอาการเพิ่มเติม</SectionBar>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:w-[672px]">
@@ -253,6 +330,11 @@ export function StepWork({ job, edit, act, role }: StepProps) {
     </div>
   );
 }
+function mergeLines(a: PartLine[], b: PartLine[]) {
+  const m = new Map(a.map((l) => [l.partId, l.qty]));
+  b.forEach((l) => m.set(l.partId, (m.get(l.partId) ?? 0) + l.qty));
+  return [...m].map(([partId, qty]) => ({ partId, qty }));
+}
 function WorkRead({ w }: { w: Work }) {
   return (
     <div className="flex flex-col gap-6">
@@ -282,6 +364,7 @@ export function StepReturn({ job, edit, act, role }: StepProps) {
     return (
       <WaitingReply
         appt={job.returnAppt!}
+        shortcut={role === "admin"}
         onEdit={() => setEditing(true)}
         onConfirm={() => act({ returnAppt: { ...job.returnAppt!, reply: { ok: true, at: nowBE() } } }, { status: "waiting_med_post_repair_inspection", log: "ต้นทางยืนยันรับรถ (กบค. กดแทน)", toast: "ยืนยันนัดหมายสำเร็จ" })}
       />
@@ -290,6 +373,12 @@ export function StepReturn({ job, edit, act, role }: StepProps) {
   const ok = !!a.from && !!a.mechanicId && !!a.place.trim();
   return (
     <div className="flex flex-col gap-6">
+      {job.status === "waiting_med_reschedule_return" && (
+        <>
+          <AddedNote>UAT มีสถานะ &quot;รอ กบค. ส่งนัดหมายวันคืนรถใหม่อีกครั้ง&quot; แต่ไม่มีปุ่มให้ต้นทางขอเปลี่ยนวัน — ต้นแบบเติมทางนี้</AddedNote>
+          <Alert tone="warning" title="ต้นทางขอเปลี่ยนวันคืนรถ">{job.returnAppt?.reply?.reason}</Alert>
+        </>
+      )}
       <ApptForm kind="return" value={a} onChange={setA} readOnly={!can} />
       {can && (
         <Footer>
@@ -303,25 +392,45 @@ export function StepReturn({ job, edit, act, role }: StepProps) {
 
 /* ---------------- 6 ตรวจสภาพหลังซ่อม ---------------- */
 type Post = NonNullable<RepairJob["post"]>;
-export function StepPost({ job, edit, act }: StepProps) {
+export function StepPost({ job, edit, act, role }: StepProps) {
   const lines = job.parts?.lines ?? [];
   const [s, setS] = useState<Post>(job.post ?? { mileage: "", hours: "", check: {}, notes: {}, signed: [false, false], used: Object.fromEntries(lines.map((l) => [l.partId, l.qty])) });
   const ro = !edit || !!job.post?.confirmed;
-  const ok = !!s.mileage && INSPECT_ITEMS.every((_, i) => s.check[i]) && s.signed[0] && s.signed[1] && !!s.score;
+  const warrantyOk = warrantyValid(s.warranty ?? NO_WARRANTY_YET);
+  /* แบบ Overhaul: เลขไมล์ + ตรวจสภาพครบก่อนจึงเซ็น · ส่งคำขอ/เซ็นแล้วล็อกส่วนตรวจสภาพ */
+  const complete = !!s.mileage && INSPECT_ITEMS.every((_, i) => s.check[i]);
+  const locked = !!s.signReq || s.signed[0] || s.signed[1];
+  const ok = complete && s.signed[0] && s.signed[1] && !!s.score && warrantyOk;
   return (
     <div className="flex flex-col gap-8">
       <VehiclePanel job={job} mileage={false} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <TextField label="เลขไมล์ปัจจุบัน" inputMode="numeric" placeholder="ระบุเลขไมล์" readOnly={ro} value={s.mileage} onChange={(e) => setS({ ...s, mileage: e.target.value.replace(/\D/g, "") })} />
-        <TextField label="ชั่วโมงการทำงานเครื่องจักรปัจจุบัน" inputMode="numeric" placeholder="ระบุชั่วโมงการทำงานเครื่องจักรปัจจุบัน" readOnly={ro} value={s.hours} onChange={(e) => setS({ ...s, hours: e.target.value.replace(/\D/g, "") })} />
+        <TextField label="เลขไมล์ปัจจุบัน" inputMode="numeric" placeholder="ระบุเลขไมล์" readOnly={ro || locked} value={s.mileage} onChange={(e) => setS({ ...s, mileage: e.target.value.replace(/\D/g, "") })} />
+        <TextField label="ชั่วโมงการทำงานเครื่องจักรปัจจุบัน" inputMode="numeric" placeholder="ระบุชั่วโมงการทำงานเครื่องจักรปัจจุบัน" readOnly={ro || locked} value={s.hours} onChange={(e) => setS({ ...s, hours: e.target.value.replace(/\D/g, "") })} />
       </div>
-      <InspectTable title="รายละเอียดการตรวจสภาพหลังซ่อม" check={s.check} notes={s.notes} readOnly={ro} onChange={(check, notes) => setS({ ...s, check, notes })} />
+      <InspectTable title="รายละเอียดการตรวจสภาพหลังซ่อม" check={s.check} notes={s.notes} readOnly={ro || locked} onChange={(check, notes) => setS({ ...s, check, notes })} />
       <SignBlock
-        title="ลงนามการส่งคืนรถ"
+        title="ลงนามการส่งคืนรถ (วันที่หน่วยงานเซ็น = วันปิดงาน)"
         readOnly={ro}
-        left={{ label: "ผู้ส่งมอบรถ", placeholder: "เลือกผู้ส่งมอบรถ", value: s.delivererId, onChange: (v) => setS({ ...s, delivererId: v }), signed: s.signed[0], onSign: () => setS({ ...s, signed: [true, s.signed[1]] }) }}
-        right={{ label: "ผู้รับมอบ (กบค.)", placeholder: "เลือกผู้รับมอบ (กบค.)", value: s.receiverId, onChange: (v) => setS({ ...s, receiverId: v }), signed: s.signed[1], onSign: () => setS({ ...s, signed: [s.signed[0], true] }) }}
+        hint={!ro && !complete ? "ระบุเลขไมล์และตรวจสภาพหลังซ่อมให้ครบทุกรายการก่อนเซ็นลงนาม" : undefined}
+        left={{
+          label: "ผู้ส่งมอบรถ", placeholder: "เลือกผู้ส่งมอบรถ", value: s.delivererId, onChange: (v) => setS({ ...s, delivererId: v }), signed: s.signed[0],
+          remote: role !== "admin", requested: s.signReq, signedAt: s.signedAt, ready: complete,
+          onCancel: () => { const next = { ...s, signReq: false }; setS(next); act({ post: next }, { log: "ยกเลิกคำขอเซ็นลงนามการส่งคืนรถ · แก้ไขข้อมูล", toast: "ยกเลิกคำขอเซ็นลงนามแล้ว" }); },
+          onSign: () => {
+            if (role === "admin") return setS({ ...s, signed: [true, s.signed[1]], signedAt: todayBE() });
+            const next = { ...s, signReq: true };
+            setS(next);
+            act({ post: next }, { log: "ส่งให้หน่วยงานเซ็นลงนามการส่งคืนรถ", toast: "ส่งคำขอเซ็นลงนามสำเร็จ", notify: [{ to: "origin", text: `กรุณาเซ็นลงนามการส่งคืนรถ ${job.no}`, tone: "warning" }] });
+          },
+        }}
+        right={{ label: "ผู้รับมอบ (กบค.)", placeholder: "เลือกผู้รับมอบ (กบค.)", value: s.receiverId, onChange: (v) => setS({ ...s, receiverId: v }), signed: s.signed[1], ready: complete, onSign: () => setS({ ...s, signed: [s.signed[0], true] }) }}
       />
+      <PhotoSection title="รูปสภาพยานพาหนะ (หลังซ่อม)" optional note="JO1 งานซ่อมไม่ได้ระบุรูปหลังซ่อม (งานบำรุงรักษาระบุ ก่อน/หลัง) — ใส่เป็น (ถ้ามี)" count={s.photos ?? 0} readOnly={ro} onAdd={(n) => setS({ ...s, photos: (s.photos ?? 0) + n })} />
+      <section className="flex flex-col gap-4">
+        <SectionBar extra={<AddedTag />} description="JO1 7.2.4.2 ข้อ 4 รองรับการรับประกันงานซ่อม (ถ้ามี) เช่น 180 วัน · เริ่มนับวันส่งคืนยานพาหนะ">การรับประกันงานซ่อมของ กบค.</SectionBar>
+        <WarrantyField who="med" value={s.warranty} readOnly={ro} onChange={(v) => setS({ ...s, warranty: v })} />
+      </section>
       <section className="flex flex-col gap-4">
         <SectionBar>คะแนนประเมินคุณภาพงานซ่อมบำรุง</SectionBar>
         <div className={cx("grid grid-cols-5 gap-2", ro && "pointer-events-none")}>
@@ -352,7 +461,7 @@ export function StepPost({ job, edit, act }: StepProps) {
       </section>
       {!ro && (
         <Footer>
-          <Button disabled={!ok} onClick={() => act({ post: { ...s, confirmed: true } }, { status: "waiting_med_closing_report", log: "ยืนยันการตรวจสภาพหลังซ่อม", toast: "ยืนยันการตรวจสภาพสำเร็จ" })}>ยืนยันการตรวจสภาพ</Button>
+          <Button disabled={!ok} onClick={() => act({ post: { ...s, warranty: s.warranty ?? NO_WARRANTY_YET, confirmed: true } }, { status: "waiting_med_closing_report", log: "ยืนยันการตรวจสภาพหลังซ่อม", toast: "ยืนยันการตรวจสภาพสำเร็จ" })}>ยืนยันการตรวจสภาพ</Button>
         </Footer>
       )}
     </div>
@@ -364,17 +473,23 @@ type Close = NonNullable<RepairJob["close"]>;
 export function StepClose({ job, edit, act }: StepProps) {
   const lines = job.parts?.lines ?? [];
   const [c, setC] = useState<Close>(job.close ?? { docs: {}, files: {}, oldParts: {}, partNotes: {} });
-  const [ask, setAsk] = useState<"send" | "approve" | null>(null);
+  const [ask, setAsk] = useState<"send" | "approve" | "return" | null>(null);
+  const [reason, setReason] = useState("");
   const draft = job.status === "waiting_med_closing_report";
   const ro = !edit || !draft;
-  const ok = CLOSE_DOCS.every((_, i) => c.docs[i]);
+  const costs = c.costs ?? { labor: "", travel: "", lodging: "", other: "" };
+  const setCost = (k: keyof typeof costs, v: string) => setC({ ...c, costs: { ...costs, [k]: v } });
+  const partsCost = usedPartsCost(job);
+  const total = partsCost + money(costs.labor) + money(costs.travel) + money(costs.lodging) + money(costs.other);
+  const ok = CLOSE_DOCS.every((_, i) => c.docs[i]) && !!costs.labor.trim();
   const v = vehicleOf(job.plate);
   const cols = "2fr 1fr 1fr 1fr 1fr 1fr 1.3fr 1.6fr";
   return (
     <div className="flex flex-col gap-8">
+      {job.close?.result === "returned" && draft && <Alert tone="warning" title="ผู้อนุมัติส่งกลับแก้ไข">{job.close.returnReason}</Alert>}
       <section className="flex flex-col gap-4">
         <SectionBar>ข้อมูลเอกสาร</SectionBar>
-        <InfoPanel cols={3} items={[["เลขที่งาน", job.no], ["หน่วยงานผู้ใช้บริการ", "-"], ["ชื่องาน", `งานซ่อม ${v.plate} ${v.provinceShort}`], ["วันที่รับงาน", job.createdAt], ["วันที่เสร็จงาน", "-"]]} />
+        <InfoPanel cols={3} items={[["เลขที่งาน", job.no], ["หน่วยงานผู้ใช้บริการ", "-"], ["ชื่องาน", `งานซ่อม ${v.plate} ${v.provinceShort}`], ["วันที่รับงาน", job.createdAt], ["วันที่เสร็จงาน (วันที่เซ็นรับรถคืน)", job.post?.signedAt ?? "-"]]} />
       </section>
       <section className="flex flex-col gap-4">
         <SectionBar>บันทึกข้อตกลงลูกค้า</SectionBar>
@@ -402,6 +517,29 @@ export function StepClose({ job, edit, act }: StepProps) {
         </GridTable>
       </section>
       <section className="flex flex-col gap-4">
+        <SectionBar extra={<AddedTag />} description="JO1 7.2.4.1 ข้อ 3 ค่าแรง · ค่าอะไหล่ · ยอดรวม · ศูนย์ต้นทุน/หมายเลขงาน">ค่าใช้จ่ายในการซ่อม</SectionBar>
+        <InfoPanel cols={3} items={[
+          ["งบที่ตัด / ศูนย์ต้นทุน", job.budget.type === "invest" ? `WBS ${job.budget.wbs ?? "-"} · โครงข่าย ${job.budget.network ?? "-"} · กิจกรรม ${job.budget.activity ?? "-"}` : job.budget.costCenter ?? "ตามงบที่แจ้ง"],
+          ["วันที่เริ่มซ่อม", job.appt?.reply?.at?.slice(0, 10) || job.appt?.from],
+          ["วันที่ซ่อมเสร็จ", job.history.find((h) => h.detail === "ซ่อมเสร็จสิ้น")?.at.slice(0, 10) ?? job.updatedAt],
+        ]} />
+        {ro ? (
+          <InfoPanel cols={3} items={[["ค่าอะไหล่ (ตามจำนวนที่ใช้)", `${currency(partsCost)} บาท`], ["ค่าแรง", costs.labor ? `${currency(money(costs.labor))} บาท` : "-"], ["ค่าเดินทาง", costs.travel ? `${currency(money(costs.travel))} บาท` : "-"], ["ค่าที่พัก", costs.lodging ? `${currency(money(costs.lodging))} บาท` : "-"], ["ค่าใช้จ่ายอื่น ๆ", costs.other ? `${currency(money(costs.other))} บาท` : "-"], ["รวมค่าใช้จ่ายทั้งสิ้น", `${currency(total)} บาท`]]} />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <TextField label="ค่าอะไหล่ (บาท)" autoFilled value={currency(partsCost)} helper="คำนวณจากจำนวนที่ใช้จริง (ขั้น 6)" />
+              <MoneyField label="ค่าแรง (บาท)" placeholder="0.00" value={costs.labor} onChange={(v) => setCost("labor", v)} />
+              <MoneyField label="ค่าเดินทาง (บาท)" optional placeholder="0.00" value={costs.travel} onChange={(v) => setCost("travel", v)} />
+              <MoneyField label="ค่าที่พัก (บาท)" optional placeholder="0.00" value={costs.lodging} onChange={(v) => setCost("lodging", v)} />
+              <MoneyField label="ค่าใช้จ่ายอื่น ๆ (บาท)" optional placeholder="0.00" value={costs.other} onChange={(v) => setCost("other", v)} />
+              <TextField label="รวมค่าใช้จ่ายทั้งสิ้น (บาท)" autoFilled value={currency(total)} />
+            </div>
+          </>
+        )}
+        <CostAlert plate={job.plate} cost={total} basis="ค่าใช้จ่ายจริงในการซ่อม" />
+      </section>
+      <section className="flex flex-col gap-4">
         <SectionBar>บันทึกตรวจสอบเอกสารปิดงาน</SectionBar>
         <GridTable cols="2fr 1fr 1fr 1fr 1.6fr" head={["รายการ", "มี", "ไม่มี", "ไม่ต้องใช้", "เอกสารแนบ"]}>
           {CLOSE_DOCS.map((d, i) => (
@@ -422,11 +560,118 @@ export function StepClose({ job, edit, act }: StepProps) {
       {edit && draft && <Footer><Button disabled={!ok} onClick={() => setAsk("send")}>ส่งอนุมัติ</Button></Footer>}
       {edit && job.status === "waiting_closing_approval" && (
         <Footer>
+          <AddedTag />
+          <Button variant="tertiaryDanger" onClick={() => { setReason(""); setAsk("return"); }}>ส่งกลับแก้ไข</Button>
           <Button onClick={() => setAsk("approve")}>อนุมัติปิดงาน</Button>
         </Footer>
       )}
-      <Modal open={ask === "send"} onClose={() => setAsk(null)} variant="centered" icon="send" title="ยืนยันการส่งอนุมัติปิดงาน" description={`ส่งรายงานปิดงาน ${job.no} ให้ผู้อนุมัติ`} confirmLabel="ส่งอนุมัติ" onConfirm={() => { setAsk(null); act({ close: c }, { status: "waiting_closing_approval", log: "ส่งรายงานปิดงาน · ส่งอนุมัติ", toast: "ส่งอนุมัติสำเร็จ", notify: [{ to: "medHead", text: `คำขอปิดงาน ${job.no} รอการตอบรับ`, tone: "warning" }] }); }} />
+      <Modal open={ask === "send"} onClose={() => setAsk(null)} variant="centered" icon="send" title="ยืนยันการส่งอนุมัติปิดงาน" description={`ส่งรายงานปิดงาน ${job.no} ให้ผู้อนุมัติ`} confirmLabel="ส่งอนุมัติ" onConfirm={() => { setAsk(null); act({ close: { ...c, result: undefined } }, { status: "waiting_closing_approval", log: "ส่งรายงานปิดงาน · ส่งอนุมัติ", toast: "ส่งอนุมัติสำเร็จ", notify: [{ to: "medHead", text: `คำขอปิดงาน ${job.no} รอการตอบรับ`, tone: "warning" }] }); }} />
       <Modal open={ask === "approve"} onClose={() => setAsk(null)} variant="centered" icon="task_alt" title="ยืนยันอนุมัติปิดงาน" description={`อนุมัติปิดงาน ${job.no} หรือไม่ ?`} confirmLabel="อนุมัติปิดงาน" onConfirm={() => { setAsk(null); act({}, { status: "job_closed", log: "อนุมัติปิดงาน", toast: "อนุมัติปิดงานสำเร็จ", notify: [{ to: "med", text: `ดำเนินการปิดงาน ${job.no} เรียบร้อยแล้ว`, tone: "success" }, { to: "origin", text: `งานซ่อม ${job.no} ปิดงานแล้ว`, tone: "success" }] }); }} />
+      <Modal open={ask === "return"} onClose={() => setAsk(null)} title="ส่งกลับแก้ไข" confirmLabel="ส่งกลับ" confirmDisabled={!reason.trim()} onConfirm={() => { setAsk(null); act({ close: { ...c, result: "returned", returnReason: reason.trim() } }, { status: "waiting_med_closing_report", log: "ไม่อนุมัติปิดงาน · ส่งกลับแก้ไข", note: reason.trim(), toast: "ส่งกลับแก้ไขสำเร็จ", notify: [{ to: "med", text: `คำขอปิดงาน ${job.no} ไม่ได้รับอนุมัติ เหตุผล: ${reason.trim()}`, tone: "error" }] }); }}>
+        <TextArea label="เหตุผล" rows={4} placeholder="ระบุเหตุผล" value={reason} onChange={(e) => setReason(e.target.value)} />
+      </Modal>
     </div>
   );
 }
+
+
+/** เพิ่มใหม่: บันทึกความคืบหน้าระหว่างซ่อม (ขั้น 4) — แบบ "ติดตามงานซ่อม" ของ Overhaul (ระบบใส่วันเวลาให้ · ความคืบหน้า % · หมายเหตุ)
+ *  ที่มา: To-Be ข้อ 5 "อัปเดต progress ระหว่างซ่อม" (CLAUDE.md) · UAT ขั้น 4 มีแค่ผลตรวจอาการเพิ่ม */
+export function ProgressLog({ job, edit, act }: StepProps) {
+  const rows = job.progress ?? [];
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({ detail: "", pct: "", note: "" });
+  const pct = Number(f.pct);
+  const ok = !!f.detail.trim() && f.pct !== "" && pct >= 0 && pct <= 100;
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionBar extra={<AddedTag />}>บันทึกความคืบหน้า</SectionBar>
+      {rows.length === 0 ? (
+        <div className="rounded-xl bg-gray-50 px-6 py-6 text-center text-sm text-gray-600">ยังไม่มีบันทึกความคืบหน้า</div>
+      ) : (
+        <GridTable cols="1.2fr 2.4fr 1.6fr 1.6fr" head={["วันที่ / เวลา", "รายละเอียด", "ความคืบหน้า", "หมายเหตุ"]}>
+          {rows.map((r, i) => (
+            <GridRow key={i} cols="1.2fr 2.4fr 1.6fr 1.6fr">
+              <span className="px-1">{r.at}</span>
+              <span className="px-1">{r.detail}</span>
+              <span className="px-1"><ProgressBar value={r.pct} label={`ความคืบหน้า ${r.pct}%`} /></span>
+              <span className="px-1 text-gray-600">{r.note || "-"}</span>
+            </GridRow>
+          ))}
+        </GridTable>
+      )}
+      {edit && (
+        <div>
+          <Button variant="secondary" iconLeft="add" onClick={() => { setF({ detail: "", pct: "", note: "" }); setOpen(true); }}>บันทึกความคืบหน้า</Button>
+        </div>
+      )}
+      <Modal open={open} onClose={() => setOpen(false)} title="บันทึกความคืบหน้า" confirmLabel="บันทึก" confirmDisabled={!ok} onConfirm={() => { setOpen(false); act({ progress: [...rows, { at: nowBE(), detail: f.detail.trim(), pct, note: f.note.trim() }] }, { log: `บันทึกความคืบหน้า ${pct}%`, note: f.detail.trim(), toast: "บันทึกความคืบหน้าสำเร็จ" }); }}>
+        <TextArea label="รายละเอียด" rows={3} placeholder="ระบุสิ่งที่ทำ เช่น ถอดกระบอกขาช้างเปลี่ยนซีล" value={f.detail} onChange={(e) => setF({ ...f, detail: e.target.value })} />
+        <TextField label="ความคืบหน้า" suffix="%" inputMode="numeric" placeholder="0-100" value={f.pct} error={f.pct !== "" && (pct < 0 || pct > 100) ? "กรุณาระบุ 0 ถึง 100" : undefined} onChange={(e) => setF({ ...f, pct: e.target.value.replace(/\D/g, "").slice(0, 3) })} />
+        <TextArea label="หมายเหตุ" optional rows={2} placeholder="ระบุหมายเหตุ" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+      </Modal>
+    </section>
+  );
+}
+
+/** อัปโหลดรูปสภาพยานพาหนะ (ต้นแบบนับจำนวนไฟล์) — แบบ "รูปสภาพยานพาหนะ (ก่อน Overhaul)" ของ Overhaul ขั้น 2 */
+export function PhotoSection({ title, note, count, readOnly, onAdd, optional }: { title: string; note: string; count: number; readOnly: boolean; onAdd: (n: number) => void; optional?: boolean }) {
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionBar extra={<AddedTag />} description={note}>
+        {title}{optional && <span className="ml-1 text-md font-normal text-gray-500">(ถ้ามี)</span>}
+      </SectionBar>
+      {readOnly ? (
+        <div className="rounded-xl border border-dashed border-gray-300 px-6 py-6 text-center text-sm text-gray-600">{count ? `รูปภาพ ${count} ไฟล์` : "ไม่มีรูปภาพ"}</div>
+      ) : (
+        <UploadBox hint="PNG, JPG หรือ WebP ขนาดไฟล์ไม่เกิน 10 MB ต่อไฟล์" count={count} max={50} onAdd={onAdd} />
+      )}
+    </section>
+  );
+}
+
+/** การรับประกันงานซ่อม — แบบเดียวกับขั้นปิดงานของ Overhaul (เจ้าของงาน 23 พ.ย. 2569 "เลือกได้ เอาแบบงาน overhaul")
+ *  Toggle "มีการรับประกันงานซ่อม" · วันเริ่มรับประกัน (ไม่เติมให้) · จำนวนวันที่รับประกัน (ตรวจตอนออกจากช่อง) · วันหมดอายุประกัน (คำนวณ) · Alert แจ้งเตือน 30/15 วัน
+ *  who: med = ประกันผลงานซ่อมของ กบค. · garage = ประกันผลงานของศูนย์บริการ/อู่ */
+export const NO_WARRANTY_YET: Warranty = { on: true, start: "", days: null };
+export const warrantyValid = (w?: Warranty) => !!w && (!w.on || (!!parseThaiDate(w.start) && !!w.days && w.days > 0 && w.days <= WARRANTY_MAX_DAYS));
+export function WarrantyField({ value = NO_WARRANTY_YET, onChange, readOnly, who }: { value?: Warranty; onChange: (w: Warranty) => void; readOnly?: boolean; who: "med" | "garage" | "ecd" }) {
+  const [err, setErr] = useState({ start: "", days: "" });
+  const end = value.on ? warrantyEnd(value.start, value.days) : "";
+  const daysError = () => (!value.days ? "กรุณาระบุจำนวนวันที่รับประกัน" : value.days > WARRANTY_MAX_DAYS ? `จำนวนวันที่รับประกันต้องไม่เกิน ${WARRANTY_MAX_DAYS.toLocaleString()} วัน` : "");
+  if (readOnly)
+    return value.on ? (
+      <InfoPanel cols={4} items={[["วันเริ่มรับประกัน", value.start], ["จำนวนวันที่รับประกัน", value.days ? `${value.days} วัน` : ""], ["วันหมดอายุประกัน", end], ["แจ้งเตือนก่อนหมด", "เจ้าของยานพาหนะ และ กบค. 30 วัน และ 15 วัน"]]} />
+    ) : (
+      <InfoPanel cols={2} items={[["การรับประกันงานซ่อม", "ไม่มี"], ["แจ้งเตือนก่อนหมด", "ไม่แจ้งเตือน"]]} />
+    );
+  return (
+    <div className="flex flex-col gap-4">
+      <Toggle checked={value.on} onChange={(on) => onChange({ ...value, on })} label="มีการรับประกันงานซ่อม" description={who === "med" ? "ประกันผลงานซ่อมของ กบค." : who === "ecd" ? "ประกันผลงานซ่อมของ กรย." : "ประกันผลงานของศูนย์บริการ/อู่ ตามใบเสนอราคา/ใบรับประกัน"} />
+      {value.on ? (
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <DateField label="วันเริ่มรับประกัน" placeholder="เลือกวันเริ่มรับประกัน" value={value.start} onChange={(v) => { onChange({ ...value, start: v }); setErr((x) => ({ ...x, start: "" })); }} onBlur={() => setErr((x) => ({ ...x, start: parseThaiDate(value.start) ? "" : "กรุณาเลือกวันเริ่มรับประกัน" }))} error={err.start || undefined} />
+            <TextField
+              label="จำนวนวันที่รับประกัน"
+              inputMode="numeric"
+              placeholder="ระบุจำนวนวันที่รับประกัน"
+              suffix="วัน"
+              value={value.days != null ? String(value.days) : ""}
+              onChange={(e) => { const n = e.target.value.replace(/\D/g, "").slice(0, 4); onChange({ ...value, days: n ? Number(n) : null }); setErr((x) => ({ ...x, days: "" })); }}
+              onBlur={() => setErr((x) => ({ ...x, days: daysError() }))}
+              error={err.days || undefined}
+            />
+            <TextField label="วันหมดอายุประกัน" autoFilled placeholder="คำนวณเมื่อระบุจำนวนวันที่รับประกัน" value={end} />
+          </div>
+          <Alert tone="info" title="ระบบจะแจ้งเตือนหน่วยงานเจ้าของรถ และ กบค. ก่อนประกันหมด 30 วัน และ 15 วัน แจ้งทางกระดิ่งในระบบ">
+            เพื่อให้หน่วยงานสำรวจความสมบูรณ์ของรถ และนำรถเข้าเก็บงานก่อนหมดประกัน วันหมดอายุ = วันเริ่ม + จำนวนวันที่รับประกัน
+          </Alert>
+        </>
+      ) : (
+        <p className="text-md text-gray-600">งานนี้ไม่มีการรับประกัน ระบบจะไม่แจ้งเตือนก่อนหมดประกัน</p>
+      )}
+    </div>
+  );
+}
+

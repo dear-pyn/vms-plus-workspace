@@ -186,7 +186,7 @@
       "flow": null,
       "ac": null,
       "screenSpec": null,
-      "reviewNote": "main = ตาม UAT 100% (ตั้งต้น) · ปรับตาม feedback 1 (r2–r7) อยู่ branch repair-v2",
+      "reviewNote": "r7: section อู่ · อนุมัติ/ไม่อนุมัติ · ยกเลิก · ซ่อมอู่ 3 ขั้น · r6: อาการเพิ่มตาม UAT · เซ็นรับมอบแบบ Overhaul · r5: flow อนุมัติผ่าน กรย. ก่อน กบค. · รายการ 2 แท็บ ปกติ/เกิน 30% · r4: Overview (เปลี่ยนชื่อจาก สารบัญเคส) · แก้ไข/ยกเลิกใบแจ้งซ่อม · วันปิดงาน = วันเซ็นรับรถ · เตือน 30% ในรายการ · r3: เมนูรวม Overhaul · r2: S1–S11 · r1: ตาม UAT",
       "domainRuleVersion": "1.0.0"
     }
   ]
