@@ -169,6 +169,25 @@
       "screenSpec": null,
       "reviewNote": "r3: ข้อมูลจำลองของต้นแบบ Downloads (6 แผน 22 คัน) ไม่เชื่อมงานใน prototype; multi-select แผนประกอบจากของในไลบรารี รอทีมออกแบบ; เกณฑ์ความคุ้มค่า 50%/JO ยังรอยืนยัน",
       "domainRuleVersion": "1.0.0"
+    },
+    {
+      "id": "repair-uat-baseline",
+      "domain": "repair",
+      "joIds": [],
+      "title": "งานซ่อม (แจ้งซ่อม) · ต้นแบบตาม UAT + flow ที่ขาด",
+      "summary": "ตาม UAT 20 พ.ย. 2569 + เติมขั้นที่ UAT ข้าม (S1–S11): เมนูตอบรับนัดหมาย/อนุมัติงานซ่อม · คำขอเซ็น · บันทึกความคืบหน้า · แจ้งเตือน · เทียบ Overhaul",
+      "status": "draft",
+      "revision": "r7",
+      "kind": "prototype",
+      "updatedAt": "2026-11-23",
+      "ruleVersion": "1.0.0",
+      "prototype": "/prototypes/repair/",
+      "requirements": "/content/repair-uat-baseline/review.md",
+      "flow": null,
+      "ac": null,
+      "screenSpec": null,
+      "reviewNote": "r7: section อู่ · อนุมัติ/ไม่อนุมัติ · ยกเลิก · ซ่อมอู่ 3 ขั้น · r6: อาการเพิ่มตาม UAT · เซ็นรับมอบแบบ Overhaul · r5: flow อนุมัติผ่าน กรย. ก่อน กบค. · รายการ 2 แท็บ ปกติ/เกิน 30% · r4: Overview (เปลี่ยนชื่อจาก สารบัญเคส) · แก้ไข/ยกเลิกใบแจ้งซ่อม · วันปิดงาน = วันเซ็นรับรถ · เตือน 30% ในรายการ · r3: เมนูรวม Overhaul · r2: S1–S11 · r1: ตาม UAT",
+      "domainRuleVersion": "1.0.0"
     }
   ]
 }

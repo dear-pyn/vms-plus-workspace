@@ -19,17 +19,20 @@ export function mainNav(prototypeBase: string): NavGroup[] {
       label: "จัดการยานพาหนะขนาดใหญ่",
       icon: "local_shipping",
       children: [
+        /* 20 พ.ย. 2569: ชื่อ/ลำดับเมนูงานซ่อมตาม UAT (รายการแจ้งซ่อม · สร้างใบแจ้งซ่อม) */
+        { id: "repair-list", label: "รายการแจ้งซ่อม", href: `${prototypeBase}/prototypes/repair/#/` },
+        { id: "repair-new", label: "สร้างใบแจ้งซ่อม", href: `${prototypeBase}/prototypes/repair/#/new` },
         { id: "overhaul", label: "Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/` },
         /* เจ้าของงาน 16 พ.ย. 2569: เมนูใหม่ใต้ Overhaul สำหรับหน่วยงานเจ้าของยานพาหนะ — รายการรายคันที่รอตอบรับนัดหมาย (S16) */
         { id: "overhaul-reply", label: "ตอบรับนัดหมาย", href: `${prototypeBase}/prototypes/overhaul/#/agency` },
-        /* เจ้าของงาน 17 พ.ย. 2569: เมนูใหม่ "อนุมัติปิดงาน" สำหรับผู้อนุมัติ (แบบเดียวกับตอบรับนัดหมาย) */
-        { id: "overhaul-approval", label: "อนุมัติปิดงาน", href: `${prototypeBase}/prototypes/overhaul/#/approval` },
+        /* เจ้าของงาน 17 พ.ย. 2569: เมนูใหม่ "อนุมัติปิดงาน" สำหรับผู้อนุมัติ (แบบเดียวกับตอบรับนัดหมาย)
+           23 พ.ย. 2569: "ตอบรับนัดหมาย" และ "อนุมัติงาน" ใช้ร่วม Overhaul + งานซ่อม แบ่งแท็บตามประเภท */
+        { id: "overhaul-approval", label: "อนุมัติงาน", href: `${prototypeBase}/prototypes/overhaul/#/approval` },
         /* เจ้าของงาน 17 พ.ย. 2569: เมนู Dashboard อยู่ใต้ จัดการยานพาหนะขนาดใหญ่ (ไม่ใช้เมนูภาพรวม Dashboard ระดับบน) */
         { id: "overhaul-dashboard", label: "Dashboard Overhaul", href: `${prototypeBase}/prototypes/overhaul/#/dashboard` },
         /* เจ้าของงาน 19 พ.ย. 2569: เมนู อู่/ศูนย์บริการ (รายการ · เพิ่ม · รายละเอียด · แก้ไข · ลบ) ใต้ จัดการยานพาหนะขนาดใหญ่ */
         { id: "overhaul-garage", label: "อู่/ศูนย์บริการ", href: `${prototypeBase}/prototypes/overhaul/#/garages` },
         { id: "h2", label: "บำรุงรักษาตามวาระ" },
-        { id: "h3", label: "แจ้งซ่อม" },
         { id: "h4", label: "ยืม-คืน" },
         { id: "h5", label: "โอนย้าย" },
         { id: "h6", label: "จำหน่าย" },

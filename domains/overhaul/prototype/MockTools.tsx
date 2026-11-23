@@ -41,9 +41,9 @@ export function MockTools() {
         <Button variant="secondary" onClick={() => fill("missing")}>จำลองข้อมูลไม่ครบ</Button>
         <Button variant="secondary" onClick={() => fill("error")}>จำลองบันทึกไม่สำเร็จ</Button>
         <p className="text-xs text-gray-600">{message}</p>
-        {/* 17 พ.ย. 2569: ทางเข้าสารบัญเคส + รีเซ็ตข้อมูล */}
+        {/* 17 พ.ย. 2569: ทางเข้าสารบัญเคส + รีเซ็ตข้อมูล · 23 พ.ย. 2569 เปลี่ยนชื่อเป็น Overview */}
         <div className="flex flex-col gap-2 border-t border-gray-200 pt-3">
-          <Button variant="tertiaryBrand" iconLeft="list_alt" onClick={() => { window.location.hash = "/cases"; setOpen(false); }}>สารบัญเคส</Button>
+          <Button variant="tertiaryBrand" iconLeft="list_alt" onClick={() => { window.location.hash = "/cases"; setOpen(false); }}>Overview</Button>
           <Button variant="tertiaryBrand" iconLeft="add" onClick={() => { window.dispatchEvent(new Event(MOCK_CASES_EVENT)); window.location.hash = "/cases"; setOpen(false); }}>สร้างเคสทดสอบทุกสถานะ (เครื่องนี้)</Button>
           <Button variant="tertiary" iconLeft="restart_alt" onClick={() => resetPrototypeData()}>{storage === "remote" ? "รีเซ็ตข้อมูลต้นแบบ (ทุกคน)" : "รีเซ็ตข้อมูลต้นแบบ"}</Button>
         </div>

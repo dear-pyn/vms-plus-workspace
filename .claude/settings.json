@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "ClaudeInChromeDomain(vms-plus-uat.odds.team)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "ClaudeInChromeDomain(localhost:3020)"
+    ]
+  }
+}
