@@ -263,6 +263,37 @@ export interface VehicleJob {
   close?: CloseOut;
 }
 
+/** หมวดอะไหล่ (ตรงกับตารางขั้น 6: body = ตัวรถ/เครื่องยนต์ · tools = เครื่องจักรกล) */
+export type PartCat = "body" | "tools";
+/** อะไหล่ 1 รายการในใบเบิก — ราคาต่อหน่วยจาก master อะไหล่ ณ วันที่เบิก */
+export interface RequisitionLine {
+  partId: string;
+  name: string;
+  code?: string;
+  unit: string;
+  price: number;
+  qty: number;
+  cat: PartCat;
+  /** ยกเลิกรายการนี้ (เจ้าของงาน 23 พ.ย. 2569: ยกเลิกทีละรายการ ไม่ต้องจัดการเป็นใบ) */
+  cancelled?: { reason: string; at: string };
+}
+/** การเบิกอะไหล่ 1 ครั้ง (v2 EC-56 · สมมติฐาน 23 พ.ย. 2569 รอลูกค้ายืนยัน) — เก็บที่ยานพาหนะในแผน (PlanVehicle.requisitions) เพราะเบิกได้ก่อนมี Purchase Order
+ *  เจ้าของงาน 23 พ.ย. 2569 "ต้องมีใบเบิกกำกับด้วยหรอ" → หน้าจอแสดงเป็นรายการที่เบิก (ไม่มี "ใบที่ n") · กลุ่มนี้ใช้ภายในเพื่อเก็บวันที่/ผู้เบิก/เลขเอกสารจากคลังในอนาคต
+ *  pending = รอเบิกจากคลัง (Smart Inventory ยังไม่มี API) · issued = เบิกแล้ว (ข้อมูลเดิม) · cancelled = ยกเลิกแล้ว (ยกเลิกได้เฉพาะ pending) */
+export interface Requisition {
+  id: string;
+  /** ลำดับใบเบิกของยานพาหนะคันนี้ (1, 2, …) */
+  no: number;
+  at: string;
+  by: string;
+  lines: RequisitionLine[];
+  status: "pending" | "issued" | "cancelled";
+  cancelReason?: string;
+  cancelledAt?: string;
+  /** เลขที่เอกสารเบิกจากคลัง (Smart Inventory/SAP) — ยังไม่แสดง · ไว้รับจาก API หรือคีย์เองถ้าลูกค้าต้องการ (EC-59) */
+  docNo?: string;
+}
+
 /** งานรายคัน + PO + อู่ + ยานพาหนะ (หน้าสรุปรายคัน · หน้าฝั่งหน่วยงาน) — ย้ายจาก CloseApproval.tsx ที่ลบไปตามมติตัดผู้อนุมัติ */
 export interface PendingClose {
   job: VehicleJob;

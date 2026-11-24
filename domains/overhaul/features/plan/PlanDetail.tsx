@@ -7,7 +7,7 @@
 import { useState, type ReactNode } from "react";
 import { Button } from "@ui/Button";
 import { EmptyState } from "@ui/EmptyState";
-import { OutlineBadge } from "@ui/Badge";
+import { OutlineBadge, Pill } from "@ui/Badge";
 import { Icon } from "@ui/Icon";
 import { ContentItem as Item, PageHeader, SectionLabel } from "@ui/PageHeader";
 import { RowMenu } from "@ui/RowMenu";
@@ -17,14 +17,21 @@ import type { PlanVehicle } from "../vehicle/types";
 import { PriceModal } from "./VehicleModals";
 import type { Plan, PlanFile } from "./types";
 import { POList } from "../po/POList";
-import type { Garage, PurchaseOrder, VehicleJob } from "../po/types";
+import type { Garage, PurchaseOrder, Requisition, RequisitionLine, VehicleJob } from "../po/types";
+import { canRequisition, requisitionsOf, withCancelledLine, withCancelledPart, withNewRequisition, withPartQty } from "../job/requisition";
+import { AddRequisition, PartsRequisition, type ReqVehicle } from "../job/PartsRequisition";
+import { nowStamp } from "../shared/time";
+import type { ToastMsg } from "../shared/messages";
 
 export interface PlanDetailProps {
   plan: Plan;
   onBack: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  /** เดิมใช้กับปุ่ม "เบิกอะไหล่" ระดับแผน — v2 EC-56 ย้ายไปเบิกรายคัน (คง prop ไว้ให้หน้าเรียกใช้เดิม) */
   onNotInScope: (what: string) => void;
+  /** v2 EC-56: บันทึกใบเบิกของคันนั้นลงยานพาหนะในแผน */
+  onSaveRequisitions: (plate: string, reqs: Requisition[], toast?: ToastMsg) => void;
   onOpenVehicle: (plate: string, tab: "info" | "repair") => void;
   /** ระบุ/แก้ไขราคารายคันจากหน้ารายละเอียด (เจ้าของงานสั่ง 16 พ.ย. 2569) — Modal เดียวกับฟอร์มแผน (B.12) */
   onSavePrice: (plate: string, p: { referencePrice: number; overhaulEstimate: number }) => void;
@@ -69,8 +76,42 @@ const DOC_GROUPS = [
  *  รอเลข Purchase Order = Gray · G.1 Brand "รอดำเนินการ" · เสร็จสิ้น = Success */
 const BADGE_TONE = { "รอเลข Purchase Order": "gray", รอดำเนินการ: "brand", เสร็จสิ้น: "success" } as const;
 
-export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpenVehicle, onSavePrice, pos, jobs, garages, onAddPO, onOpenPO, onEditPO, onDeletePO }: PlanDetailProps) {
+export function PlanDetail({ plan, onBack, onEdit, onDelete, onOpenVehicle, onSavePrice, onSaveRequisitions, pos, jobs, garages, onAddPO, onOpenPO, onEditPO, onDeletePO }: PlanDetailProps) {
   const [priceFor, setPriceFor] = useState<PlanVehicle | null>(null);
+  /* v2 EC-56 เบิกอะไหล่รายคัน */
+  const [reqFor, setReqFor] = useState<string | null>(null);
+  const reqVehicles = planReqVehicles(plan, pos, jobs);
+  const reqsOf = (plate: string) => reqVehicles.find((v) => v.plate === plate)?.reqs ?? [];
+  async function addReq(plate: string, lines: RequisitionLine[]) {
+    await new Promise((r) => setTimeout(r, 500));
+    const { next } = withNewRequisition(reqsOf(plate), lines, nowStamp(), "กบค. (ผู้ใช้งานปัจจุบัน)", `rq-${Date.now()}`);
+    onSaveRequisitions(plate, next, { msg: "เบิกอะไหล่สำเร็จ", description: `${plate} · ${lines.length} รายการ รอเบิกจากคลัง` });
+    return true;
+  }
+  async function cancelReq(plate: string, reqId: string, partId: string, reason: string) {
+    await new Promise((r) => setTimeout(r, 400));
+    const v = reqVehicles.find((x) => x.plate === plate);
+    const next = v?.editable ? withCancelledLine(v.reqs, reqId, partId, reason, nowStamp()) : null;
+    if (!next) return false;
+    onSaveRequisitions(plate, next, { msg: "ยกเลิกรายการเบิกสำเร็จ" });
+    return true;
+  }
+  /* ตารางแบบขั้น 6 (เจ้าของงาน 24 พ.ย. 2569): แก้จำนวนในแถว = ปรับส่วนที่รอเบิกจากคลังของคันนั้น · ทันทีไม่มี toast */
+  function setPartQty(plate: string, partId: string, price: number, qty: number) {
+    const v = reqVehicles.find((x) => x.plate === plate);
+    const next = v?.editable ? withPartQty(v.reqs, partId, price, qty, nowStamp(), "กบค. (ผู้ใช้งานปัจจุบัน)", `rq-${Date.now()}`) : null;
+    if (!next || next === v?.reqs) return false;
+    onSaveRequisitions(plate, next);
+    return true;
+  }
+  async function cancelPart(plate: string, partId: string, price: number, reason: string) {
+    await new Promise((r) => setTimeout(r, 400));
+    const v = reqVehicles.find((x) => x.plate === plate);
+    const next = v?.editable ? withCancelledPart(v.reqs, partId, price, reason, nowStamp()) : null;
+    if (!next) return false;
+    onSaveRequisitions(plate, next, { msg: "ยกเลิกรายการเบิกสำเร็จ" });
+    return true;
+  }
   return (
     <div className="flex flex-col gap-8 p-8 max-md:px-4">
       <PageHeader
@@ -144,6 +185,8 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
                     { label: "ดูข้อมูลยานพาหนะ", icon: "quick_reference_all", onSelect: () => onOpenVehicle(v.plate, "info") },
                     { label: "ดูข้อมูลการซ่อม", icon: "build", onSelect: () => onOpenVehicle(v.plate, "repair") },
                     { label: "ระบุราคา", icon: "payments", onSelect: () => setPriceFor(v) },
+                    /* v2 EC-56: เบิกอะไหล่ของคันนี้ (ก่อนทำ Purchase Order ได้) · ซ่อมสำเร็จแล้วปิด */
+                    { label: "เบิกอะไหล่", icon: "inventory_2", disabled: !reqVehicles.find((x) => x.plate === v.plate)?.editable, onSelect: () => setReqFor(v.plate) },
                   ]}
                 />
               )}
@@ -178,22 +221,19 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
         )}
       </section>
 
-      {/* E.1 "อะไหล่ที่ใช้" — จองไว้ตาม userflow ขั้นเบิกอะไหล่ยังไม่อยู่ในต้นแบบรอบนี้ · UAT: empty state อยู่ในกล่องเทา */}
-      <section className="flex flex-col gap-5">
-        <SectionLabel /* Section label (หน้าดูรายละเอียด) */ title="อะไหล่ที่ใช้" />
-        <div className="rounded-lg bg-gray-50 [&>div]:bg-transparent">
-          <EmptyState
-            kind="data-empty"
-            title="ยังไม่มีรายการเบิกอะไหล่"
-            description="รายการอะไหล่ที่เบิกให้แผนนี้จะแสดงที่นี่"
-            action={
-              <Button variant="secondary" iconLeft="add" onClick={() => onNotInScope("เบิกอะไหล่")}>
-                เบิกอะไหล่
-              </Button>
-            }
-          />
-        </div>
-      </section>
+      {/* E.1 "อะไหล่ที่ใช้" — v2 EC-56 (23 พ.ย. 2569): ลูกค้าเบิกอะไหล่รายคัน ไม่ใช่ระดับแผน → ตารางสรุปยอดเบิกของแต่ละคัน (อ่านอย่างเดียว)
+          เบิกได้ที่หน้างานรายคันขั้น 1–3 · เดิมเป็น empty state + ปุ่ม "เบิกอะไหล่" ที่ยังไม่อยู่ในขอบเขต · UAT: empty state อยู่ในกล่องเทา */}
+      <PartsRequisition
+        title="อะไหล่ที่ใช้"
+        vehicles={reqVehicles}
+        label={(actions) => <SectionLabel title={<span className="flex items-center gap-2">อะไหล่ที่ใช้ <Pill tone="purple">v2 · รอยืนยัน</Pill></span>} description="เบิกอะไหล่รายคันได้ตั้งแต่ก่อนทำ Purchase Order จนกว่าจะกดซ่อมสำเร็จ · ระหว่างซ่อมเบิกเพิ่มได้ที่หน้างานรายคันขั้น 3" actions={actions} />}
+        onAdd={addReq}
+        onCancel={cancelReq}
+        onQty={setPartQty}
+        onCancelPart={cancelPart}
+        emptyText="เบิกอะไหล่ให้ยานพาหนะในแผนได้ตั้งแต่ก่อนทำ Purchase Order"
+      />
+      {reqFor && <AddRequisition vehicles={reqVehicles.filter((v) => v.editable)} pickVehicle initialPlate={reqFor} onClose={() => setReqFor(null)} onAdd={addReq} />}
       <PriceModal
         vehicle={priceFor}
         onClose={() => setPriceFor(null)}
@@ -204,4 +244,12 @@ export function PlanDetail({ plan, onBack, onEdit, onDelete, onNotInScope, onOpe
       />
     </div>
   );
+}
+
+/** อะไหล่ที่ใช้ของแผน (v2 EC-56) — จุดเบิกหลัก: ทุกคันในแผน แม้ยังไม่มี Purchase Order (เจ้าของงาน 23 พ.ย. 2569 "ควรเบิกก่อนทำ PO ได้") */
+export function planReqVehicles(plan: Plan, pos: PurchaseOrder[], jobs: VehicleJob[]): ReqVehicle[] {
+  return plan.vehicles.map((v) => {
+    const job = jobs.find((j) => j.plate === v.plate && pos.some((p) => p.id === j.poId));
+    return { plate: v.plate, sub: job ? job.poId : "ยังไม่มี Purchase Order", model: `${v.make} ${v.model}`, type: v.type, editable: canRequisition(job?.code), reqs: requisitionsOf(v.requisitions, job?.code) };
+  });
 }

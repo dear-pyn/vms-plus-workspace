@@ -13,11 +13,13 @@ import { JOB_STATUS, JOB_STEPS, type Appointment, type Garage, type JobCode, typ
 import { Row, StepAppointment } from "./StepAppointment";
 import { StepIntake, type IntakeDraft } from "./StepIntake";
 import { StepProgress, type ProgressDraft } from "./StepProgress";
+import { PartsRequisition } from "./PartsRequisition";
+import { canRequisition, requisitionsOf, withCancelledLine, withCancelledPart, withNewRequisition, withPartQty, withdrawnParts } from "./requisition";
+import type { Requisition, RequisitionLine } from "../po/types";
 import { StepInspection } from "./StepInspection";
 import type { Inspection } from "../po/types";
 import { StepClose, type CloseDraft } from "./StepClose";
 import { StepSendApproval } from "./StepSendApproval";
-import { seedSmiParts } from "./close";
 import { emptyChecks, intakeLocked, validateIntakeForSign } from "./intake";
 import { todayThai } from "../shared/time";
 import { nowStamp } from "../shared/time";
@@ -37,6 +39,8 @@ export interface JobPageProps {
   onGoPO: () => void;
   /** บันทึกงาน (จำลองเครือข่ายที่หน้า page) — คืน true เมื่อสำเร็จ */
   onUpdate: (next: VehicleJob, toast?: ToastMsg) => void;
+  /** v2 EC-56: บันทึกใบเบิกของคันนี้ลงยานพาหนะในแผน · ไม่ส่ง = ดูอย่างเดียว */
+  onRequisitions?: (plate: string, reqs: Requisition[], toast?: ToastMsg) => void;
   onNotify: (msg: string, tone?: "success" | "error" | "info" | "warning", description?: string) => void;
   /** ต้นแบบ: เปิดหน้าผู้ยืนยันการรับมอบ (ขั้น 2) */
   onOpenApproval: (staffId: string) => void;
@@ -56,7 +60,7 @@ export interface JobPageProps {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onNotify, onOpenApproval, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
+export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGoPlan, onGoPO, onUpdate, onRequisitions, onNotify, onOpenApproval, viewOnly, actions, top, belowSteps, hideSteps, crumbs }: JobPageProps) {
   const st = JOB_STATUS[job.code];
   const current = job.code === "V11" ? 8 : st.step; // ปิดงานแล้ว = ครบทุกขั้น
   // Track explicit navigation separately from progression. A remote reply advances the active step.
@@ -168,13 +172,47 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
     return true;
   }
 
+  /* v2 EC-56: ใบเบิกอะไหล่เก็บที่ยานพาหนะในแผน (เบิกได้ก่อนมี Purchase Order ที่หน้ารายละเอียดแผน) · หน้านี้ = ขั้น 3 เบิกเพิ่มระหว่างซ่อม · กดซ่อมสำเร็จแล้วล็อก */
+  const reqs = requisitionsOf(vehicle?.requisitions, job.code);
+  const reqEditable = !viewOnly && !!onRequisitions && canRequisition(job.code);
+  async function addRequisition(_plate: string, lines: RequisitionLine[]): Promise<boolean> {
+    await wait(500);
+    const { next } = withNewRequisition(reqs, lines, nowStamp(), "กบค. (ผู้ใช้งานปัจจุบัน)", `rq-${Date.now()}`);
+    onRequisitions?.(job.plate, next, { msg: "เบิกอะไหล่สำเร็จ", description: `${lines.length} รายการ รอเบิกจากคลัง` });
+    return true;
+  }
+  async function cancelRequisition(_plate: string, reqId: string, partId: string, reason: string): Promise<boolean> {
+    await wait(400);
+    const next = canRequisition(job.code) ? withCancelledLine(reqs, reqId, partId, reason, nowStamp()) : null;
+    if (!next) return false;
+    onRequisitions?.(job.plate, next, { msg: "ยกเลิกรายการเบิกสำเร็จ" });
+    return true;
+  }
+  /* ขั้น 3 ตารางแบบขั้น 6 (เจ้าของงาน 24 พ.ย. 2569 "ปรับจำนวนต่อได้"): แก้จำนวนในแถว = ปรับส่วนที่รอเบิกจากคลัง ทันทีไม่มี toast (กด −/+ ถี่) */
+  function setPartQty(_plate: string, partId: string, price: number, qty: number): boolean {
+    const next = reqEditable ? withPartQty(reqs, partId, price, qty, nowStamp(), "กบค. (ผู้ใช้งานปัจจุบัน)", `rq-${Date.now()}`) : null;
+    if (!next || next === reqs) return false;
+    onRequisitions?.(job.plate, next);
+    return true;
+  }
+  async function cancelPart(_plate: string, partId: string, price: number, reason: string): Promise<boolean> {
+    await wait(400);
+    const next = reqEditable ? withCancelledPart(reqs, partId, price, reason, nowStamp()) : null;
+    if (!next) return false;
+    onRequisitions?.(job.plate, next, { msg: "ยกเลิกรายการเบิกสำเร็จ" });
+    return true;
+  }
+  /* แสดงที่ขั้น 3 (ขั้นปัจจุบัน หรือดูย้อนหลังหลังซ่อมสำเร็จ) · มุมหน่วยงานไม่แสดง */
+  const showReqs = !viewOnly && view === 3 && current >= 3;
+
   // ขั้น 6–7 (S14 · S15 · S20)
   const closeDefaults: CloseDraft = {
     returnedAt: job.direct5?.date ?? job.appt5?.reply?.date ?? "",
     /* 18 พ.ย. 2569: ผู้รับมอบรถ = คนที่ กบค. เลือกไว้ในขั้น 5 (ไม่มีนัด หรือ มีนัด) · หน่วยงานไม่กรอกชื่อตอนตอบรับนัดแล้ว · reply.deliverer เหลือไว้อ่านข้อมูลเก่า */
     receiver: staff.find((s) => s.id === (job.direct5?.coordinatorId ?? job.appt5?.coordinatorId))?.name ?? job.appt5?.reply?.deliverer ?? "",
-    body: seedSmiParts() /* บอร์ด 0.2: อะไหล่ที่เบิกจากคลัง (SMI) อยู่ในตารางตัวรถ แทนตาราง "คืนอะไหล่" แยก */,
-    tools: [],
+    /* บอร์ด 0.2: อะไหล่ที่เบิกจากคลังอยู่ในตารางตามหมวด · v2 EC-56: ตั้งต้นจากยอดเบิกรวมของใบเบิกรายคัน (เดิม seedSmiParts ชุดเดียวทุกคัน) */
+    body: withdrawnParts(reqs, "body"),
+    tools: withdrawnParts(reqs, "tools"),
     stock: [],
     labor: null,
     other: null,
@@ -342,6 +380,18 @@ export function JobPage({ plan, po, job, vehicle, garage, staff, onGoPlans, onGo
       )}
       {!hideSteps && <ProgressSteps steps={JOB_STEPS} current={current} viewing={view} onSelect={setViewing} />}
       {/* มุมหน่วยงานรอตอบรับ: ข้อมูลนัดของขั้นปัจจุบันอยู่ในส่วน "ตอบรับนัดหมาย" ด้านบนแล้ว — ไม่แสดงซ้ำ (ขั้นอื่นยังกดดูย้อนหลังได้) */}
+      {showReqs && (
+        <PartsRequisition
+          title="เบิกอะไหล่เพิ่มระหว่างซ่อม"
+          addInHeader
+          vehicles={[{ plate: job.plate, sub: po.id, model: vehicle ? `${vehicle.make} ${vehicle.model}` : undefined, type: vehicle?.type, editable: reqEditable, reqs }]}
+          onAdd={addRequisition}
+          onCancel={cancelRequisition}
+          onQty={setPartQty}
+          onCancelPart={cancelPart}
+          emptyText={reqEditable ? "เบิกเพิ่มระหว่างซ่อมได้จนกว่าจะกดซ่อมสำเร็จ · รายการที่เบิกก่อนทำ Purchase Order ดูได้ที่หน้ารายละเอียดแผน" : undefined}
+        />
+      )}
       {belowSteps && view === current ? belowSteps : renderStep()}
     </div>
   );

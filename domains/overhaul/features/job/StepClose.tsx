@@ -44,13 +44,25 @@ const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(/,/g, ""))
 const okNum = (s: string) => /^\d+(\.\d{1,2})?$/.test(s.replace(/,/g, "").trim());
 
 /** ตารางอะไหล่ (บอร์ด 0.2) — onChange/onEdit/onRemove ไม่ส่ง = อ่านอย่างเดียว */
-export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label: string; parts: PartUsed[]; onChange?: (id: string, p: Partial<PartUsed>) => void; onEdit?: (p: PartUsed) => void; onRemove?: (p: PartUsed) => void }) {
+export function PartsTable({ label, parts, onChange, onEdit, onRemove, menu, limits, lead, rowEditable }: {
+  label: string; parts: PartUsed[]; onChange?: (id: string, p: Partial<PartUsed>) => void; onEdit?: (p: PartUsed) => void; onRemove?: (p: PartUsed) => void;
+  /** เมนูรายแถวแบบกำหนดเอง (ขั้น 3 เบิกเพิ่มระหว่างซ่อม) — ไม่มีรายการ = ไม่แสดงปุ่ม … ในแถวนั้น */
+  menu?: (p: PartUsed) => { label: string; icon: string; danger?: boolean; onSelect: () => void }[];
+  /** ขอบเขตจำนวนที่ใช้ (ขั้น 3: ต่ำสุด = ยอดที่เบิกแล้ว) — ไม่ส่ง = ตามยอดเบิก (ขั้น 6) */
+  limits?: (p: PartUsed) => { min: number; max?: number };
+  /** คอลัมน์แรกเพิ่ม (หน้ารายละเอียดแผน: ยานพาหนะ) */
+  lead?: { head: string; width: number; cell: (p: PartUsed) => ReactNode };
+  /** แก้จำนวนได้เฉพาะแถวที่ true (หน้ารายละเอียดแผน: คันที่กดซ่อมสำเร็จแล้วล็อก) — ไม่ส่ง = ทุกแถว */
+  rowEditable?: (p: PartUsed) => boolean;
+}) {
   const edit = !!onChange;
+  const hasMenu = edit && !!(onEdit || onRemove || menu);
   return (
     /* เจ้าของงาน 17 พ.ย. 2569: fix ความกว้างคอลัมน์ ตารางตัวรถกับเครื่องมือกลจะได้ตรงกัน (ชื่ออะไหล่กว้างเท่ากันทุกตาราง) */
-    <DataTable label={label} striped cols={edit ? [240, 120, 210, 130, 100, 130, 130, 200, 64] : [240, 120, 120, 130, 100, 130, 130, 220]}>
+    <DataTable label={label} striped cols={[...(lead ? [lead.width] : []), ...(edit ? [240, 120, 210, 130, 100, 130, 130, 200, ...(hasMenu ? [64] : [])] : [240, 120, 120, 130, 100, 130, 130, 220])]}>
       <thead>
         <tr>
+          {lead && <Th>{lead.head}</Th>}
           <Th>ชื่ออะไหล่</Th>
           <Th className="text-right">ราคาต่อหน่วย</Th>
           <Th>จำนวนที่ใช้</Th>
@@ -59,7 +71,7 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
           <Th className="text-right">ราคารวมที่คืน</Th>
           <Th>จำนวนอะไหล่เก่า</Th>
           <Th>หมายเหตุ</Th>
-          {edit && <Th className="w-16"><span className="sr-only">จัดการ</span></Th>}
+          {hasMenu && <Th className="w-16"><span className="sr-only">จัดการ</span></Th>}
         </tr>
       </thead>
       <tbody>
@@ -67,6 +79,7 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
           const back = partReturned(p);
           return (
             <tr key={p.id}>
+              {lead && <Td>{lead.cell(p)}</Td>}
               <Td className="whitespace-normal">
                 {/* เจ้าของงาน 16 พ.ย. 2569: ข้อความรอง = รหัสอะไหล่ เท่านั้น · ไม่มีรหัส = ไม่แสดงบรรทัดรอง */}
                 <CellStack main={p.name} sub={p.code || undefined} />
@@ -75,9 +88,9 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
               <Td>
                 {/* เจ้าของงาน 16 พ.ย. 2569: หน่วยอยู่ข้างหลังช่อง Number input (นอกกล่อง)
                     20 พ.ย. 2569: ช่องกว้างไม่เท่ากันเพราะหน่วยยาวไม่เท่ากัน (เมตร/กล่อง) บีบช่อง ⇒ ช่องไม่หด + คอลัมน์ 190 → 210 */}
-                {edit ? (
+                {edit && (!rowEditable || rowEditable(p)) ? (
                   <span className="flex items-center gap-2 whitespace-nowrap">
-                    <NumberInput label={`จำนวนที่ใช้ ${p.name}`} min={p.withdrawn != null ? 0 : 1} max={p.withdrawn} value={p.qty} onChange={(v) => onChange!(p.id, { qty: v })} className="shrink-0" />
+                    <NumberInput label={`จำนวนที่ใช้ ${p.name}`} min={limits ? limits(p).min : p.withdrawn != null ? 0 : 1} max={limits ? limits(p).max : p.withdrawn} value={p.qty} onChange={(v) => onChange!(p.id, { qty: v })} className="shrink-0" />
                     <span className="text-md text-gray-600">{p.unit}</span>
                   </span>
                 ) : (
@@ -93,17 +106,14 @@ export function PartsTable({ label, parts, onChange, onEdit, onRemove }: { label
                 {/* เจ้าของงาน 16 พ.ย. 2569: หมายเหตุไม่ต้องเป็นช่อง input ในแถว (แทนโน้ตบอร์ด "case SMI กรอกในแถว") — แก้ผ่านเมนู แก้ไข → modal */}
                 {p.remark || "-"}
               </Td>
-              {edit && (
-                <Td>
-                  <RowMenu
-                    label={`จัดการ ${p.name}`}
-                    items={[
-                      ...(onEdit ? [{ label: "แก้ไข", icon: "edit", onSelect: () => onEdit(p) }] : []),
-                      ...(onRemove ? [{ label: "ลบ", icon: "delete", onSelect: () => onRemove(p) }] : []),
-                    ]}
-                  />
-                </Td>
-              )}
+              {hasMenu && (() => {
+                const items = [
+                  ...(onEdit ? [{ label: "แก้ไข", icon: "edit", onSelect: () => onEdit(p) }] : []),
+                  ...(onRemove ? [{ label: "ลบ", icon: "delete", onSelect: () => onRemove(p) }] : []),
+                  ...(menu ? menu(p) : []),
+                ];
+                return <Td>{items.length > 0 && <RowMenu label={`จัดการ ${p.name}`} items={items} />}</Td>;
+              })()}
             </tr>
           );
         })}

@@ -48,7 +48,7 @@ import { seedPOs } from "@overhaul/mock/pos";
 import { DASH_PLANS } from "@overhaul/mock/dashboard";
 import { POForm, type POSaveResult } from "@overhaul/features/po/POForm";
 import { PODetail } from "@overhaul/features/po/PODetail";
-import type { PODraft, PurchaseOrder, VehicleJob } from "@overhaul/features/po/types";
+import type { PODraft, PurchaseOrder, Requisition, VehicleJob } from "@overhaul/features/po/types";
 import { seedVehicles } from "@overhaul/mock/vehicles";
 import { mainNav } from "@/lib/nav";
 import { protoKey } from "@/lib/protoNs";
@@ -235,6 +235,11 @@ export default function OverhaulPrototype() {
     window.location.hash = href(r);
   };
   const notify = useCallback((msg: string, tone: ToastTone = "success", description?: string) => setToast({ msg, tone, description }), []);
+  /** v2 EC-56: ใบเบิกอะไหล่เก็บที่ยานพาหนะในแผน (เบิกได้ก่อนมี Purchase Order) — ใช้ทั้งหน้ารายละเอียดแผนและหน้างานรายคันขั้น 3 */
+  const saveRequisitions = (planId: string) => (plate: string, reqs: Requisition[], t?: ToastMsg) => {
+    setPlans((ps) => ps.map((x) => (x.id === planId ? { ...x, vehicles: x.vehicles.map((v) => (v.plate === plate ? { ...v, requisitions: reqs } : v)) } : x)));
+    if (t) notify(t.msg, t.tone ?? "success", t.description);
+  };
   /** ชีต OH-Toast (17 พ.ย. 2569): ข้อความทั้งหมดอยู่ที่ features/shared/messages.ts */
   const say = (t: ToastMsg) => notify(t.msg, t.tone ?? "success", t.description);
   const notInScope = (what: string) => notify(`"${what}" ยังไม่อยู่ในต้นแบบรอบนี้`, "info");
@@ -465,6 +470,7 @@ export default function OverhaulPrototype() {
           setPlans((ps) => ps.map((x) => (x.id === plan.id ? { ...x, vehicles: x.vehicles.map((v) => (v.plate === plate ? { ...v, ...pr } : v)) } : x)));
           notify(before && !missingPrice(before) ? "แก้ไขราคารายคันสำเร็จ" : "ระบุราคาสำเร็จ"); // ข้อความเดียวกับฟอร์มแผน (B.12)
         }}
+        onSaveRequisitions={saveRequisitions(plan.id)}
         pos={planPOs(plan.id)}
         jobs={jobs}
         garages={garages}
@@ -537,6 +543,7 @@ export default function OverhaulPrototype() {
         onGoPlans={() => go({ view: "list" })}
         onGoPlan={() => go({ view: "detail", id: jp.id })}
         onGoPO={() => go({ view: "po", id: jp.id, po: po.id })}
+        onRequisitions={saveRequisitions(jp.id)}
         onUpdate={(next, t) => {
           const nextJobs = jobs.map((j) => (j.poId === next.poId && j.plate === next.plate ? next : j));
           setJobs((js) => js.map((j) => (j.poId === next.poId && j.plate === next.plate ? next : j)));

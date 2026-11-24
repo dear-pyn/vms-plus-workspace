@@ -1,4 +1,5 @@
 /** โครงข้อมูลยานพาหนะของ Overhaul — ฟีเจอร์รับข้อมูลจากภายนอก ไม่ผูก mock หรือ API */
+import type { Requisition } from "../po/types";
 
 /** ข้อมูลตัวยานพาหนะ (มาจากระบบยานพาหนะ — EC-06: VMMS ยังไม่มี API) */
 export interface VehicleInfo {
@@ -31,6 +32,8 @@ export interface PlanVehicle extends VehicleInfo {
   overhaulEstimate: number | null;
   note?: string;
   progress: number | null;
+  /** v2 EC-56: ใบเบิกอะไหล่ของคันนี้ในแผน — เบิกได้ตั้งแต่ก่อนทำ Purchase Order จนกด "ซ่อมสำเร็จ" · ไม่มี = ข้อมูลก่อนมีใบเบิก (ดู requisitionsOf) */
+  requisitions?: Requisition[];
 }
 
 /** ยานพาหนะในระบบที่ให้เลือกเข้าแผน (modal B.15) */
